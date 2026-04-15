@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style_v29.css">
+    <link rel="stylesheet" href="style_v33.css">
 </head>
 <body data-aura="default">
     
@@ -25,6 +25,7 @@
             </div>
             <h1 class="dashboard-title">İyi ki varsın...</h1>
             <p class="dashboard-subtitle" id="dashboard-date-msg">Bugün bizim 0. günümüz. 💕</p>
+            <div style="text-align:center; margin-top:5px;"><span style="background:var(--c-primary); color:#fff; padding:2px 10px; border-radius:10px; font-size:9px; font-weight:700; letter-spacing:1px;">SÜRÜM v33</span></div>
         </header>
 
         <!-- İltifat Şelalesi -->
@@ -153,21 +154,21 @@
 
     </div>
 
-    <!-- YouTube Music Station Picker (v25) -->
+    <!-- Elite Hybrid Music Drawer (v33 - SoundCloud Focus) -->
     <div id="drawer-haze" class="drawer-haze"></div>
-    <div id="music-drawer" class="music-drawer">
+    <div id="music-drawer" class="music-drawer v33">
         <div class="drawer-handle"></div>
         
         <h3 class="text-center" style="font-size: 16px; color: var(--c-primary); margin-bottom: 15px;">Müzik Kanalı Seç 💕</h3>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-            <button class="station-btn" data-yt="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1256339191&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true">
+            <button class="station-btn" data-url="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1256339191&color=%23ff5500&auto_play=true">
                 <i class="fa-solid fa-heart"></i> Slow Türk
             </button>
-            <button class="station-btn" data-yt="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=0&rel=0">
-                <i class="fa-solid fa-couch"></i> Lofi Relax
+            <button class="station-btn" data-url="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/233075677&color=%23ff5500&auto_play=true">
+                <i class="fa-solid fa-couch"></i> Chill Lofi
             </button>
-            <button class="station-btn" data-yt="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/407944065&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true">
+            <button class="station-btn" data-url="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/407944065&color=%23ff5500&auto_play=true">
                 <i class="fa-solid fa-music"></i> Aşk Mix
             </button>
             <button class="station-btn" id="stop-btn" style="background: rgba(0,0,0,0.05); color: #999; border:none;">
@@ -175,12 +176,12 @@
             </button>
         </div>
 
-        <div id="embed-container" class="embed-container" style="background: #000;">
-            <iframe id="yt-player-frame" width="100%" height="100%" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <div id="embed-container" class="embed-container elite-v33">
+            <iframe id="audio-player-frame" width="100%" height="100%" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
         </div>
         
         <p id="yt-status" style="font-size: 10px; opacity:0.4; text-align:center; margin-top:10px; font-weight:700;">
-            Video açılamazsa diğer kanalı dene... 🔗
+           Elite SoundCloud Altyapısı Aktif ✨
         </p>
         
         <button id="close-drawer-btn" class="liquid-btn" style="width:100%; margin-top:15px; height: 45px; font-size: 13px;">
@@ -198,6 +199,6 @@
     <audio id="audio-stars" loop src="https://www.soundjay.com/misc/sounds/wind-chime-1.mp3"></audio>
     <audio id="audio-waves" loop src="https://www.soundjay.com/nature/ocean-waves-1.mp3"></audio>
 
-    <script src="app_v29.js"></script>
+    <script src="app_v33.js"></script>
 </body>
 </html>
