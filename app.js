@@ -1,5 +1,5 @@
 // =============================================
-// ETHEREAL CORE - V24 (VISIBLE YT ENGINE)
+// ETHEREAL CORE - V25 (YT STATION PICKER)
 // =============================================
 
 const CONFIG = {
@@ -8,7 +8,7 @@ const CONFIG = {
     fortunes: ["Bugün ona sürpriz bir not yaz 💌", "Birlikte yeni bir akıl almaz macera ☕", "Ona sarıl ve bırakma 🤗"],
     affirmations: ["Bugün varlığın için binlerce şükür sebebim var. 💕", "Dünyanın en şanslı insanıyım... ✨", "Gülüşün kalbimin huzurlu limanı. 🌊"],
     secretWord: "Sonsuzluk",
-    ytVideoId: "_fX-O0zV93o", // Kararlı Türkçe Slow Mix
+    defaultVid: "vG8NAsj8kxs", // Slow Türk
     awards: [
         { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
         { id: 'l_1', name: 'Zaman Yolcusu', icon: '✉️' },
@@ -32,21 +32,19 @@ let ytPlayer = null;
 const $ = (id) => document.getElementById(id);
 const vibrate = (p=50) => navigator.vibrate && navigator.vibrate(p);
 
-// YouTube API Dinamik Yükleme
 function loadYT() {
-    if (window.YT) return; // Zaten yüklüyse çık
+    if (window.YT) return;
     const tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
     const firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 }
 
-// YT API Callback
 window.onYouTubeIframeAPIReady = function() {
     ytPlayer = new YT.Player('yt-player', {
         height: '100%',
         width: '100%',
-        videoId: CONFIG.ytVideoId,
+        videoId: CONFIG.defaultVid,
         playerVars: {
             'autoplay': 0,
             'controls': 1,
@@ -67,7 +65,7 @@ function onPlayerStateChange(event) {
         $('song-name').textContent = "Çalıyor... 💕";
     } else {
         disk.classList.remove('playing');
-        $('song-name').textContent = "Müzik Durduruldu";
+        if(event.data == YT.PlayerState.PAUSED) $('song-name').textContent = "Müzik Duraklatıldı";
     }
 }
 
@@ -86,7 +84,7 @@ function init() {
     loadYT();
 }
 
-// RENDERS... (Previous logic kept same)
+// RENDERS
 function renderDashboard() {
     const days = Math.floor((new Date() - new Date(state.startDate)) / (1000 * 3600 * 24));
     $('dashboard-date-msg').textContent = `Bizim ${days}. günümüz. 💕`;
@@ -188,21 +186,33 @@ function toggleMusicDrawer(show = true) {
         drawer.classList.add('active');
         haze.classList.add('active');
         vibrate(100);
-        // User gesture unlocks YT
-        if(ytPlayer && ytPlayer.playVideo && ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
-            ytPlayer.playVideo();
-        }
     } else {
         drawer.classList.remove('active');
         haze.classList.remove('active');
     }
 }
 
+function switchChannel(vidId) {
+    if(!ytPlayer || !ytPlayer.loadVideoById) return;
+    vibrate(50);
+    $('yt-status').textContent = "Kanal Değiştiriliyor... 💕";
+    ytPlayer.loadVideoById(vidId);
+    setTimeout(() => { $('yt-status').textContent = "Bağlantı Kuruldu. ✨"; }, 2000);
+}
+
 function setupEventListeners() {
-    // ELITE YT DRAWER SYSTEM
+    // ELITE YT PICKER SYSTEM
     $('vinyl-trigger').onclick = () => toggleMusicDrawer(true);
     $('drawer-haze').onclick = () => toggleMusicDrawer(false);
     $('close-drawer-btn').onclick = () => toggleMusicDrawer(false);
+
+    document.querySelectorAll('.station-btn').forEach(btn => {
+        if(btn.dataset.yt) {
+            btn.onclick = () => switchChannel(btn.dataset.yt);
+        }
+    });
+
+    $('stop-btn').onclick = () => { if(ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo(); };
 
     // BUTTONS
     try {
@@ -263,7 +273,7 @@ function spawnHeart() { const h = document.createElement('div'); h.className = '
 function showModal(html) { $('modal-surface').innerHTML = html + `<button onclick="closeModal()" style="width:100%; margin-top:15px; background:none; border:none; color:#999; cursor:pointer;">Kapat</button>`; $('modal-base').classList.add('active'); }
 window.closeModal = () => $('modal-base').classList.remove('active');
 window.saveCd = () => { state.countdown = { title: $('in-cd-t').value, date: $('in-cd-d').value }; save(); closeModal(); renderCountdown(); };
-window.saveLetter = () => { state.letters.push({ title: $('in-l-t').value, content: $('in-l-c').value, date: $('in-l-d').value }); save(); closeModal(); renderLetters(); renderCalendar(); };
+window.saveLetter = () => { state.letters.push({ title: $('in-l-t').value, content: $('in-l-c').value, date: $('in-l-d').value }; save(); closeModal(); renderLetters(); renderCalendar(); };
 function unlockAward(id) { if(!state.awards.includes(id)) { state.awards.push(id); save(); renderAwards(); vibrate([100,50,100]); } }
 function save() {
     localStorage.setItem('ethereal_cd', JSON.stringify(state.countdown));

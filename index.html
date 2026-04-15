@@ -66,7 +66,7 @@
                 </div>
             </div>
             <p id="song-name" style="font-size: 14px; font-weight: 700; color: #444; margin-bottom: 5px;">Müzik Paneli</p>
-            <p style="font-size: 11px; opacity: 0.5;">Açmak için dokun 🎵</p>
+            <p style="font-size: 11px; opacity: 0.5;">Seçmek & Dinlemek için dokun 🎵</p>
         </section>
 
         <!-- Aşk Nabzı -->
@@ -153,17 +153,37 @@
 
     </div>
 
-    <!-- Elite YouTube Music Drawer (v24 Final) -->
+    <!-- YouTube Music Station Picker (v25) -->
     <div id="drawer-haze" class="drawer-haze"></div>
     <div id="music-drawer" class="music-drawer">
         <div class="drawer-handle"></div>
+        
+        <h3 class="text-center" style="font-size: 16px; color: var(--c-primary); margin-bottom: 15px;">Müzik Kanalı Seç 💕</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+            <button class="station-btn" data-yt="vG8NAsj8kxs">
+                <i class="fa-solid fa-heart"></i> Slow Türk
+            </button>
+            <button class="station-btn" data-yt="jfKfPfyJRdk">
+                <i class="fa-solid fa-couch"></i> Lofi Relax
+            </button>
+            <button class="station-btn" data-yt="_fX-O0zV93o">
+                <i class="fa-solid fa-music"></i> Aşk Mix
+            </button>
+            <button class="station-btn" id="stop-btn" style="background: rgba(0,0,0,0.05); color: #999; border:none;">
+                <i class="fa-solid fa-stop"></i> Durdur
+            </button>
+        </div>
+
         <div id="embed-container" class="embed-container" style="background: #000;">
             <div id="yt-player"></div>
         </div>
-        <p style="font-size: 11px; opacity:0.3; text-align:center; margin-top:10px; font-weight:700;">
-            Sesi açmak için oynatıcıyı kullanabilirsin... 💕
+        
+        <p id="yt-status" style="font-size: 10px; opacity:0.4; text-align:center; margin-top:10px; font-weight:700;">
+            Video açılamazsa diğer kanalı dene... 🔗
         </p>
-        <button id="close-drawer-btn" class="station-btn" style="margin-top:10px; padding:12px; background:rgba(0,0,0,0.05); color:#999; border:none; font-size:12px; height:auto;">
+        
+        <button id="close-drawer-btn" class="liquid-btn" style="width:100%; margin-top:15px; height: 45px; font-size: 13px;">
              Paneli Kapat
         </button>
     </div>
