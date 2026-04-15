@@ -139,6 +139,18 @@ function renderAwards() {
     });
 }
 
+// FEATURE ACTIONS
+function getEmbedUrl(url) {
+    if (url.includes('spotify.com')) {
+        return url.replace('open.spotify.com/', 'open.spotify.com/embed/');
+    }
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        const id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('/').pop();
+        return `https://www.youtube.com/embed/${id}?autoplay=1`;
+    }
+    return url;
+}
+
 function applyAura(aura) {
     document.body.setAttribute('data-aura', aura);
     state.aura = aura;
@@ -150,13 +162,29 @@ function applyAura(aura) {
 }
 
 function setupEventListeners() {
-    // Vinyl
+    // Vinyl (In-App Player)
     $('vinyl-trigger').onclick = () => {
         const disk = $('vinyl-disk');
+        const drawer = $('music-drawer');
+        const haze = $('drawer-haze');
+        const isActive = drawer.classList.contains('active');
+        
+        vibrate(isActive ? 30 : 100);
         disk.classList.toggle('playing');
-        vibrate(100);
-        setTimeout(() => { if(confirm("Müzik açılıyor... Spotify'a gitmek ister misin?")) window.open(CONFIG.songLink, '_blank'); }, 500);
+        drawer.classList.toggle('active');
+        haze.classList.toggle('active');
+        
+        if (!isActive) {
+            // Açılış: Iframe'i yükle
+            const embedUrl = getEmbedUrl(CONFIG.songLink);
+            $('embed-container').innerHTML = `<iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+        } else {
+            // Kapanış: Iframe'i temizle (Müziği durdur)
+            $('embed-container').innerHTML = '';
+        }
     };
+    
+    $('drawer-haze').onclick = () => $('vinyl-trigger').click();
 
     // Cards
     const moodCard = document.querySelector('[data-mood="mutlu"]').parentElement.parentElement;
