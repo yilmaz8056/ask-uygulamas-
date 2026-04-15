@@ -1,5 +1,5 @@
 // =============================================
-// ETHEREAL CORE - V35.3 (PREMIUM NATIVE AUDIO)
+// ETHEREAL CORE - V35.4 (FINAL NATIVE AUDIO)
 // =============================================
 
 (function() {
@@ -13,8 +13,8 @@
         secretWord: "Sonsuzluk",
         stations: {
             "slow-turk": "https://radyo.duhnet.tv/slowturk",
-            "akustik": "https://radyo.duhnet.tv/joyturkakustik",
-            "joyfm": "https://radyo.duhnet.tv/joyfm"
+            "joyfm": "https://radyo.duhnet.tv/joyfm",
+            "metrofm": "https://radyo.duhnet.tv/metrofm"
         },
         awards: [
             { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
@@ -39,12 +39,9 @@
     let audioEngine = null; 
 
     function init() {
-        console.log("Ethereal v35.3 Premium Initializing...");
-        
+        console.log("Ethereal v35.4 Final Initializing...");
         try {
             audioEngine = $('main-audio-engine');
-            
-            // Safe Renders
             safeRun("Dashboard", renderDashboard);
             safeRun("Countdown", renderCountdown);
             safeRun("DailyNote", renderDailyAffirmation);
@@ -53,24 +50,16 @@
             safeRun("Letters", renderLetters);
             safeRun("Wishes", renderWishes);
             safeRun("Awards", renderAwards);
-            
-            // Safe Core
             safeRun("Aura", () => applyAura(state.aura));
             safeRun("Events", setupEventListeners);
-            
             setInterval(() => safeRun("CountdownInterval", renderCountdown), 1000);
-            console.log("Ethereal Initialized Successfully.");
         } catch (e) {
             console.error("Critical Init Error:", e);
         }
     }
 
     function safeRun(label, func) {
-        try {
-            func();
-        } catch (e) {
-            console.warn(`SafeRun Error [${label}]:`, e);
-        }
+        try { func(); } catch (e) { console.warn(`SafeRun Error [${label}]:`, e); }
     }
 
     // RENDERS
@@ -100,7 +89,6 @@
         const now = new Date();
         const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
         const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-        
         ["Pz","Pt","Sa","Ça","Pe","Cu","Ct"].forEach(d => container.innerHTML += `<div class="cal-day-name">${d}</div>`);
         for(let i=0; i<firstDay; i++) container.innerHTML += `<div></div>`;
         for(let d=1; d<=daysInMonth; d++) {
@@ -164,15 +152,6 @@
         const sounds = { paris: $('audio-rain'), stars: $('audio-stars'), beach: $('audio-waves') };
         Object.values(sounds).forEach(s => { if(s) { s.pause(); s.currentTime = 0; } });
         if(sounds[aura]) { sounds[aura].play().catch(() => {}); }
-        document.querySelectorAll('.aura-btn').forEach(b => { 
-            if(b.getAttribute('data-a') === aura) {
-                 b.style.opacity = '1';
-                 b.style.transform = 'scale(1.2)';
-            } else {
-                 b.style.opacity = '0.5';
-                 b.style.transform = 'scale(1)';
-            }
-        });
     }
 
     function toggleMusicDrawer(show = true) {
@@ -193,19 +172,17 @@
         vibrate(50);
         const audio = audioEngine;
         if(!audio) return;
-        
         $('yt-status').textContent = "Bağlanıyor... ✨";
         audio.pause();
         audio.src = url;
         audio.volume = 1.0;
-        
         audio.play().then(() => {
             $('yt-status').textContent = "Yayındayız! 💕";
             $('song-name').textContent = "Çalıyor... 🎵";
             $('vinyl-disk').classList.add('playing');
             $('music-drawer').classList.add('playing');
         }).catch(err => {
-            $('yt-status').textContent = "Bağlantı Hatası. Tekrar Dokun.";
+            $('yt-status').textContent = "Bağlantı Hatası. Tap to Retry.";
             $('song-name').textContent = "Tekrar Dene";
             audio.pause();
             audio.src = "";
@@ -231,7 +208,6 @@
             'haptic-heart': () => { vibrate([100,50,100]); for(let i=0; i<8; i++) spawnHeart(); },
             'unlock-garden-btn': () => { 
                 if($('garden-pass').value.toLowerCase() === CONFIG.secretWord.toLowerCase()) { 
-                    $('btn-quote').click(); // trigger awards/reveal
                     $('garden-lock').classList.add('hidden'); 
                     $('secret-content').classList.remove('hidden'); 
                     vibrate([100,100,100]); 
@@ -243,16 +219,10 @@
                 $('save-cd-btn').onclick = saveCd;
             }
         };
-
-        Object.keys(triggers).forEach(id => {
-            const el = $(id);
-            if(el) el.onclick = triggers[id];
-        });
-
+        Object.keys(triggers).forEach(id => { const el = $(id); if(el) el.onclick = triggers[id]; });
         document.querySelectorAll('.station-btn').forEach(btn => {
             if(btn.dataset.url) btn.onclick = () => switchChannel(btn.dataset.url);
         });
-
         document.querySelectorAll('.mood-opt').forEach(opt => {
             opt.onclick = () => {
                 const mood = opt.getAttribute('data-mood');
@@ -262,7 +232,6 @@
                 unlockAward('f_1');
             };
         });
-
         const upload = $('upload-mem');
         if(upload) upload.onchange = (e) => {
             const file = e.target.files[0];
@@ -281,7 +250,6 @@
             };
             reader.readAsDataURL(file);
         };
-
         document.querySelectorAll('.aura-btn').forEach(b => { 
             b.onclick = (e) => { e.stopPropagation(); applyAura(b.getAttribute('data-a')); }
         });
@@ -319,7 +287,6 @@
 
     function closeModal() { const b = $('modal-base'); if(b) b.classList.remove('active'); }
     function saveCd() { state.countdown = { title: $('in-cd-t').value, date: $('in-cd-d').value }; save(); closeModal(); renderCountdown(); }
-    
     function unlockAward(id) { if(!state.awards.includes(id)) { state.awards.push(id); save(); renderAwards(); vibrate([100,50,100]); } }
 
     function save() {

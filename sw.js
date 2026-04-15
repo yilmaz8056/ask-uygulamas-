@@ -1,15 +1,15 @@
-const CACHE_NAME = 'ask-uygulamasi-v35-3-premium';
+const CACHE_NAME = 'ask-uygulamasi-v35-4-final';
 const urlsToCache = [
   './index.html',
-  './style.css?v=35.3',
-  './app.js?v=35.3',
+  './style.css?v=35.4',
+  './app.js?v=35.4',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
 ];
 
 self.addEventListener('install', event => {
-  self.skipWaiting(); // FORCE UPDATE
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
@@ -32,11 +32,9 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // EXEMPT RADIO CHANNELS FROM CACHE
   if (event.request.url.includes('stream') || event.request.url.includes('duhnet') || event.request.url.includes('radyo')) {
     return;
   }
-
   event.respondWith(
     caches.match(event.request)
       .then(response => {
