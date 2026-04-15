@@ -10,9 +10,9 @@ const CONFIG = {
     secretWord: "Sonsuzluk",
     defaultVid: "vG8NAsj8kxs", // Slow Türk
     stations: {
-        "slow-turk": "vG8NAsj8kxs",
-        "ask-mix": "l6C9l2wY_6Y",
-        "lofi": "jfKfPfyJRdk"
+        "slow-turk": "vG8NAsj8kxs", // Kararlı Slow Mix
+        "ask-mix": "l6C9l2wY_6Y",   // Kararlı Akustik
+        "lofi": "jfKfPfyJRdk"      // Global Relax
     },
     awards: [
         { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
@@ -37,43 +37,7 @@ let ytPlayer = null;
 const $ = (id) => document.getElementById(id);
 const vibrate = (p=50) => navigator.vibrate && navigator.vibrate(p);
 
-function loadYT() {
-    if (window.YT) return;
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-}
-
-window.onYouTubeIframeAPIReady = function() {
-    ytPlayer = new YT.Player('yt-player', {
-        height: '100%',
-        width: '100%',
-        videoId: CONFIG.defaultVid,
-        playerVars: {
-            'autoplay': 0,
-            'controls': 1,
-            'modestbranding': 1,
-            'rel': 0,
-            'origin': window.location.origin
-        },
-        events: {
-            'onStateChange': onPlayerStateChange
-        }
-    });
-};
-
-function onPlayerStateChange(event) {
-    const disk = $('vinyl-disk');
-    if (event.data == YT.PlayerState.PLAYING) {
-        disk.classList.add('playing');
-        $('song-name').textContent = "Çalıyor... 💕";
-    } else {
-        disk.classList.remove('playing');
-        if(event.data == YT.PlayerState.PAUSED) $('song-name').textContent = "Müzik Duraklatıldı";
-    }
-}
-
+// Statik Motor v31
 function init() {
     renderDashboard();
     renderCountdown();
@@ -86,7 +50,6 @@ function init() {
     applyAura(state.aura);
     setupEventListeners();
     setInterval(renderCountdown, 1000);
-    loadYT();
 }
 
 // RENDERS
@@ -198,15 +161,15 @@ function toggleMusicDrawer(show = true) {
 }
 
 function switchChannel(vidId) {
-    if(!ytPlayer || !ytPlayer.loadVideoById) return;
     vibrate(50);
-    $('yt-status').textContent = "Elite Kanal Yükleniyor... ✨";
-    ytPlayer.loadVideoById({
-        videoId: vidId,
-        startSeconds: 0,
-        suggestedQuality: 'hd720'
-    });
-    setTimeout(() => { $('yt-status').textContent = "Müzik Hazır. 💕"; }, 3000);
+    $('yt-status').textContent = "Kanal Yükleniyor... ✨";
+    const player = $('yt-player-frame');
+    if(player) {
+        player.src = `https://www.youtube.com/embed/${vidId}?autoplay=1&mute=0&rel=0`;
+        $('vinyl-disk').classList.add('playing');
+        $('song-name').textContent = "Çalıyor... 💕";
+    }
+    setTimeout(() => { if($('yt-status')) $('yt-status').textContent = "Müzik Hazır. 💕"; }, 3000);
 }
 
 function setupEventListeners() {
