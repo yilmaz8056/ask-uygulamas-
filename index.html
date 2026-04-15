@@ -57,6 +57,29 @@
                 <button class="countdown-edit-btn" id="countdown-edit-btn"><i class="fa-solid fa-pen"></i></button>
             </div>
 
+            <!-- Ruh Hali Takipçisi -->
+            <div class="mood-card">
+                <h4><i class="fa-solid fa-face-smile-beam"></i> Bugün Nasıl Hissediyorsun?</h4>
+                <div class="mood-emojis" id="mood-emojis">
+                    <button class="mood-emoji" data-mood="mutlu">😍</button>
+                    <button class="mood-emoji" data-mood="huzurlu">😊</button>
+                    <button class="mood-emoji" data-mood="normal">😐</button>
+                    <button class="mood-emoji" data-mood="üzgün">😢</button>
+                    <button class="mood-emoji" data-mood="kızgın">😤</button>
+                </div>
+                <div class="mood-week" id="mood-week"></div>
+                <p class="mood-status" id="mood-status"></p>
+            </div>
+
+            <!-- Günlük Aşk Falı -->
+            <div class="fortune-card" id="fortune-card">
+                <div class="fortune-cookie" id="fortune-cookie">
+                    <i class="fa-solid fa-cookie-bite" style="font-size:3rem;"></i>
+                    <p>Günlük Aşk Falına Bak 🥠</p>
+                </div>
+                <div class="fortune-result" id="fortune-result" style="display:none;"></div>
+            </div>
+
             <!-- Music Player -->
             <div class="music-card">
                 <div class="music-info">
@@ -76,6 +99,24 @@
                 </audio>
             </div>
 
+            <!-- Bizim Şarkımız -->
+            <div class="our-song-card">
+                <div class="header-with-edit">
+                    <h4 style="margin:0; color:#ffdde1;"><i class="fa-solid fa-music"></i> Bizim Şarkımız</h4>
+                    <label for="song-upload" class="edit-icon" title="Şarkı Yükle"><i class="fa-solid fa-upload"></i></label>
+                    <input type="file" id="song-upload" accept="audio/*" style="display:none;">
+                </div>
+                <div class="our-song-player" id="our-song-player" style="display:none;">
+                    <div class="song-disc" id="song-disc">🎵</div>
+                    <p class="song-name" id="song-name">Şarkı Adı</p>
+                    <div class="song-controls">
+                        <button id="our-song-play" class="play-btn" style="width:40px;height:40px;font-size:16px;"><i class="fa-solid fa-play"></i></button>
+                    </div>
+                    <audio id="our-song-audio"></audio>
+                </div>
+                <p id="no-song-msg" style="text-align:center;opacity:0.6;font-size:0.85rem;">Henüz şarkı yüklenmedi. Yükle butonuna bas!</p>
+            </div>
+
             <div class="special-days-card" id="special-days-list">
                 <h3>Önemli Günlerimiz 🗓️</h3>
             </div>
@@ -93,6 +134,34 @@
                         <p style="opacity:0.6; font-size:0.85rem;">Henüz anı eklenmedi</p>
                     </div>
                 </div>
+            </div>
+
+            <!-- Aşk Haritası (Timeline) -->
+            <div class="love-map-section">
+                <div class="header-with-edit">
+                    <h3 style="margin:0; color:#ffdde1;"><i class="fa-solid fa-map-location-dot"></i> Aşk Haritamız</h3>
+                    <button class="edit-icon" id="add-place-btn" title="Yer Ekle"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <div class="love-timeline" id="love-timeline">
+                    <p class="timeline-empty" id="timeline-empty" style="text-align:center;opacity:0.6;font-size:0.85rem;padding:15px;">Henüz yer eklenmedi</p>
+                </div>
+            </div>
+
+            <!-- Mektup Kasası -->
+            <div class="letter-vault-section">
+                <div class="header-with-edit">
+                    <h3 style="margin:0; color:#ffdde1;"><i class="fa-solid fa-lock"></i> Mektup Kasası</h3>
+                    <button class="edit-icon" id="add-letter-btn" title="Mektup Yaz"><i class="fa-solid fa-pen-fancy"></i></button>
+                </div>
+                <div class="letter-list" id="letter-list">
+                    <p class="letter-empty" id="letter-empty" style="text-align:center;opacity:0.6;font-size:0.85rem;padding:15px;">Henüz mektup yok. Geleceğe mektup yaz!</p>
+                </div>
+            </div>
+
+            <!-- Başarımlar -->
+            <div class="achievements-section">
+                <h3 style="text-align:center;color:#ffdde1;margin-bottom:10px;"><i class="fa-solid fa-trophy"></i> Başarımlarımız</h3>
+                <div class="achievements-grid" id="achievements-grid"></div>
             </div>
 
             <div class="quote-card">
@@ -179,10 +248,43 @@
         </div>
     </div>
 
+    <!-- Yer Ekle Modal -->
+    <div id="place-modal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fa-solid fa-map-pin"></i> Yeni Yer Ekle</h3>
+            <div class="edit-row"><label>Yer Adı</label><input type="text" id="place-name" placeholder="Örn: İlk buluştuğumuz kafe"></div>
+            <div class="edit-row"><label>Tarih</label><input type="date" id="place-date"></div>
+            <div class="edit-row"><label>Not (Opsiyonel)</label><input type="text" id="place-note" placeholder="Harika bir gündü..."></div>
+            <button id="save-place-btn" class="generate-btn" style="margin-top:15px;background:#ff758c;color:white;">Kaydet</button>
+            <button id="cancel-place-btn" class="generate-btn" style="margin-top:10px;background:#eee;color:#333;box-shadow:none;">İptal</button>
+        </div>
+    </div>
+
+    <!-- Mektup Yaz Modal -->
+    <div id="letter-modal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fa-solid fa-envelope-open-text"></i> Geleceğe Mektup</h3>
+            <div class="edit-row"><label>Kime / Başlık</label><input type="text" id="letter-title" placeholder="Biriciğime..."></div>
+            <div class="edit-row"><label>Mektup İçeriği</label><textarea id="letter-content" rows="5" style="padding:10px;border:1px solid #ccc;border-radius:8px;font-family:Outfit;font-size:15px;resize:none;width:100%;box-sizing:border-box;" placeholder="Sana söylemek istediğim çok şey var..."></textarea></div>
+            <div class="edit-row"><label>Açılma Tarihi (Kilitli Kalacak)</label><input type="date" id="letter-unlock"></div>
+            <button id="save-letter-btn" class="generate-btn" style="margin-top:15px;background:#a855f7;color:white;"><i class="fa-solid fa-lock"></i> Kilitle & Kaydet</button>
+            <button id="cancel-letter-btn" class="generate-btn" style="margin-top:10px;background:#eee;color:#333;box-shadow:none;">İptal</button>
+        </div>
+    </div>
+
+    <!-- Mektup Oku Modal -->
+    <div id="letter-read-modal" class="modal">
+        <div class="modal-content" style="text-align:center;">
+            <h3 id="letter-read-title">💌</h3>
+            <p id="letter-read-content" style="font-size:16px;line-height:1.6;color:#555;white-space:pre-wrap;"></p>
+            <button id="close-letter-read" class="generate-btn" style="margin-top:15px;background:#eee;color:#333;box-shadow:none;">Kapat</button>
+        </div>
+    </div>
+
     <!-- Havai Fişek Canvas -->
     <canvas id="fireworks-canvas"></canvas>
 
-    <script src="app.js?v=2.0"></script>
+    <script src="app.js?v=3.0"></script>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js').then(() => console.log('SW Kayıt Başarılı'));

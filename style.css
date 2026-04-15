@@ -702,3 +702,261 @@ body {
     pointer-events: none;
     z-index: 200;
 }
+
+/* ===== Mood Tracker ===== */
+.mood-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    text-align: center;
+}
+.mood-card h4 {
+    color: #ffdde1;
+    font-size: 15px;
+    margin-bottom: 12px;
+}
+.mood-emojis {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.mood-emoji {
+    font-size: 28px;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid transparent;
+    border-radius: 50%;
+    width: 48px; height: 48px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex; justify-content: center; align-items: center;
+}
+.mood-emoji:active { transform: scale(0.85); }
+.mood-emoji.selected {
+    border-color: #ffd700;
+    background: rgba(255,215,0,0.2);
+    transform: scale(1.15);
+    box-shadow: 0 0 12px rgba(255,215,0,0.4);
+}
+.mood-week {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 8px;
+}
+.mood-day-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex; justify-content: center; align-items: center;
+    font-size: 14px;
+}
+.mood-status {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-top: 6px;
+}
+
+/* ===== Fortune Cookie ===== */
+.fortune-card {
+    background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,140,66,0.15));
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 20px;
+    padding: 18px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    text-align: center;
+}
+.fortune-cookie {
+    cursor: pointer;
+    transition: transform 0.3s;
+    padding: 10px;
+}
+.fortune-cookie:active { transform: scale(0.9) rotate(-5deg); }
+.fortune-cookie p {
+    margin-top: 8px;
+    font-weight: 600;
+    font-size: 15px;
+}
+.fortune-result {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.5;
+    padding: 10px;
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes cookieCrack {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.2) rotate(10deg); }
+    60% { transform: scale(0.8) rotate(-10deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 0.3; }
+}
+
+/* ===== Our Song ===== */
+.our-song-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+.our-song-player {
+    text-align: center;
+    padding: 10px 0;
+}
+.song-disc {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, #cc2b5e, #753a88);
+    border-radius: 50%;
+    margin: 0 auto 10px auto;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    animation: rotateDisk 4s linear infinite;
+    animation-play-state: paused;
+}
+.song-disc.spinning { animation-play-state: running; }
+.song-name {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #ffdde1;
+}
+.song-controls { display: flex; justify-content: center; gap: 10px; }
+
+/* ===== Love Map / Timeline ===== */
+.love-map-section {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+.love-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    padding-left: 20px;
+}
+.timeline-item {
+    position: relative;
+    padding: 10px 10px 10px 20px;
+    border-left: 2px solid rgba(255,255,255,0.2);
+    animation: fadeIn 0.5s ease-out;
+}
+.timeline-item::before {
+    content: '📍';
+    position: absolute;
+    left: -11px;
+    top: 12px;
+    font-size: 14px;
+}
+.timeline-item h5 { font-size: 14px; margin-bottom: 2px; }
+.timeline-item p { font-size: 12px; opacity: 0.7; }
+.timeline-item small { font-size: 11px; opacity: 0.5; }
+.timeline-delete {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    font-size: 12px;
+    float: right;
+}
+.timeline-delete:hover { color: #ef4444; }
+
+/* ===== Letter Vault ===== */
+.letter-vault-section {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+.letter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.letter-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.letter-item:hover { transform: translateX(5px); }
+.letter-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+}
+.letter-info { flex: 1; }
+.letter-info h5 { font-size: 14px; margin-bottom: 2px; }
+.letter-info p { font-size: 11px; opacity: 0.6; }
+.letter-status {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+.letter-status.locked {
+    background: rgba(239,68,68,0.2);
+    color: #fca5a5;
+}
+.letter-status.unlocked {
+    background: rgba(16,185,129,0.2);
+    color: #6ee7b7;
+}
+
+/* ===== Achievements ===== */
+.achievements-section {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+.achievement-item {
+    text-align: center;
+    padding: 10px 5px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    transition: all 0.3s;
+}
+.achievement-item.unlocked {
+    background: rgba(255,215,0,0.15);
+    border: 1px solid rgba(255,215,0,0.3);
+    animation: fadeIn 0.5s ease-out;
+}
+.achievement-item .ach-icon {
+    font-size: 1.8rem;
+    display: block;
+    margin-bottom: 4px;
+}
+.achievement-item.locked .ach-icon {
+    filter: grayscale(1);
+    opacity: 0.3;
+}
+.achievement-item .ach-name {
+    font-size: 0.65rem;
+    font-weight: 600;
+    opacity: 0.8;
+    line-height: 1.2;
+}

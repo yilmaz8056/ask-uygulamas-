@@ -74,6 +74,10 @@ let specialDays = JSON.parse(localStorage.getItem('loveApp_specialDays')) || [
 
 let memories = JSON.parse(localStorage.getItem('loveApp_memories')) || [];
 let countdownData = JSON.parse(localStorage.getItem('loveApp_countdown')) || null;
+let moodLog = JSON.parse(localStorage.getItem('loveApp_moodLog')) || {};
+let places = JSON.parse(localStorage.getItem('loveApp_places')) || [];
+let letters = JSON.parse(localStorage.getItem('loveApp_letters')) || [];
+let achievements = JSON.parse(localStorage.getItem('loveApp_achievements')) || [];
 
 // =============================================
 // ELEMENTS
@@ -154,8 +158,14 @@ envelope.addEventListener('click', () => {
         appContainer.classList.add('active');
         renderSpecialDays();
         renderMemories();
+        renderMoodTracker();
+        renderPlaces();
+        renderLetters();
+        renderAchievements();
         changeQuote();
         initCountdown();
+        initFortuneCookie();
+        initOurSong();
         toggleMusic(true);
     }, 1000);
 });
@@ -492,6 +502,8 @@ function showQuizResult() {
     if (pct === 100) {
         resultDiv.innerHTML = `🎉 TAM PUAN! ${quizScore}/${total}<br><br>Sen beni dünyanın en iyi tanıyan insansın! Sonsuza dek seninle... 💍`;
         launchFireworks();
+        localStorage.setItem('loveApp_quizPerfect', (parseInt(localStorage.getItem('loveApp_quizPerfect'))||0) + 1);
+        checkAchievements();
         if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
     } else if (pct >= 60) {
         resultDiv.innerHTML = `💖 ${quizScore}/${total} Doğru!<br><br>Harikasın! Beni çok iyi tanıyorsun... Ama hala öğreneceğin çok şey var 😘`;
@@ -656,3 +668,357 @@ function launchFireworks() {
     
     animate();
 }
+
+// =============================================
+// 6. MOOD TRACKER (Ruh Hali)
+// =============================================
+const moodEmojis = { mutlu: '😍', huzurlu: '😊', normal: '😐', üzgün: '😢', kızgın: '😤' };
+
+function getTodayKey() {
+    return new Date().toISOString().split('T')[0];
+}
+
+function renderMoodTracker() {
+    const today = getTodayKey();
+    const todayMood = moodLog[today];
+    
+    // Highlight today's mood
+    document.querySelectorAll('.mood-emoji').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.mood === todayMood);
+    });
+    
+    // Week view
+    const weekDiv = document.getElementById('mood-week');
+    weekDiv.innerHTML = '';
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        const mood = moodLog[key];
+        const dot = document.createElement('div');
+        dot.className = 'mood-day-dot';
+        dot.textContent = mood ? moodEmojis[mood] : '·';
+        dot.title = d.toLocaleDateString('tr-TR', { weekday: 'short' });
+        weekDiv.appendChild(dot);
+    }
+    
+    const statusEl = document.getElementById('mood-status');
+    if (todayMood === 'üzgün' || todayMood === 'kızgın') {
+        statusEl.textContent = '💌 Bugün biraz zor geçiyor... Ona sarıl!';
+    } else if (todayMood) {
+        statusEl.textContent = '✨ Bugünün ruh hali kaydedildi!';
+    } else {
+        statusEl.textContent = 'Bugün henüz seçim yapmadın';
+    }
+}
+
+document.getElementById('mood-emojis').addEventListener('click', (e) => {
+    const btn = e.target.closest('.mood-emoji');
+    if (!btn) return;
+    
+    moodLog[getTodayKey()] = btn.dataset.mood;
+    localStorage.setItem('loveApp_moodLog', JSON.stringify(moodLog));
+    if (navigator.vibrate) navigator.vibrate(50);
+    renderMoodTracker();
+    checkAchievements();
+});
+
+// =============================================
+// 7. FORTUNE COOKIE (Günlük Fal)
+// =============================================
+const fortunes = [
+    "Bugün ona sürpriz bir kahve al, yüzündeki gülümsemeyi göreceksin ☕",
+    "Bu hafta birlikte yeni bir maceraya atılın - sizi çok güzel anılar bekliyor! 🌟",
+    "Bugün ona küçük bir not bırak, sadece 'Seni seviyorum' yaz 💌",
+    "Bu akşam birlikte gökyüzüne bakın, yıldızlar sizin için parlıyor ⭐",
+    "Ona sarıl ve 10 saniye bırakma. Bilimsel olarak mutluluk hormonu salgılanır 🤗",
+    "Bugün birbirinize çocukluk fotoğraflarınızı gösterin, çok güleceksiniz 📸",
+    "Bu hafta sonu planlarınızı iptal edin ve sadece birlikte olun 💕",
+    "Ona en sevdiği yemeği yapın, aşk mideden de geçer 🍳",
+    "Bugün telefonları bırakıp 1 saat sadece birbirinizle ilgilenin 📵",
+    "Yakında çok güzel bir sürpriz seni bekliyor... Sabırlı ol! 🎁",
+    "Bu ay birlikte yeni bir hobi deneyin - dans, resim veya yemek yapma 🎨",
+    "Ona bugün 'Seninle tanıştığım için çok şanslıyım' de, çok mutlu olacak 💖"
+];
+
+function initFortuneCookie() {
+    const lastFortuneDate = localStorage.getItem('loveApp_lastFortune');
+    const today = getTodayKey();
+    const cookie = document.getElementById('fortune-cookie');
+    const result = document.getElementById('fortune-result');
+    
+    if (lastFortuneDate === today) {
+        // Bugün zaten açmış
+        const savedFortune = localStorage.getItem('loveApp_fortuneText');
+        cookie.style.display = 'none';
+        result.style.display = 'block';
+        result.innerHTML = `<p>🥠 Bugünün Falı:</p><p style="margin-top:8px;">${savedFortune}</p>`;
+    }
+    
+    cookie.addEventListener('click', () => {
+        if (lastFortuneDate === today) return;
+        
+        cookie.style.animation = 'cookieCrack 0.6s ease-out forwards';
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+        
+        setTimeout(() => {
+            const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+            cookie.style.display = 'none';
+            result.style.display = 'block';
+            result.innerHTML = `<p>🥠 Bugünün Falı:</p><p style="margin-top:8px;">${fortune}</p>`;
+            
+            localStorage.setItem('loveApp_lastFortune', today);
+            localStorage.setItem('loveApp_fortuneText', fortune);
+            
+            for (let i = 0; i < 8; i++) createHeart();
+            checkAchievements();
+        }, 700);
+    });
+}
+
+// =============================================
+// 8. OUR SONG (Bizim Şarkımız)
+// =============================================
+function initOurSong() {
+    const savedSong = localStorage.getItem('loveApp_ourSong');
+    const savedName = localStorage.getItem('loveApp_ourSongName');
+    
+    if (savedSong) {
+        showSongPlayer(savedSong, savedName || 'Bizim Şarkımız');
+    }
+}
+
+function showSongPlayer(src, name) {
+    const player = document.getElementById('our-song-player');
+    const audio = document.getElementById('our-song-audio');
+    const noMsg = document.getElementById('no-song-msg');
+    
+    player.style.display = 'block';
+    noMsg.style.display = 'none';
+    audio.src = src;
+    document.getElementById('song-name').textContent = name;
+}
+
+document.getElementById('song-upload').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        try {
+            localStorage.setItem('loveApp_ourSong', dataUrl);
+            localStorage.setItem('loveApp_ourSongName', file.name.replace(/\.[^/.]+$/, ''));
+            showSongPlayer(dataUrl, file.name.replace(/\.[^/.]+$/, ''));
+            if (navigator.vibrate) navigator.vibrate(100);
+            checkAchievements();
+        } catch(err) {
+            alert("Şarkı dosyası çok büyük! Daha kısa bir parça dene.");
+        }
+    };
+    reader.readAsDataURL(file);
+});
+
+let ourSongPlaying = false;
+document.getElementById('our-song-play').addEventListener('click', () => {
+    const audio = document.getElementById('our-song-audio');
+    const disc = document.getElementById('song-disc');
+    const icon = document.getElementById('our-song-play').querySelector('i');
+    
+    if (ourSongPlaying) {
+        audio.pause();
+        ourSongPlaying = false;
+        disc.classList.remove('spinning');
+        icon.classList.remove('fa-pause');
+        icon.classList.add('fa-play');
+    } else {
+        audio.play().then(() => {
+            ourSongPlaying = true;
+            disc.classList.add('spinning');
+            icon.classList.remove('fa-play');
+            icon.classList.add('fa-pause');
+        }).catch(() => {});
+    }
+});
+
+// =============================================
+// 9. LOVE MAP / TIMELINE (Aşk Haritası)
+// =============================================
+function renderPlaces() {
+    const container = document.getElementById('love-timeline');
+    container.innerHTML = '';
+    
+    if (places.length === 0) {
+        container.innerHTML = '<p style="text-align:center;opacity:0.6;font-size:0.85rem;padding:15px;">Henüz yer eklenmedi</p>';
+        return;
+    }
+    
+    const sorted = [...places].sort((a, b) => new Date(a.date) - new Date(b.date));
+    sorted.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = 'timeline-item';
+        div.innerHTML = `
+            <button class="timeline-delete" data-idx="${places.indexOf(p)}"><i class="fa-solid fa-xmark"></i></button>
+            <h5>${p.name}</h5>
+            <p>${p.note || ''}</p>
+            <small>${new Date(p.date).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' })}</small>
+        `;
+        container.appendChild(div);
+    });
+    
+    container.querySelectorAll('.timeline-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idx = parseInt(btn.dataset.idx);
+            if (confirm("Bu yeri silmek istiyor musun?")) {
+                places.splice(idx, 1);
+                localStorage.setItem('loveApp_places', JSON.stringify(places));
+                renderPlaces();
+            }
+        });
+    });
+}
+
+document.getElementById('add-place-btn').addEventListener('click', () => {
+    document.getElementById('place-modal').classList.add('active');
+});
+document.getElementById('cancel-place-btn').addEventListener('click', () => {
+    document.getElementById('place-modal').classList.remove('active');
+});
+document.getElementById('save-place-btn').addEventListener('click', () => {
+    const name = document.getElementById('place-name').value;
+    const date = document.getElementById('place-date').value;
+    if (!name || !date) return alert("Lütfen yer adı ve tarih girin!");
+    
+    places.push({ name, date, note: document.getElementById('place-note').value });
+    localStorage.setItem('loveApp_places', JSON.stringify(places));
+    renderPlaces();
+    document.getElementById('place-modal').classList.remove('active');
+    document.getElementById('place-name').value = '';
+    document.getElementById('place-date').value = '';
+    document.getElementById('place-note').value = '';
+    if (navigator.vibrate) navigator.vibrate(50);
+    checkAchievements();
+});
+
+// =============================================
+// 10. LETTER VAULT (Mektup Kasası)
+// =============================================
+function renderLetters() {
+    const container = document.getElementById('letter-list');
+    container.innerHTML = '';
+    
+    if (letters.length === 0) {
+        container.innerHTML = '<p style="text-align:center;opacity:0.6;font-size:0.85rem;padding:15px;">Henüz mektup yok. Geleceğe mektup yaz!</p>';
+        return;
+    }
+    
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    letters.forEach((letter, idx) => {
+        const unlockDate = new Date(letter.unlockDate);
+        const isUnlocked = today >= unlockDate;
+        
+        const div = document.createElement('div');
+        div.className = 'letter-item';
+        div.innerHTML = `
+            <span class="letter-icon">${isUnlocked ? '💌' : '🔒'}</span>
+            <div class="letter-info">
+                <h5>${letter.title}</h5>
+                <p>${isUnlocked ? 'Açık! Okumak için tıkla' : unlockDate.toLocaleDateString('tr-TR') + ' tarihinde açılacak'}</p>
+            </div>
+            <span class="letter-status ${isUnlocked ? 'unlocked' : 'locked'}">${isUnlocked ? 'AÇIK' : 'KİLİTLİ'}</span>
+        `;
+        
+        div.addEventListener('click', () => {
+            if (isUnlocked) {
+                document.getElementById('letter-read-title').textContent = '💌 ' + letter.title;
+                document.getElementById('letter-read-content').textContent = letter.content;
+                document.getElementById('letter-read-modal').classList.add('active');
+                launchFireworks();
+            } else {
+                const diffDays = Math.ceil((unlockDate - today) / (1000*60*60*24));
+                alert(`🔒 Bu mektup kilitli!\n\nAçılmasına ${diffDays} gün kaldı.\nSabırlı ol... 💕`);
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            }
+        });
+        
+        container.appendChild(div);
+    });
+}
+
+document.getElementById('add-letter-btn').addEventListener('click', () => {
+    document.getElementById('letter-modal').classList.add('active');
+});
+document.getElementById('cancel-letter-btn').addEventListener('click', () => {
+    document.getElementById('letter-modal').classList.remove('active');
+});
+document.getElementById('save-letter-btn').addEventListener('click', () => {
+    const title = document.getElementById('letter-title').value;
+    const content = document.getElementById('letter-content').value;
+    const unlockDate = document.getElementById('letter-unlock').value;
+    
+    if (!title || !content || !unlockDate) return alert("Lütfen tüm alanları doldurun!");
+    
+    letters.push({ title, content, unlockDate, createdAt: Date.now() });
+    localStorage.setItem('loveApp_letters', JSON.stringify(letters));
+    renderLetters();
+    document.getElementById('letter-modal').classList.remove('active');
+    document.getElementById('letter-title').value = '';
+    document.getElementById('letter-content').value = '';
+    document.getElementById('letter-unlock').value = '';
+    
+    alert("💌 Mektubun kasaya kilitledi! Belirlediğin tarihte açılacak...");
+    if (navigator.vibrate) navigator.vibrate([100, 50, 200]);
+    checkAchievements();
+});
+
+document.getElementById('close-letter-read').addEventListener('click', () => {
+    document.getElementById('letter-read-modal').classList.remove('active');
+});
+
+// =============================================
+// 11. ACHIEVEMENTS (Başarımlar)
+// =============================================
+const achievementDefs = [
+    { id: 'first_mood', icon: '😊', name: 'İlk Ruh Hali', check: () => Object.keys(moodLog).length >= 1 },
+    { id: 'week_mood', icon: '📅', name: '7 Gün Kayıt', check: () => Object.keys(moodLog).length >= 7 },
+    { id: 'first_memory', icon: '📸', name: 'İlk Anı', check: () => memories.length >= 1 },
+    { id: 'five_memories', icon: '🎞️', name: '5 Anı Biriktir', check: () => memories.length >= 5 },
+    { id: 'first_place', icon: '📍', name: 'İlk Yer', check: () => places.length >= 1 },
+    { id: 'first_letter', icon: '💌', name: 'İlk Mektup', check: () => letters.length >= 1 },
+    { id: 'our_song', icon: '🎵', name: 'Bizim Şarkı', check: () => !!localStorage.getItem('loveApp_ourSong') },
+    { id: 'fortune_open', icon: '🥠', name: 'İlk Fal', check: () => !!localStorage.getItem('loveApp_lastFortune') },
+    { id: 'quiz_master', icon: '🧠', name: 'Quiz Ustası', check: () => (parseInt(localStorage.getItem('loveApp_quizPerfect'))||0) >= 1 },
+];
+
+function checkAchievements() {
+    let newUnlock = false;
+    achievementDefs.forEach(def => {
+        if (!achievements.includes(def.id) && def.check()) {
+            achievements.push(def.id);
+            newUnlock = def.name;
+        }
+    });
+    
+    if (newUnlock) {
+        localStorage.setItem('loveApp_achievements', JSON.stringify(achievements));
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+        renderAchievements();
+    }
+}
+
+function renderAchievements() {
+    const grid = document.getElementById('achievements-grid');
+    grid.innerHTML = '';
+    
+    achievementDefs.forEach(def => {
+        const unlocked = achievements.includes(def.id);
+        const div = document.createElement('div');
+        div.className = `achievement-item ${unlocked ? 'unlocked' : 'locked'}`;
+        div.innerHTML = `<span class="ach-icon">${def.icon}</span><span class="ach-name">${def.name}</span>`;
+        grid.appendChild(div);
+    });
+}
+
