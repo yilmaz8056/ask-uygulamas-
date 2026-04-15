@@ -18,6 +18,7 @@
     font-family: 'Outfit', sans-serif;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+    outline: none;
 }
 
 body {
@@ -26,7 +27,7 @@ body {
     animation: meshGradient 15s ease infinite;
     color: var(--text-main);
     height: 100vh;
-    height: 100dvh;
+    height: 100dvh; /* Dinamik mobil yüksekliği */
     overflow: hidden;
     position: relative;
     display: flex;
@@ -220,11 +221,24 @@ body {
     flex: 1; 
     display: flex; 
     flex-direction: column; 
-    gap: 20px; /* Zarif boşluk */
+    gap: 20px; 
     overflow-y: auto;
     padding: 10px 0 30px 0;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+}
+
+/* Premium Scrollbar */
+.content-area::-webkit-scrollbar, .modal-content::-webkit-scrollbar {
+    width: 6px;
+}
+.content-area::-webkit-scrollbar-track, .modal-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+.content-area::-webkit-scrollbar-thumb, .modal-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+.content-area::-webkit-scrollbar-thumb:hover, .modal-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 .content-area::-webkit-scrollbar {
     display: none;
@@ -663,84 +677,119 @@ body {
 }
 .edit-icon:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.1); }
 
-/* ===== Modal ===== */
+/* ===== Modal (Glassmorphism Modal System) ===== */
 .modal {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.5);
-    z-index: 100;
+    z-index: 1000; /* Daha üstte */
     display: none; justify-content: center; align-items: center;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
 }
 .modal.active { display: flex; }
+
 .modal-content {
-    background: linear-gradient(160deg, #fff, #fdf2f5);
-    color: #333;
-    padding: 28px; border-radius: 24px; width: 90%; max-width: 360px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.1);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 35px; 
+    border-radius: 32px; 
+    width: 90%; 
+    max-width: 420px;
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
     max-height: 85vh;
     overflow-y: auto;
-    animation: modalSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    animation: modalSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 @keyframes modalSlideIn {
-    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    from { opacity: 0; transform: scale(0.9) translateY(40px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
 }
-.modal-content h3 { margin-bottom: 20px; text-align: center; color: var(--text-dark); }
-.edit-row { margin-bottom: 15px; display: flex; flex-direction: column; gap: 5px; text-align: left; }
-.edit-row label { font-size: 14px; font-weight: bold; color: var(--text-dark); }
-.edit-row input { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-family: 'Outfit'; font-size: 16px; outline: none; }
-.edit-row input:focus { border-color: var(--bg-primary); }
+
+.modal-content h3 { 
+    margin-bottom: 25px; 
+    text-align: center; 
+    color: #fff;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+.edit-row { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.edit-row label { font-size: 16px; font-weight: 700; color: #ffdde1; }
+.edit-row input { 
+    padding: 14px 18px; 
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px; 
+    font-family: 'Outfit'; 
+    font-size: 17px; 
+    color: #fff;
+    outline: none; 
+    transition: all 0.3s;
+}
+.edit-row input:focus { 
+    background: rgba(255,255,255,0.2);
+    border-color: #fff;
+    box-shadow: 0 0 15px rgba(255,255,255,0.2);
+}
 
 /* ===== Quiz ===== */
 .quiz-modal-content {
     text-align: center;
 }
 
+/* ===== Quiz (Premium Style) ===== */
 .quiz-question {
-    font-size: 17px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 18px;
-    line-height: 1.4;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 25px;
+    line-height: 1.5;
 }
 
 .quiz-options {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 12px;
 }
 
 .quiz-opt-btn {
-    background: #fff0f5;
-    border: 2px solid #ffd1dc;
-    color: var(--text-dark);
-    padding: 12px;
-    border-radius: 12px;
-    font-size: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 16px 20px;
+    border-radius: 16px;
+    font-size: 17px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
-    font-family: 'Outfit';
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.quiz-opt-btn:active { transform: scale(0.95); }
+
+.quiz-opt-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+}
+
 .quiz-opt-btn.correct {
-    background: #d4edda;
-    border-color: #28a745;
-    color: #155724;
+    background: #10b981 !important;
+    border-color: #34d399;
+    color: #fff;
 }
 .quiz-opt-btn.wrong {
-    background: #f8d7da;
-    border-color: #dc3545;
-    color: #721c24;
+    background: #ef4444 !important;
+    border-color: #f87171;
+    color: #fff;
 }
 
 .quiz-result {
-    font-size: 18px;
+    font-size: 22px;
     font-weight: 800;
-    color: var(--text-dark);
-    padding: 15px;
+    color: #fff;
+    padding: 20px;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 /* ===== Fireworks Canvas ===== */

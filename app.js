@@ -199,11 +199,11 @@ function renderSpecialDays() {
             <div class="day-info">
                 <div class="day-icon"><i class="fa-solid ${day.icon}"></i></div>
                 <div class="day-text">
-                    <h5>${day.title}</h5>
-                    <p>${targetDate.toLocaleDateString('tr-TR')}</p>
+                    <h5 style="font-size: 18px; font-weight: 700; margin-bottom: 2px;">${day.title}</h5>
+                    <p style="font-size: 14px; opacity: 0.8;">${targetDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}</p>
                 </div>
             </div>
-            <div class="day-countdown">${countdownText}</div>
+            <div class="day-countdown" style="font-size: 16px; font-weight: 800; color: #ffd1dc;">${countdownText}</div>
         `;
         specialDaysList.appendChild(div);
     });
@@ -831,9 +831,9 @@ function renderPlaces() {
         div.className = 'timeline-item';
         div.innerHTML = `
             <button class="timeline-delete" data-idx="${places.indexOf(p)}"><i class="fa-solid fa-xmark"></i></button>
-            <h5>${p.name}</h5>
-            <p>${p.note || ''}</p>
-            <small>${new Date(p.date).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' })}</small>
+            <h5 style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">${p.name} 📍</h5>
+            <p style="font-size: 15px; opacity: 0.9;">${p.note || ''}</p>
+            <small style="font-size: 14px; opacity: 0.6; display: block; margin-top: 6px;">${new Date(p.date).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' })}</small>
         `;
         container.appendChild(div);
     });
@@ -895,12 +895,12 @@ function renderLetters() {
         const div = document.createElement('div');
         div.className = 'letter-item';
         div.innerHTML = `
-            <span class="letter-icon">${isUnlocked ? '💌' : '🔒'}</span>
+            <span class="letter-icon" style="font-size: 2rem;">${isUnlocked ? '💌' : '🔒'}</span>
             <div class="letter-info">
-                <h5>${letter.title}</h5>
-                <p>${isUnlocked ? 'Açık! Okumak için tıkla' : unlockDate.toLocaleDateString('tr-TR') + ' tarihinde açılacak'}</p>
+                <h5 style="font-size: 18px; font-weight: 700; margin-bottom: 2px;">${letter.title}</h5>
+                <p style="font-size: 14px; opacity: 0.8;">${isUnlocked ? 'Açık! Okumak için tıkla' : unlockDate.toLocaleDateString('tr-TR') + ' tarihinde açılacak'}</p>
             </div>
-            <span class="letter-status ${isUnlocked ? 'unlocked' : 'locked'}">${isUnlocked ? 'AÇIK' : 'KİLİTLİ'}</span>
+            <span class="letter-status ${isUnlocked ? 'unlocked' : 'locked'}" style="font-size: 12px; font-weight: 800;">${isUnlocked ? 'AÇIK' : 'KİLİTLİ'}</span>
         `;
         
         div.addEventListener('click', () => {
@@ -989,7 +989,10 @@ function renderAchievements() {
         const unlocked = achievements.includes(def.id);
         const div = document.createElement('div');
         div.className = `achievement-item ${unlocked ? 'unlocked' : 'locked'}`;
-        div.innerHTML = `<span class="ach-icon">${def.icon}</span><span class="ach-name">${def.name}</span>`;
+        div.innerHTML = `
+            <span class="ach-icon" style="font-size: 32px; display: block; margin-bottom: 6px;">${def.icon}</span>
+            <span class="ach-name" style="font-size: 15px; font-weight: 700; opacity: 0.9;">${def.name}</span>
+        `;
         grid.appendChild(div);
     });
 }
