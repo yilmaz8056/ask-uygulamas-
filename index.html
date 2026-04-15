@@ -27,14 +27,14 @@
             <p class="dashboard-subtitle" id="dashboard-date-msg">Bugün bizim 0. günümüz. 💕</p>
         </header>
 
-        <!-- İltifat Şelalesi (Daily Affirmation) -->
-        <section class="glass-card text-center" style="border-left: 4px solid var(--c-primary);">
+        <!-- İltifat Şelalesi -->
+        <section class="glass-card text-center" style="border-left: 4px solid var(--c-primary); position:relative; z-index:10;">
             <div class="card-label"><i class="fa-solid fa-wand-magic-sparkles"></i> Günün Notu</div>
             <p id="daily-affirmation-text" class="daily-note-text">Yükleniyor...</p>
         </section>
 
         <!-- Dynamic Counter Card -->
-        <section class="glass-card" id="main-countdown" style="position:relative;">
+        <section class="glass-card" id="main-countdown">
             <div class="card-label"><i class="fa-solid fa-clock-rotate-left"></i> Beklenen An</div>
             <div class="cd-display" id="countdown-display">
                 <div class="cd-unit"><span class="cd-val" id="cd-days">0</span><small class="cd-lbl">Gün</small></div>
@@ -56,17 +56,19 @@
             </div>
         </section>
 
-        <!-- Plak Çalar (Özel Şarkımız) -->
-        <section class="glass-card text-center">
-            <div class="card-label"><i class="fa-solid fa-compact-disc"></i> Özel Şarkımız</div>
+        <!-- Romantik Radyo (Plak Çalar UI) -->
+        <section class="glass-card text-center" style="position:relative;">
+            <div class="card-label"><i class="fa-solid fa-radio"></i> Romantik Radyomuz</div>
             <div class="vinyl-container" id="vinyl-trigger">
                 <div class="vinyl-disk" id="vinyl-disk">
                     <div class="vinyl-label"></div>
                     <div class="vinyl-center"></div>
                 </div>
             </div>
-            <p id="song-name" style="font-size: 14px; font-weight: 700; color: #444; margin-bottom: 5px;">Our Special Song</p>
-            <p style="font-size: 11px; opacity: 0.5;">Dinlemek için plağa dokun 🎵</p>
+            <p id="song-name" style="font-size: 14px; font-weight: 700; color: #444; margin-bottom: 5px;">Slow Türk Canlı</p>
+            <p style="font-size: 11px; opacity: 0.5;">Dinlemek için dokun 🎵</p>
+            <!-- Hidden Audio for Radio -->
+            <audio id="radio-player" preload="none" src="https://radyo.dokuzsoft.com/8106/stream"></audio>
         </section>
 
         <!-- Aşk Nabzı -->
@@ -77,16 +79,17 @@
 
         <!-- Quick Interaction Grid -->
         <div class="feature-grid">
-            <button class="liquid-btn" id="btn-quote">
+            <button class="liquid-btn" id="btn-quote" style="z-index: 50;">
                 <i class="fa-solid fa-sparkles"></i> Sevgi Notu
             </button>
-            <button class="liquid-btn" id="btn-date" style="background: var(--c-bg); color: var(--c-primary); border: 1px solid var(--c-primary); box-shadow: none;">
+            <button class="liquid-btn" id="btn-date" style="z-index: 50; background: var(--c-bg); color: var(--c-primary); border: 1px solid var(--c-primary); box-shadow: none;">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> Plan Yap
             </button>
         </div>
 
-        <div id="reveal-area" class="glass-card hidden">
-            <p id="reveal-text" class="text-center" style="font-size: 16px; font-weight: 500; color: #444; line-height: 1.6;"></p>
+        <!-- REVEAL AREA (Sonuç Gösterimi) -->
+        <div id="reveal-area" class="glass-card hidden" style="position:relative; z-index: 100; transform: translateY(-5px);">
+            <p id="reveal-text" class="text-center" style="font-size: 16px; font-weight: 600; color: var(--c-primary); line-height: 1.6;"></p>
         </div>
 
         <!-- Hayal Kumbarası -->
@@ -98,7 +101,7 @@
             <div id="wish-list" style="margin-top: 10px;"></div>
         </section>
 
-        <!-- Ruh Halin & Anılar (Scroll) -->
+        <!-- Ruh Halin & Anılar -->
         <div class="feature-grid">
              <section class="glass-card" style="padding: 15px;">
                 <div class="card-label"><i class="fa-solid fa-heart-pulse"></i> Ruhun</div>
@@ -119,8 +122,12 @@
             </section>
         </div>
 
+        <!-- Memory List (Burası onarıldı) -->
         <section class="glass-card">
-             <div class="memory-scroller" id="memory-list"></div>
+             <div class="card-label"><i class="fa-solid fa-photo-film"></i> Koleksiyonumuz</div>
+             <div class="memory-scroller" id="memory-list" style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; min-height: 100px;">
+                <!-- Fotoğraflar buraya gelecek -->
+             </div>
         </section>
 
         <!-- Secret Garden & Vault -->
@@ -146,20 +153,6 @@
             <div id="vault-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
         </section>
 
-        <!-- Collection -->
-        <footer class="glass-card">
-            <div class="card-label" style="justify-content: center;"><i class="fa-solid fa-star"></i> Koleksiyon</div>
-            <div id="award-shelf" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 10px;"></div>
-        </footer>
-
-    </div>
-
-    <!-- Music Drawer & Overlay -->
-    <div id="drawer-haze" class="drawer-haze"></div>
-    <div id="music-drawer" class="music-drawer">
-        <div id="embed-container" class="embed-container">
-            <!-- Iframe Inject -->
-        </div>
     </div>
 
     <!-- Modals -->
@@ -167,6 +160,7 @@
         <div class="modal-surface" id="modal-surface"></div>
     </div>
 
+    <!-- Ambient (Aura) Audios -->
     <audio id="audio-rain" loop src="https://www.soundjay.com/nature/rain-01.mp3"></audio>
     <audio id="audio-stars" loop src="https://www.soundjay.com/misc/sounds/wind-chime-1.mp3"></audio>
     <audio id="audio-waves" loop src="https://www.soundjay.com/nature/ocean-waves-1.mp3"></audio>

@@ -1,20 +1,14 @@
 // =============================================
-// ETHEREAL CORE - V4 (FINAL REFINEMENT)
+// ETHEREAL CORE - V5 (REPAIR & RADIO)
 // =============================================
 
 const CONFIG = {
     quotes: ["Gülüşün dünyadaki en güzel manzara...", "Seninle geçen her saniye ömrümün en değerli anı.", "Gözlerine baktığımda tüm dertlerimi unutuyorum.", "Sen benim en güzel rüyam, en tatlı gerçeğimsin."],
     dates: ["Mutfağa girip tatlı yapmak 🧁", "Film gecesi 🍿", "Sahilde yürüyüş 🌙", "Dans edin 💃"],
-    fortunes: ["Bugün ona sürpriz bir not yaz 💌", "Birlikte yeni bir kahveci keşfedin ☕", "Ona sarıl ve bırakma 🤗"],
-    affirmations: [
-        "Bugün varlığın için binlerce şükür sebebim var. 💕",
-        "Dünyanın en şanslı insanıyım çünkü seninle aynı gökyüzü altındayım. ✨",
-        "Gülüşün, kalbimin en huzurlu limanı. 🌊",
-        "Seninle yaşlanmak, hayallerimin en güzel durağı. 🕰️",
-        "Her yeni güne seninle uyanmak en büyük ödülüm. 🌈"
-    ],
+    fortunes: ["Bugün ona sürpriz bir not yaz 💌", "Birlikte yeni bir akıl almaz macera ☕", "Ona sarıl ve bırakma 🤗"],
+    affirmations: ["Bugün varlığın için binlerce şükür sebebim var. 💕", "Dünyanın en şanslı insanıyım... ✨", "Gülüşün kalbimin huzurlu limanı. 🌊"],
     secretWord: "Sonsuzluk",
-    songLink: "https://open.spotify.com/track/4uH8o86B494Y781t56r2P7", // Örnek şarkı
+    radioStream: "https://radyo.dokuzsoft.com/8106/stream",
     awards: [
         { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
         { id: 'l_1', name: 'Zaman Yolcusu', icon: '✉️' },
@@ -70,47 +64,53 @@ function renderDailyAffirmation() {
 }
 
 function renderCalendar() {
-    const container = $('calendar-container'); container.innerHTML = '';
+    const container = $('calendar-container'); if(!container) return;
+    container.innerHTML = '';
     const now = new Date();
     const monthNames = ["OCAK","ŞUBAT","MART","NİSAN","MAYIS","HAZİRAN","TEMMUZ","AĞUSTOS","EYLÜL","EKİM","KASIM","ARALIK"];
-    $('cal-month-name').textContent = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+    const monthNameSpan = $('cal-month-name'); if(monthNameSpan) monthNameSpan.textContent = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
 
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
     const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     
-    // Day Names
-    ["Pz","Pt","Sa","Ça","Pe","Cu","Ct"].forEach(d => {
-        container.innerHTML += `<div class="cal-day-name">${d}</div>`;
-    });
-
-    // Padding
+    ["Pz","Pt","Sa","Ça","Pe","Cu","Ct"].forEach(d => container.innerHTML += `<div class="cal-day-name">${d}</div>`);
     for(let i=0; i<firstDay; i++) container.innerHTML += `<div></div>`;
-
-    // Days
     for(let d=1; d<=daysInMonth; d++) {
         const isToday = d === now.getDate();
         const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
         const hasEvent = state.memories.some(m => m.date === dateStr) || state.letters.some(l => l.date === dateStr);
-        
         container.innerHTML += `<div class="cal-cell ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''}">${d}</div>`;
     }
 }
 
+function renderMemories() {
+    const list = $('memory-list'); if(!list) return;
+    list.innerHTML = state.memories.length ? '' : '<p style="opacity:0.3; padding:20px; font-size:12px;">Henüz hiç anı yok. ✨</p>';
+    state.memories.slice().reverse().forEach((m, i) => {
+        const div = document.createElement('div');
+        div.style.cssText = "flex-shrink:0; width:150px; background:#fff; padding:8px; border-radius:15px; box-shadow:0 8px 20px rgba(0,0,0,0.05);";
+        div.innerHTML = `<img src="${m.img}" style="width:100%; height:150px; object-fit:cover; border-radius:10px;"><p style="font-size:11px; margin-top:5px; text-align:center; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.note || '💕'}</p>`;
+        div.onclick = () => { if(confirm("Bu anıyı silmek istiyor musun?")) { state.memories.splice(state.memories.length - 1 - i, 1); save(); renderMemories(); renderCalendar(); } };
+        list.appendChild(div);
+    });
+}
+
 function renderLetters() {
-    const list = $('vault-list'); list.innerHTML = '';
-    if(!state.letters.length) list.innerHTML = '<p style="text-align:center; opacity:0.3; font-size:11px;">Henüz hiç mektup yok. Yazmak için dokun ✉️</p>';
+    const list = $('vault-list'); if(!list) return;
+    list.innerHTML = state.letters.length ? '' : '<p style="text-align:center; opacity:0.3; font-size:11px;">Mektubun yok. ✉️</p>';
     state.letters.forEach((l, i) => {
         const locked = new Date() < new Date(l.date);
         const div = document.createElement('div');
         div.style.cssText = "padding:12px; background:rgba(138,125,250,0.05); border-radius:15px; display:flex; align-items:center; gap:10px; cursor:pointer;";
         div.innerHTML = `<span>${locked ? '🔒' : '✉️'}</span><p style="font-weight:600; font-size:13px; margin:0;">${l.title}</p>`;
-        div.onclick = (e) => { e.stopPropagation(); if(locked) return alert("Hala kilitli..."); showModal(`<h3>${l.title}</h3><p style="margin-top:10px;">${l.content}</p>`); };
+        div.onclick = (e) => { e.stopPropagation(); if(locked) return alert("Hala kilitli..."); showModal(`<h3>${l.title}</h3><p style="margin-top:10px; line-height:1.6;">${l.content}</p>`); };
         list.appendChild(div);
     });
 }
 
 function renderWishes() {
-    const list = $('wish-list'); list.innerHTML = '';
+    const list = $('wish-list'); if(!list) return;
+    list.innerHTML = '';
     state.wishes.forEach((w, i) => {
         const div = document.createElement('div');
         div.className = `wish-item ${w.c ? 'checked' : ''}`;
@@ -120,35 +120,13 @@ function renderWishes() {
     });
 }
 
-function renderMemories() {
-    const list = $('memory-list'); list.innerHTML = '';
-    state.memories.forEach((m, i) => {
-        const div = document.createElement('div');
-        div.className = 'memory-piece';
-        div.innerHTML = `<img src="${m.img}" loading="lazy"><p>${m.note || '💕'}</p>`;
-        div.onclick = () => { if(confirm("Silmek istiyor musun?")) { state.memories.splice(i, 1); save(); renderMemories(); renderCalendar(); } };
-        list.appendChild(div);
-    });
-}
-
 function renderAwards() {
-    const shelf = $('award-shelf'); shelf.innerHTML = '';
+    const shelf = $('award-shelf'); if(!shelf) return;
+    shelf.innerHTML = '';
     CONFIG.awards.forEach(a => {
         const has = state.awards.includes(a.id);
         shelf.innerHTML += `<div style="text-align:center; opacity: ${has ? 1 : 0.2};"><div style="font-size:20px;">${a.icon}</div></div>`;
     });
-}
-
-// FEATURE ACTIONS
-function getEmbedUrl(url) {
-    if (url.includes('spotify.com')) {
-        return url.replace('open.spotify.com/', 'open.spotify.com/embed/');
-    }
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-        const id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('/').pop();
-        return `https://www.youtube.com/embed/${id}?autoplay=1`;
-    }
-    return url;
 }
 
 function applyAura(aura) {
@@ -162,57 +140,80 @@ function applyAura(aura) {
 }
 
 function setupEventListeners() {
-    // Vinyl (In-App Player)
+    // RADIO SYSTEM
     $('vinyl-trigger').onclick = () => {
         const disk = $('vinyl-disk');
-        const drawer = $('music-drawer');
-        const haze = $('drawer-haze');
-        const isActive = drawer.classList.contains('active');
-        
-        vibrate(isActive ? 30 : 100);
-        disk.classList.toggle('playing');
-        drawer.classList.toggle('active');
-        haze.classList.toggle('active');
-        
-        if (!isActive) {
-            // Açılış: Iframe'i yükle
-            const embedUrl = getEmbedUrl(CONFIG.songLink);
-            $('embed-container').innerHTML = `<iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+        const radio = $('radio-player');
+        vibrate(100);
+        if(radio.paused) {
+            radio.play().then(() => { disk.classList.add('playing'); }).catch(() => alert("Radyo başlatılamadı. Lütfen tekrar dokun."));
         } else {
-            // Kapanış: Iframe'i temizle (Müziği durdur)
-            $('embed-container').innerHTML = '';
+            radio.pause();
+            disk.classList.remove('playing');
         }
     };
+
+    // BUTTON FIXES (Sevgi Notu & Plan Yap)
+    $('btn-quote').onclick = () => {
+        const q = CONFIG.quotes[Math.floor(Math.random()*CONFIG.quotes.length)];
+        reveal(q);
+    };
     
-    $('drawer-haze').onclick = () => $('vinyl-trigger').click();
+    $('btn-date').onclick = () => {
+        const d = CONFIG.dates[Math.floor(Math.random()*CONFIG.dates.length)];
+        reveal(d);
+    };
 
-    // Cards
+    // MOOD
     const moodCard = document.querySelector('[data-mood="mutlu"]').parentElement.parentElement;
-    moodCard.onclick = () => showModal(`<h3>Ruh Halin?</h3><div style="display:flex; justify-content:space-around; font-size:32px; margin-top:15px;"><span onclick="setM('🥰')" style="cursor:pointer;">🥰</span><span onclick="setM('😊')" style="cursor:pointer;">😊</span><span onclick="setM('😐')" style="cursor:pointer;">😐</span></div>`);
-    window.setM = (i) => { $('mood-feedback').textContent = `Harika! ${i}`; vibrate(30); unlockAward('m_1'); closeModal(); };
+    moodCard.onclick = () => showModal(`<h3>Ruh Halin?</h3><div style="display:flex; justify-content:space-around; font-size:32px; margin-top:15px;"><span onclick="setM('mutlu', '🥰')" style="cursor:pointer;">🥰</span><span onclick="setM('huzurlu', '😊')" style="cursor:pointer;">😊</span><span onclick="setM('normal', '😐')" style="cursor:pointer;">😐</span></div>`);
+    window.setM = (t, i) => { $('mood-feedback').textContent = `Bugün ${t} hissediyorsun. ${i}`; vibrate(30); unlockAward('m_1'); closeModal(); };
 
-    $('vault-list').parentElement.onclick = () => openL();
-    const openL = () => showModal(`<h3>Mektup Yaz</h3><input id="in-l-t" placeholder="Başlık" style="width:100%; padding:12px; margin:10px 0; border:1px solid #eee; border-radius:12px;"><textarea id="in-l-c" placeholder="İçerik" rows="4" style="width:100%; padding:12px; border:1px solid #eee; border-radius:12px;"></textarea><input type="date" id="in-l-d" style="width:100%; padding:12px; margin:10px 0; border:1px solid #eee; border-radius:12px;"><button class="liquid-btn" style="width:100%;" onclick="saveLetter()">Mühürle</button>`);
-    $('add-letter-trigger').onclick = (e) => { e.stopPropagation(); openL(); };
+    // MEMORY UPLOAD FIX
+    $('upload-mem').onchange = (e) => {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const note = prompt("Bu anı için bir not eklemek ister misin?");
+            try {
+                state.memories.push({ img: ev.target.result, note: note, date: new Date().toISOString().split('T')[0] });
+                save();
+                renderMemories();
+                renderCalendar();
+            } catch (err) {
+                alert("Hafıza doldu! Lütfen bazı eski anıları silerek yer aç (LocalStorage sınırı).");
+                state.memories.pop();
+            }
+        };
+        reader.readAsDataURL(file);
+    };
 
-    // Common
-    document.querySelectorAll('.aura-btn').forEach(b => { b.onclick = (e) => { e.stopPropagation(); applyAura(b.getAttribute('data-a')); }});
-    $('haptic-heart').onclick = () => { vibrate([100,50,100]); for(let i=0; i<5; i++) spawnHeart(); };
-    $('fortune-actor').onclick = () => { vibrate(100); const txt = CONFIG.fortunes[Math.floor(Math.random()*CONFIG.fortunes.length)]; $('fortune-actor').classList.add('hidden'); $('fortune-msg').textContent = txt; $('fortune-msg').classList.remove('hidden'); unlockAward('f_1'); };
-    $('unlock-garden-btn').onclick = () => { if($('garden-pass').value.toLowerCase() === CONFIG.secretWord.toLowerCase()) { $('garden-lock').classList.add('hidden'); $('secret-content').classList.remove('hidden'); unlockAward('g_1'); vibrate([100,100,100]); } else alert("Yanlış kelime..."); };
+    // OTHERS
+    $('add-letter-trigger').onclick = (e) => { e.stopPropagation(); showModal(`<h3>Mektup Yaz</h3><input id="in-l-t" placeholder="Başlık" style="width:100%; padding:12px; margin:10px 0;"><textarea id="in-l-c" placeholder="İçerik" rows="4" style="width:100%; padding:12px;"></textarea><input type="date" id="in-l-d" style="width:100%; margin:10px 0;"><button class="liquid-btn" style="width:100%;" onclick="saveLetter()">Mühürle</button>`); };
     $('add-wish-trigger').onclick = () => { const t = prompt("Bir hayal ekle:"); if(t) { state.wishes.push({ t, c: false }); save(); renderWishes(); } };
-    $('btn-quote').onclick = () => reveal(CONFIG.quotes[Math.floor(Math.random()*CONFIG.quotes.length)]);
-    $('btn-date').onclick = () => reveal(CONFIG.dates[Math.floor(Math.random()*CONFIG.dates.length)]);
-    $('upload-mem').onchange = (e) => { const r = new FileReader(); r.onload = (ev) => { const n = prompt("Notun?"); state.memories.push({ img: ev.target.result, note: n, date: new Date().toISOString().split('T')[0] }); save(); renderMemories(); renderCalendar(); }; r.readAsDataURL(e.target.files[0]); };
-    $('edit-countdown-trigger').onclick = () => showModal(`<h3>Ayarlar</h3><input id="in-cd-t" value="${state.countdown.title}" style="width:100%; padding:12px; margin:10px 0;"><input type="datetime-local" id="in-cd-d" value="${state.countdown.date}" style="width:100%;"><button class="liquid-btn" style="width:100%; margin-top:15px;" onclick="saveCd()">Kaydet</button>`);
+    $('haptic-heart').onclick = () => { vibrate([100,50,100]); for(let i=0; i<5; i++) spawnHeart(); };
+    $('unlock-garden-btn').onclick = () => { if($('garden-pass').value.toLowerCase() === CONFIG.secretWord.toLowerCase()) { $('garden-lock').classList.add('hidden'); $('secret-content').classList.remove('hidden'); vibrate([100,100,100]); } else alert("Yanlış kelime..."); };
+    document.querySelectorAll('.aura-btn').forEach(b => { b.onclick = (e) => { e.stopPropagation(); applyAura(b.getAttribute('data-a')); }});
+    $('edit-countdown-trigger').onclick = () => showModal(`<h3>Ayarlar</h3><input id="in-cd-t" value="${state.countdown.title}" style="width:100%;"><input type="datetime-local" id="in-cd-d" value="${state.countdown.date}" style="width:100%; margin-top:10px;"><button class="liquid-btn" style="width:100%; margin-top:15px;" onclick="saveCd()">Kaydet</button>`);
 }
 
-function reveal(txt) { vibrate(30); $('reveal-area').classList.remove('hidden'); $('reveal-text').textContent = txt; for(let i=0; i<8; i++) spawnHeart(); }
+function reveal(txt) {
+    vibrate(30);
+    const area = $('reveal-area');
+    const text = $('reveal-text');
+    area.classList.remove('hidden');
+    text.textContent = txt;
+    for(let i=0; i<8; i++) spawnHeart();
+    // Scroll to reveal area
+    area.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 function spawnHeart() { const h = document.createElement('div'); h.className = 'floating-heart'; h.innerHTML = '❤️'; h.style.left = Math.random() * 100 + 'vw'; h.style.fontSize = '20px'; h.style.setProperty('--dur', '4s'); document.body.appendChild(h); setTimeout(() => h.remove(), 4000); }
 function showModal(html) { $('modal-surface').innerHTML = html + `<button onclick="closeModal()" style="width:100%; margin-top:15px; background:none; border:none; color:#999; cursor:pointer;">Kapat</button>`; $('modal-base').classList.add('active'); }
 window.closeModal = () => $('modal-base').classList.remove('active');
 window.saveCd = () => { state.countdown = { title: $('in-cd-t').value, date: $('in-cd-d').value }; save(); closeModal(); renderCountdown(); };
-window.saveLetter = () => { state.letters.push({ title: $('in-l-t').value, content: $('in-l-c').value, date: $('in-l-d').value }); save(); closeModal(); renderLetters(); renderCalendar(); unlockAward('l_1'); };
+window.saveLetter = () => { state.letters.push({ title: $('in-l-t').value, content: $('in-l-c').value, date: $('in-l-d').value }); save(); closeModal(); renderLetters(); renderCalendar(); };
 function unlockAward(id) { if(!state.awards.includes(id)) { state.awards.push(id); save(); renderAwards(); vibrate([100,50,100]); } }
 function save() {
     localStorage.setItem('ethereal_cd', JSON.stringify(state.countdown));
