@@ -1,5 +1,5 @@
 // =============================================
-// ETHEREAL CORE - V2 (ELITE FEATURES)
+// ETHEREAL CORE - V3 (REPAIR & ENHANCE)
 // =============================================
 
 const CONFIG = {
@@ -54,9 +54,26 @@ function renderCountdown() {
     $('cd-secs').textContent = String(Math.max(0, Math.floor((diff % (1000*60)) / 1000))).padStart(2,'0');
 }
 
+function renderLetters() {
+    const list = $('vault-list'); list.innerHTML = '';
+    if (state.letters.length === 0) { list.innerHTML = '<p style="text-align:center; opacity:0.3; font-size:12px; padding:10px;">Henüz hiç mektup yok. Yazmak için dokun ✉️</p>'; }
+    const now = new Date();
+    state.letters.forEach((l, i) => {
+        const unlock = new Date(l.date); const locked = now < unlock;
+        const div = document.createElement('div');
+        div.style.cssText = "padding:16px; background:rgba(138,125,250,0.05); border-radius:20px; display:flex; align-items:center; gap:12px; cursor:pointer; margin-bottom:8px;";
+        div.innerHTML = `<span style="font-size:24px;">${locked ? '🔒' : '✉️'}</span><div><p style="font-weight:600; font-size:14px; margin:0;">${l.title}</p><small style="opacity:0.5;">${locked ? unlock.toLocaleDateString() : 'Okumak için dokun'}</small></div>`;
+        div.onclick = (e) => {
+            e.stopPropagation();
+            if(locked) return alert("Hala kilitli... Sabret biriciğim. 💕");
+            showModal(`<h3>💌 ${l.title}</h3><p style="white-space:pre-wrap; font-size:15px; margin-top:15px; color:#444; line-height:1.6;">${l.content}</p>`);
+        };
+        list.appendChild(div);
+    });
+}
+
 function renderWishes() {
-    const list = $('wish-list');
-    list.innerHTML = '';
+    const list = $('wish-list'); list.innerHTML = '';
     state.wishes.forEach((w, i) => {
         const div = document.createElement('div');
         div.className = `wish-item ${w.c ? 'checked' : ''}`;
@@ -71,23 +88,8 @@ function renderMemories() {
     state.memories.forEach((m, i) => {
         const div = document.createElement('div');
         div.className = 'memory-piece';
-        div.innerHTML = `<img src="${m.img}"><p>${m.note || '💕'}</p>`;
-        div.onclick = () => { if(confirm("Sil?")) { state.memories.splice(i, 1); save(); renderMemories(); } };
-        list.appendChild(div);
-    });
-}
-
-function renderLetters() {
-    const list = $('vault-list'); list.innerHTML = '';
-    state.letters.forEach((l, i) => {
-        const locked = new Date() < new Date(l.date);
-        const div = document.createElement('div');
-        div.style.cssText = "padding:16px; background:rgba(255,255,255,0.05); border-radius:15px; display:flex; align-items:center; gap:10px; cursor:pointer;";
-        div.innerHTML = `<span>${locked ? '🔒' : '✉️'}</span><div><p style="font-weight:600; margin:0;">${l.title}</p></div>`;
-        div.onclick = () => {
-            if(locked) return alert("Hala kilitli...");
-            showModal(`<h3>${l.title}</h3><p style="margin-top:10px;">${l.content}</p>`);
-        };
+        div.innerHTML = `<img src="${m.img}" loading="lazy"><p>${m.note || '💕'}</p>`;
+        div.onclick = () => { if(confirm("Bu anıyı silelim mi?")) { state.memories.splice(i, 1); save(); renderMemories(); } };
         list.appendChild(div);
     });
 }
@@ -105,80 +107,79 @@ function applyAura(aura) {
     document.body.setAttribute('data-aura', aura);
     state.aura = aura;
     localStorage.setItem('ethereal_aura', aura);
-    
-    // Audio control
     const sounds = { paris: $('audio-rain'), stars: $('audio-stars'), beach: $('audio-waves') };
-    Object.values(sounds).forEach(s => { s.pause(); s.currentTime = 0; });
-    if(sounds[aura]) {
-        sounds[aura].play().catch(() => console.log("User interaction needed for audio"));
-    }
-    
-    document.querySelectorAll('.aura-btn').forEach(b => {
-        b.style.opacity = b.getAttribute('data-a') === aura ? '1' : '0.5';
-    });
+    Object.values(sounds).forEach(s => { if(s) { s.pause(); s.currentTime = 0; } });
+    if(sounds[aura]) { sounds[aura].play().catch(() => {}); }
+    document.querySelectorAll('.aura-btn').forEach(b => { b.style.opacity = b.getAttribute('data-a') === aura ? '1' : '0.5'; });
 }
 
 function setupEventListeners() {
-    // Aura
-    document.querySelectorAll('.aura-btn').forEach(b => {
-        b.onclick = () => applyAura(b.getAttribute('data-a'));
-    });
-
-    // Pulse
-    $('haptic-heart').onclick = () => {
-        vibrate([100, 50, 100]);
-        for(let i=0; i<5; i++) spawnHeart();
+    // Mood Section Modal
+    const moodSection = document.querySelector('[data-mood="mutlu"]').parentElement.parentElement;
+    moodSection.style.cursor = 'pointer';
+    moodSection.onclick = () => {
+        showModal(`
+            <h3>Ruh Halin Nasıl? 💕</h3>
+            <div style="display:flex; justify-content:space-around; font-size:40px; margin-top:20px;">
+                <span onclick="setMood('mutlu', '🥰')" style="cursor:pointer;">🥰</span>
+                <span onclick="setMood('huzurlu', '😊')" style="cursor:pointer;">😊</span>
+                <span onclick="setMood('normal', '😐')" style="cursor:pointer;">😐</span>
+                <span onclick="setMood('üzgün', '😢')" style="cursor:pointer;">😢</span>
+                <span onclick="setMood('kızgın', '😤')" style="cursor:pointer;">😤</span>
+            </div>
+        `);
     };
 
-    // Fortune / Love Jar
-    const shakeJar = () => {
-        vibrate(100);
+    window.setMood = (m, icon) => {
+        vibrate(30);
+        $('mood-feedback').textContent = `Harika! Bugün ${m} hissediyorsun. ${icon}`;
+        unlockAward('m_1');
+        closeModal();
+    };
+
+    // Letters Section Click
+    const letterSection = $('vault-list').parentElement;
+    letterSection.style.cursor = 'pointer';
+    letterSection.onclick = () => openAddLetter();
+
+    const openAddLetter = () => showModal(`
+        <h3>Mektup Yaz</h3>
+        <input id="in-l-t" placeholder="Başlık (Örn: Geleceğimize)" style="width:100%; padding:15px; margin:15px 0; border:1px solid #eee; border-radius:15px;">
+        <textarea id="in-l-c" placeholder="Mektubun..." rows="5" style="width:100%; padding:15px; border:1px solid #eee; border-radius:15px;"></textarea>
+        <p style="font-size:12px; margin:15px 0 5px 0; opacity:0.6;">Açılacağı Tarih:</p>
+        <input type="date" id="in-l-d" style="width:100%; padding:15px; margin-bottom:20px; border:1px solid #eee; border-radius:15px;">
+        <button class="liquid-btn" style="width:100%;" onclick="saveLetter()">Mühürle & Sakla</button>
+    `);
+
+    $('add-letter-trigger').onclick = (e) => { e.stopPropagation(); openAddLetter(); };
+
+    // Other Triggers
+    document.querySelectorAll('.aura-btn').forEach(b => { b.onclick = (e) => { e.stopPropagation(); applyAura(b.getAttribute('data-a')); } });
+    $('haptic-heart').onclick = () => { vibrate([100, 50, 100]); for(let i=0; i<5; i++) spawnHeart(); };
+    $('fortune-actor').onclick = () => {
+        vibrate(100); const today = new Date().toISOString().split('T')[0];
+        if(localStorage.getItem('eth_f_date') === today) return reveal(localStorage.getItem('eth_f_txt'));
         const txt = CONFIG.fortunes[Math.floor(Math.random()*CONFIG.fortunes.length)];
-        $('fortune-actor').classList.add('hidden');
-        $('fortune-msg').textContent = txt;
-        $('fortune-msg').classList.remove('hidden');
+        localStorage.setItem('eth_f_date', today); localStorage.setItem('eth_f_txt', txt);
+        $('fortune-actor').classList.add('hidden'); $('fortune-msg').textContent = txt; $('fortune-msg').classList.remove('hidden');
         unlockAward('f_1');
     };
-    $('fortune-actor').onclick = shakeJar;
 
-    // Shake detection
-    let lastX, lastY, lastZ;
-    window.addEventListener('devicemotion', (e) => {
-        let acc = e.accelerationIncludingGravity;
-        if (!acc.x) return;
-        let delta = Math.abs(acc.x + acc.y + acc.z - lastX - lastY - lastZ);
-        if (delta > 20) shakeJar();
-        lastX = acc.x; lastY = acc.y; lastZ = acc.z;
-    });
-
-    // Secret Garden
     $('unlock-garden-btn').onclick = () => {
         if($('garden-pass').value.toLowerCase() === CONFIG.secretWord.toLowerCase()) {
-            $('garden-lock').classList.add('hidden');
-            $('secret-content').classList.remove('hidden');
-            $('secret-msg-dynamic').textContent = `Kalbimizin anahtarı senin elinde. ✨`;
-            unlockAward('g_1');
-            vibrate([100, 100, 100]);
-        } else {
-            alert("Kelime yanlış... Kalbini dinle. 💕");
-        }
+            $('garden-lock').classList.add('hidden'); $('secret-content').classList.remove('hidden'); unlockAward('g_1'); vibrate([100, 100, 100]);
+        } else alert("Yanlış kelime...");
     };
 
-    // Wishlist Add
-    $('add-wish-trigger').onclick = () => {
-        const t = prompt("Bir hayal ekle:");
-        if(t) { state.wishes.push({ t: t, c: false }); save(); renderWishes(); }
-    };
-
+    $('add-wish-trigger').onclick = () => { const t = prompt("Bir hayal ekle:"); if(t) { state.wishes.push({ t, c: false }); save(); renderWishes(); } };
     $('btn-quote').onclick = () => reveal(CONFIG.quotes[Math.floor(Math.random()*CONFIG.quotes.length)]);
     $('btn-date').onclick = () => reveal(CONFIG.dates[Math.floor(Math.random()*CONFIG.dates.length)]);
+    $('edit-countdown-trigger').onclick = () => showModal(`<h3>Ayarlar</h3><input id="in-cd-t" value="${state.countdown.title}" style="width:100%; padding:15px; margin:15px 0; border:1px solid #eee; border-radius:15px;"><input type="datetime-local" id="in-cd-d" value="${state.countdown.date}" style="width:100%; padding:15px; margin-bottom:20px; border:1px solid #eee; border-radius:15px;"><button class="liquid-btn" style="width:100%;" onclick="saveCd()">Kaydet</button>`);
+    $('quiz-trigger').onclick = startQuiz;
 }
 
-function reveal(txt) {
-    vibrate(30); $('reveal-area').classList.remove('hidden'); $('reveal-text').textContent = txt;
-    for(let i=0; i<8; i++) spawnHeart();
-}
-
+// SHARED UTILS
+function reveal(txt) { vibrate(30); $('reveal-area').classList.remove('hidden'); $('reveal-text').textContent = txt; for(let i=0; i<8; i++) spawnHeart(); }
 function spawnHeart() {
     const h = document.createElement('div'); h.className = 'floating-heart';
     h.innerHTML = ['❤️','💖','✨'][Math.floor(Math.random()*3)];
@@ -187,13 +188,23 @@ function spawnHeart() {
     h.style.setProperty('--dur', (Math.random()*3 + 3) + 's');
     document.body.appendChild(h); setTimeout(() => h.remove(), 6000);
 }
-
-function showModal(html) {
-    $('modal-surface').innerHTML = html + `<button onclick="closeModal()" style="width:100%; margin-top:20px; background:none; border:none; color:#999;">Kapat</button>`;
-    $('modal-base').classList.add('active');
-}
+function showModal(html) { $('modal-surface').innerHTML = html + `<button onclick="closeModal()" style="width:100%; margin-top:20px; background:none; border:none; color:#999; cursor:pointer;">Kapat</button>`; $('modal-base').classList.add('active'); }
 window.closeModal = () => $('modal-base').classList.remove('active');
-
+window.saveCd = () => { state.countdown = { title: $('in-cd-t').value, date: $('in-cd-d').value }; save(); closeModal(); renderCountdown(); };
+window.saveLetter = () => { state.letters.push({ title: $('in-l-t').value, content: $('in-l-c').value, date: $('in-l-d').value }); save(); closeModal(); renderLetters(); unlockAward('l_1'); };
+function startQuiz() {
+    let current = 0, score = 0;
+    const next = () => {
+        if(current >= CONFIG.quiz.length) return showModal(`<h3>Test Bitti! 🏆</h3><p style="font-size:24px; font-weight:800; color:var(--c-primary);">${score}/${CONFIG.quiz.length}</p>`);
+        const q = CONFIG.quiz[current];
+        let h = `<h3>${q.q}</h3><div style="display:grid; gap:10px; margin-top:20px;">`;
+        q.opts.forEach((o, i) => h += `<button class="liquid-btn" style="background:#f0f0f5; color:#555; box-shadow:none;" onclick="handleAns(${i}, ${q.correct})">${o}</button>`);
+        showModal(h + `</div>`);
+    };
+    window.handleAns = (i, c) => { if(i===c) score++; current++; next(); vibrate(40); };
+    next();
+}
+function unlockAward(id) { if(!state.awards.includes(id)) { state.awards.push(id); save(); renderAwards(); vibrate([100,50,100]); } }
 function save() {
     localStorage.setItem('ethereal_cd', JSON.stringify(state.countdown));
     localStorage.setItem('ethereal_mem', JSON.stringify(state.memories));
@@ -201,7 +212,5 @@ function save() {
     localStorage.setItem('ethereal_wish', JSON.stringify(state.wishes));
     localStorage.setItem('ethereal_awd', JSON.stringify(state.awards));
 }
-
-function unlockAward(id) { if(!state.awards.includes(id)) { state.awards.push(id); save(); renderAwards(); vibrate([100,50,100]); } }
 
 document.addEventListener('DOMContentLoaded', init);
