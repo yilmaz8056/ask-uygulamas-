@@ -68,8 +68,8 @@
             </div>
             <p id="song-name" style="font-size: 14px; font-weight: 700; color: #444; margin-bottom: 5px;">Slow Radyomuz Canlı</p>
             <p style="font-size: 11px; opacity: 0.5;">Dinlemek için dokun 🎵</p>
-            <!-- Hidden YouTube Player Container -->
-            <div id="yt-player-wrap" style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;">
+            <!-- Hidden YouTube Player Container (1x1 for audio stability) -->
+            <div id="yt-player-wrap" style="position: absolute; bottom: 0; right: 0; width: 1px; height: 1px; opacity: 0.01; pointer-events: none; overflow: hidden;">
                 <div id="yt-player"></div>
             </div>
         </section>

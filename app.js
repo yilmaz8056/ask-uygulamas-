@@ -54,6 +54,8 @@ window.onYouTubeIframeAPIReady = function() {
 };
 
 function onPlayerReady(event) {
+    ytPlayer.unMute();
+    ytPlayer.setVolume(100);
     console.log("YouTube Radyo Hazır.");
 }
 
@@ -188,6 +190,8 @@ function setupEventListeners() {
         
         if(playerState !== YT.PlayerState.PLAYING) {
             statusText.textContent = "Bağlanıyor...";
+            ytPlayer.unMute();
+            ytPlayer.setVolume(100);
             ytPlayer.playVideo();
             disk.classList.add('playing');
             statusText.textContent = "Keyifli Dinlemeler... 💕";
