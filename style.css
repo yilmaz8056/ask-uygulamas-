@@ -163,16 +163,16 @@ body {
 /* ===== Main App Container ===== */
 .app-container {
     width: 100%;
-    max-width: 460px; /* Biraz daha geniş alanı kapla */
+    max-width: 580px; /* Çok daha geniş bir görünüm */
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 12px 16px;
+    padding: 10px 12px;
     z-index: 10;
     opacity: 0;
     visibility: hidden;
     transform: scale(0.9) translateY(20px);
-    transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .app-container.active {
@@ -220,9 +220,9 @@ body {
     flex: 1; 
     display: flex; 
     flex-direction: column; 
-    gap: 20px; /* Daha fazla nefes payı */
+    gap: 30px; /* Kartlar arası boşluk artırıldı */
     overflow-y: auto;
-    padding-bottom: 20px;
+    padding: 10px 2px 30px 2px;
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
@@ -232,23 +232,13 @@ body {
 
 /* ===== Countdown Card ===== */
 .countdown-card {
-    background: linear-gradient(135deg, rgba(136,14,79,0.4), rgba(74,20,140,0.4));
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 22px;
-    padding: 20px;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255,255,255,0.08);
     text-align: center;
     position: relative;
-    animation: fadeIn 0.5s ease-out;
+    padding: 30px 10px;
 }
 
 .countdown-card h4 {
-    font-size: 16px;
-    margin-bottom: 12px;
-    color: #ffdde1;
-    font-weight: 600;
+    margin-bottom: 20px;
 }
 
 .countdown-timer {
@@ -260,9 +250,9 @@ body {
 
 .time-box {
     background: rgba(255,255,255,0.15);
-    border-radius: 12px;
-    padding: 8px 12px;
-    min-width: 55px;
+    border-radius: 15px;
+    padding: 12px 18px;
+    min-width: 75px;
     text-align: center;
 }
 
@@ -308,11 +298,12 @@ body {
 /* ===== Glass Cards & Effects ===== */
 .premium-card {
     position: relative;
+    width: 100%; /* Kartlar container'ı tam kaplasın */
     overflow: hidden;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    border-radius: 26px;
-    padding: 24px 20px; /* Yatayda daha çok alan */
+    border-radius: 30px; /* Daha yumuşak köşeler */
+    padding: 35px 28px; /* Yazılar için çok daha fazla alan */
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255,255,255,0.1);
@@ -341,19 +332,23 @@ body {
 
 .countdown-card, .mood-card, .fortune-card, .music-card, .our-song-card, .special-days-card, .polaroid-section, .love-map-section, .letter-vault-section, .achievements-section, .quote-card, .date-card {
     text-align: center;
-    margin-bottom: 5px;
+    width: 100%;
 }
 
-/* Tüm kart başlıkları büyütüldü */
+/* OKUNABİLİRLİK: Tüm başlıklar ve paragraflar %30 büyütüldü ve kalınlaştırıldı */
 .premium-card h3, .premium-card h4, .premium-card h5 {
-    font-size: 20px !important;
-    margin-bottom: 12px;
+    font-size: 24px !important; /* Daha büyük */
+    font-weight: 800 !important;
+    margin-bottom: 15px;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Tüm paragraflar büyütüldü */
-.premium-card p {
-    font-size: 17px;
-    line-height: 1.5;
+.premium-card p, .premium-card label {
+    font-size: 19px; /* Daha büyük */
+    font-weight: 600; /* Kalınlaştırıldı */
+    line-height: 1.6;
+    color: #fff;
 }
 
 .premium-card:active {
@@ -363,13 +358,6 @@ body {
 
 /* ===== Special Days ===== */
 .special-days-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 22px;
-    padding: 16px;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255,255,255,0.08);
     text-align: left;
 }
 
@@ -409,11 +397,10 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.day-text h5 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
-.day-text p { font-size: 12px; opacity: 0.8; }
+.day-text h5 { margin-bottom: 4px; }
+.day-text p { opacity: 0.8; }
 
 .day-countdown {
-    font-size: 14px;
     font-weight: 800;
     color: #ffd1dc;
     text-align: right;
@@ -421,13 +408,7 @@ body {
 
 /* ===== Polaroid Gallery ===== */
 .polaroid-section {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 22px;
-    padding: 16px;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255,255,255,0.08);
+    position: relative;
 }
 
 .polaroid-gallery {
@@ -511,13 +492,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 120px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 20px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    min-height: 160px; /* Büyütüldü */
 }
 
 .quote-content {
@@ -600,24 +575,15 @@ body {
 
 /* ===== Date Idea Card ===== */
 .date-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 15px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     text-align: center;
     animation: fadeIn 0.5s ease-out;
 }
 
 .date-card h4 {
-    font-size: 16px;
-    margin-bottom: 8px;
-    color: #ffdde1;
+    margin-bottom: 12px;
 }
 
 .date-card p {
-    font-size: 16px;
     font-weight: 500;
 }
 
@@ -628,13 +594,6 @@ body {
 
 /* ===== Music Player ===== */
 .music-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 22px;
-    padding: 14px 16px;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255,255,255,0.08);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -791,13 +750,6 @@ body {
 
 /* ===== Mood Tracker ===== */
 .mood-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 22px;
-    padding: 16px;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255,255,255,0.08);
     text-align: center;
 }
 .mood-card h4 {
@@ -849,13 +801,7 @@ body {
 
 /* ===== Fortune Cookie ===== */
 .fortune-card {
-    background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,140,66,0.1));
-    border: 1px solid rgba(255,215,0,0.2);
-    border-radius: 22px;
-    padding: 20px;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255,215,0,0.08);
+    background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,140,66,0.15));
     text-align: center;
 }
 .fortune-cookie {
@@ -886,13 +832,7 @@ body {
 
 /* ===== Our Song ===== */
 .our-song-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 22px;
-    padding: 16px;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255,255,255,0.08);
+    position: relative;
 }
 .our-song-player {
     text-align: center;
@@ -920,13 +860,7 @@ body {
 
 /* ===== Love Map / Timeline ===== */
 .love-map-section {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 22px;
-    padding: 16px;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255,255,255,0.08);
+    position: relative;
 }
 .love-timeline {
     display: flex;
@@ -966,13 +900,7 @@ body {
 
 /* ===== Letter Vault ===== */
 .letter-vault-section {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 22px;
-    padding: 16px;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255,255,255,0.08);
+    position: relative;
 }
 .letter-list {
     display: flex;
@@ -1015,13 +943,7 @@ body {
 
 /* ===== Achievements ===== */
 .achievements-section {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 22px;
-    padding: 16px;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255,255,255,0.08);
+    position: relative;
 }
 .achievements-grid {
     display: grid;
