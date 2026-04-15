@@ -10,9 +10,9 @@ const CONFIG = {
     secretWord: "Sonsuzluk",
     defaultVid: "vG8NAsj8kxs", // Slow Türk
     stations: {
-        "slow-turk": "vG8NAsj8kxs", // Kararlı Slow Mix
-        "ask-mix": "l6C9l2wY_6Y",   // Kararlı Akustik
-        "lofi": "jfKfPfyJRdk"      // Global Relax
+        "slow-turk": "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1256339191&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true",
+        "ask-mix": "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/407944065&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true",
+        "lofi": "https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=0&rel=0"
     },
     awards: [
         { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
@@ -162,10 +162,10 @@ function toggleMusicDrawer(show = true) {
 
 function switchChannel(vidId) {
     vibrate(50);
-    $('yt-status').textContent = "Kanal Yükleniyor... ✨";
+    $('yt-status').textContent = "Elite Kanal Yükleniyor... ✨";
     const player = $('yt-player-frame');
     if(player) {
-        player.src = `https://www.youtube.com/embed/${vidId}?autoplay=1&mute=0&rel=0`;
+        player.src = vidId; // Direct URL for both SoundCloud & YT
         $('vinyl-disk').classList.add('playing');
         $('song-name').textContent = "Çalıyor... 💕";
     }
