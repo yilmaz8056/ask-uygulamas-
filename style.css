@@ -163,16 +163,16 @@ body {
 /* ===== Main App Container ===== */
 .app-container {
     width: 100%;
-    max-width: 580px; /* Çok daha geniş bir görünüm */
+    max-width: 440px; /* Standart premium mobil genişliği */
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 10px 12px;
+    padding: 14px 20px;
     z-index: 10;
     opacity: 0;
     visibility: hidden;
     transform: scale(0.9) translateY(20px);
-    transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .app-container.active {
@@ -220,9 +220,9 @@ body {
     flex: 1; 
     display: flex; 
     flex-direction: column; 
-    gap: 30px; /* Kartlar arası boşluk artırıldı */
+    gap: 20px; /* Zarif boşluk */
     overflow-y: auto;
-    padding: 10px 2px 30px 2px;
+    padding: 10px 0 30px 0;
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
@@ -232,9 +232,12 @@ body {
 
 /* ===== Countdown Card ===== */
 .countdown-card {
+    background: linear-gradient(135deg, rgba(136,14,79,0.5), rgba(74,20,140,0.5));
+    border: 1px solid rgba(255,255,255,0.15);
     text-align: center;
     position: relative;
-    padding: 30px 10px;
+    padding: 22px;
+    animation: fadeIn 0.8s ease-out;
 }
 
 .countdown-card h4 {
@@ -298,12 +301,12 @@ body {
 /* ===== Glass Cards & Effects ===== */
 .premium-card {
     position: relative;
-    width: 100%; /* Kartlar container'ı tam kaplasın */
+    width: 100%; 
     overflow: hidden;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    border-radius: 30px; /* Daha yumuşak köşeler */
-    padding: 35px 28px; /* Yazılar için çok daha fazla alan */
+    border-radius: 24px; /* Dengeli kavis */
+    padding: 24px; /* Zarif dolgu */
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     box-shadow: var(--card-shadow), inset 0 1px 0 rgba(255,255,255,0.1);
@@ -335,19 +338,19 @@ body {
     width: 100%;
 }
 
-/* OKUNABİLİRLİK: Tüm başlıklar ve paragraflar %30 büyütüldü ve kalınlaştırıldı */
+/* OKUNABİLİRLİK: Dengeli ve net fontlar */
 .premium-card h3, .premium-card h4, .premium-card h5 {
-    font-size: 24px !important; /* Daha büyük */
-    font-weight: 800 !important;
-    margin-bottom: 15px;
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    margin-bottom: 12px;
     color: #fff;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.2);
 }
 
 .premium-card p, .premium-card label {
-    font-size: 19px; /* Daha büyük */
-    font-weight: 600; /* Kalınlaştırıldı */
-    line-height: 1.6;
+    font-size: 16px; 
+    font-weight: 500;
+    line-height: 1.5;
     color: #fff;
 }
 
@@ -801,7 +804,8 @@ body {
 
 /* ===== Fortune Cookie ===== */
 .fortune-card {
-    background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,140,66,0.15));
+    background: linear-gradient(135deg, rgba(255,215,0,0.18), rgba(255,140,66,0.18));
+    border: 1px solid rgba(255,215,0,0.3);
     text-align: center;
 }
 .fortune-cookie {
