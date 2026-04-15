@@ -1,8 +1,8 @@
-const CACHE_NAME = 'ask-uygulamasi-v35-2-fresh';
+const CACHE_NAME = 'ask-uygulamasi-v35-3-premium';
 const urlsToCache = [
   './index.html',
-  './style.css?v=35.2',
-  './app.js?v=35.2',
+  './style.css?v=35.3',
+  './app.js?v=35.3',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
