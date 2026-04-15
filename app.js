@@ -32,11 +32,19 @@ let ytPlayer = null;
 const $ = (id) => document.getElementById(id);
 const vibrate = (p=50) => navigator.vibrate && navigator.vibrate(p);
 
+// Dinamik YouTube API Yükleme
+function loadYT() {
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+}
+
 // YouTube API Callback
 window.onYouTubeIframeAPIReady = function() {
     ytPlayer = new YT.Player('yt-player', {
-        height: '0',
-        width: '0',
+        height: '1',
+        width: '1',
         videoId: CONFIG.ytVideoId,
         playerVars: {
             'autoplay': 0,
@@ -44,7 +52,8 @@ window.onYouTubeIframeAPIReady = function() {
             'disablekb': 1,
             'fs': 0,
             'rel': 0,
-            'modestbranding': 1
+            'modestbranding': 1,
+            'mute': 0
         },
         events: {
             'onReady': onPlayerReady,
@@ -181,8 +190,9 @@ function setupEventListeners() {
         
         vibrate(100);
         
-        if(!ytPlayer || !ytPlayer.getPlayerState) {
-            alert("Radyo henüz hazır değil, lütfen bir saniye bekle.");
+        if(!ytPlayer || typeof ytPlayer.getPlayerState !== 'function') {
+            statusText.textContent = "Hazırlanıyor...";
+            setTimeout(() => { if($('vinyl-trigger')) $('vinyl-trigger').click(); }, 1500);
             return;
         }
 
@@ -264,4 +274,5 @@ function save() {
     localStorage.setItem('ethereal_awd', JSON.stringify(state.awards));
 }
 
+loadYT();
 document.addEventListener('DOMContentLoaded', init);
