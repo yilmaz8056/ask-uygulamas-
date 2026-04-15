@@ -1,5 +1,5 @@
 // =============================================
-// ETHEREAL CORE - V20 (STATION PICKER ENGINE)
+// ETHEREAL CORE - V23 (FRESH AUDIO ENGINE)
 // =============================================
 
 const CONFIG = {
@@ -11,7 +11,7 @@ const CONFIG = {
     stations: {
         "slow-turk": "https://radyo.dokuzsoft.com/8106/stream",
         "joy-fm": "https://karnaval.radyotvonline.net/joyfm_low.mp3",
-        "romantic": "https://stream.srg-ssr.ch/m/rsj/mp3_128" // Ultra-Reliable Global Backup
+        "romantic": "https://stream.srg-ssr.ch/m/rsj/mp3_128"
     },
     awards: [
         { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
@@ -37,7 +37,6 @@ const $ = (id) => document.getElementById(id);
 const vibrate = (p=50) => navigator.vibrate && navigator.vibrate(p);
 
 function init() {
-    audioPlayer = $('main-radio-player');
     renderDashboard();
     renderCountdown();
     renderDailyAffirmation();
@@ -49,20 +48,6 @@ function init() {
     applyAura(state.aura);
     setupEventListeners();
     setInterval(renderCountdown, 1000);
-
-    // Audio State Sync
-    audioPlayer.onplay = () => {
-        $('vinyl-disk').classList.add('playing');
-        $('song-name').textContent = "Canlı Yayın Çalıyor... 💕";
-    };
-    audioPlayer.onpause = () => {
-        $('vinyl-disk').classList.remove('playing');
-        $('song-name').textContent = "Radyo Durduruldu";
-    };
-    audioPlayer.onerror = () => {
-        $('radio-status').textContent = "Bağlantı Hatası! Diğer Kanalı Dene.";
-        $('song-name').textContent = "Bağlantı Kesildi";
-    };
 }
 
 // RENDERS
@@ -175,9 +160,10 @@ function toggleMusicDrawer(show = true) {
 
 function playStation(id) {
     if (id === 'cancel') {
-        audioPlayer.pause();
-        audioPlayer.src = "";
+        if(audioPlayer) { audioPlayer.pause(); audioPlayer = null; }
         toggleMusicDrawer(false);
+        $('vinyl-disk').classList.remove('playing');
+        $('song-name').textContent = "Radyo Durduruldu";
         return;
     }
     const url = CONFIG.stations[id];
@@ -185,26 +171,35 @@ function playStation(id) {
 
     vibrate(50);
     $('radio-status').textContent = "Bağlanıyor... 💕";
+
+    // FRESH ENGINE (Sıfır Motor)
+    if(audioPlayer) { audioPlayer.pause(); audioPlayer = null; }
     
-    try {
-        audioPlayer.pause();
-        audioPlayer.src = url + "?t=" + Date.now(); // Cache-busting
-        
-        // Synchronous play call for mobile stability
-        const playPromise = audioPlayer.play();
-        
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                $('radio-status').textContent = "Çalıyor: " + id.replace('-',' ').toUpperCase();
-                setTimeout(() => toggleMusicDrawer(false), 2000);
-            }).catch(err => {
-                console.warn("Attempting play fallback...");
-                $('radio-status').textContent = "Bağlantı Deneniyor...";
-            });
-        }
-    } catch(e) {
-        $('radio-status').textContent = "İstasyon Değiştirildi.";
-    }
+    audioPlayer = new Audio(url + "?t=" + Date.now());
+    audioPlayer.volume = 1.0;
+    audioPlayer.muted = false;
+
+    audioPlayer.onplay = () => {
+        $('vinyl-disk').classList.add('playing');
+        $('song-name').textContent = "Canlı Yayın Çalıyor... 💕";
+        $('radio-status').textContent = "Çalıyor: " + id.replace('-',' ').toUpperCase();
+        setTimeout(() => toggleMusicDrawer(false), 1500);
+    };
+
+    audioPlayer.onpause = () => {
+        $('vinyl-disk').classList.remove('playing');
+        $('song-name').textContent = "Radyo Durduruldu";
+    };
+
+    audioPlayer.onerror = () => {
+        $('radio-status').textContent = "İstasyon şu an meşgul. Diğerini dene.";
+        $('song-name').textContent = "Bağlantı Hatası";
+    };
+
+    audioPlayer.play().catch(err => {
+        console.error("Audio error:", err);
+        $('radio-status').textContent = "Dokun ve Tekrar Dene.";
+    });
 
     document.querySelectorAll('.station-btn').forEach(b => {
         b.classList.toggle('active', b.getAttribute('data-s') === id);
@@ -215,9 +210,10 @@ function setupEventListeners() {
     // STATION PICKER SYSTEM
     try {
         $('vinyl-trigger').onclick = () => {
-            if (!audioPlayer.paused) {
+            if (audioPlayer && !audioPlayer.paused) {
                 audioPlayer.pause();
-                audioPlayer.src = "";
+                audioPlayer = null;
+                $('vinyl-disk').classList.remove('playing');
             } else {
                 toggleMusicDrawer(true);
             }
