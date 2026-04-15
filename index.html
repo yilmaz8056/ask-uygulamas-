@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=2.0">
+    <link rel="stylesheet" href="style.css?v=3.0">
 </head>
 <body>
     
@@ -19,6 +19,9 @@
 
     <!-- Floating Hearts Container -->
     <div class="hearts-container" id="hearts-container"></div>
+
+    <!-- Bokeh Background Elements -->
+    <div id="bokeh-container" class="bokeh-container"></div>
 
     <!-- Envelope Intro Screen -->
     <div id="intro-screen" class="intro-screen">
@@ -43,7 +46,7 @@
         <main class="content-area">
             
             <!-- Geri Sayım Sayacı -->
-            <div class="countdown-card" id="countdown-card" style="display:none;">
+            <div class="countdown-card premium-card" id="countdown-card" style="display:none;">
                 <h4><i class="fa-solid fa-hourglass-half"></i> <span id="countdown-title">Kavuşmamıza</span></h4>
                 <div class="countdown-timer" id="countdown-timer">
                     <div class="time-box"><span id="cd-days">0</span><small>Gün</small></div>
@@ -58,7 +61,7 @@
             </div>
 
             <!-- Ruh Hali Takipçisi -->
-            <div class="mood-card">
+            <div class="mood-card premium-card">
                 <h4><i class="fa-solid fa-face-smile-beam"></i> Bugün Nasıl Hissediyorsun?</h4>
                 <div class="mood-emojis" id="mood-emojis">
                     <button class="mood-emoji" data-mood="mutlu">😍</button>
@@ -72,7 +75,7 @@
             </div>
 
             <!-- Günlük Aşk Falı -->
-            <div class="fortune-card" id="fortune-card">
+            <div class="fortune-card premium-card" id="fortune-card">
                 <div class="fortune-cookie" id="fortune-cookie">
                     <i class="fa-solid fa-cookie-bite" style="font-size:3rem;"></i>
                     <p>Günlük Aşk Falına Bak 🥠</p>
@@ -81,7 +84,7 @@
             </div>
 
             <!-- Music Player -->
-            <div class="music-card">
+            <div class="music-card premium-card">
                 <div class="music-info">
                     <div class="music-icon-wrapper">
                         <i class="fa-solid fa-radio music-icon"></i>
@@ -100,7 +103,7 @@
             </div>
 
             <!-- Bizim Şarkımız -->
-            <div class="our-song-card">
+            <div class="our-song-card premium-card">
                 <div class="header-with-edit">
                     <h4 style="margin:0; color:#ffdde1;"><i class="fa-solid fa-music"></i> Bizim Şarkımız</h4>
                     <label for="song-upload" class="edit-icon" title="Şarkı Yükle"><i class="fa-solid fa-upload"></i></label>
@@ -117,12 +120,12 @@
                 <p id="no-song-msg" style="text-align:center;opacity:0.6;font-size:0.85rem;">Henüz şarkı yüklenmedi. Yükle butonuna bas!</p>
             </div>
 
-            <div class="special-days-card" id="special-days-list">
+            <div class="special-days-card premium-card" id="special-days-list">
                 <h3>Önemli Günlerimiz 🗓️</h3>
             </div>
 
             <!-- Polaroid Galeri -->
-            <div class="polaroid-section">
+            <div class="polaroid-section premium-card">
                 <div class="header-with-edit">
                     <h3 style="margin:0; color:#ffdde1;">Anılarımız 📸</h3>
                     <label for="polaroid-upload" class="edit-icon" title="Yeni Anı Ekle"><i class="fa-solid fa-plus"></i></label>
@@ -137,7 +140,7 @@
             </div>
 
             <!-- Aşk Haritası (Timeline) -->
-            <div class="love-map-section">
+            <div class="love-map-section premium-card">
                 <div class="header-with-edit">
                     <h3 style="margin:0; color:#ffdde1;"><i class="fa-solid fa-map-location-dot"></i> Aşk Haritamız</h3>
                     <button class="edit-icon" id="add-place-btn" title="Yer Ekle"><i class="fa-solid fa-plus"></i></button>
@@ -148,7 +151,7 @@
             </div>
 
             <!-- Mektup Kasası -->
-            <div class="letter-vault-section">
+            <div class="letter-vault-section premium-card">
                 <div class="header-with-edit">
                     <h3 style="margin:0; color:#ffdde1;"><i class="fa-solid fa-lock"></i> Mektup Kasası</h3>
                     <button class="edit-icon" id="add-letter-btn" title="Mektup Yaz"><i class="fa-solid fa-pen-fancy"></i></button>
@@ -159,12 +162,12 @@
             </div>
 
             <!-- Başarımlar -->
-            <div class="achievements-section">
+            <div class="achievements-section premium-card">
                 <h3 style="text-align:center;color:#ffdde1;margin-bottom:10px;"><i class="fa-solid fa-trophy"></i> Başarımlarımız</h3>
                 <div class="achievements-grid" id="achievements-grid"></div>
             </div>
 
-            <div class="quote-card">
+            <div class="quote-card premium-card">
                 <div class="quote-content">
                     <i class="fa-solid fa-quote-left quote-mark"></i>
                     <p id="quote-text">Sana söylemek istediğim çok şey var...</p>
@@ -173,7 +176,7 @@
             </div>
 
             <!-- Date Idea Card -->
-            <div class="date-card" id="date-card" style="display: none;">
+            <div class="date-card premium-card" id="date-card" style="display: none;">
                 <h4>💖 Günün Date Fikri</h4>
                 <p id="date-text">Hazırlanıyor...</p>
             </div>

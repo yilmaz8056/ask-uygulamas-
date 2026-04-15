@@ -166,6 +166,7 @@ envelope.addEventListener('click', () => {
         initCountdown();
         initFortuneCookie();
         initOurSong();
+        initPremiumFeatures();
         toggleMusic(true);
     }, 1000);
 });
@@ -1021,4 +1022,87 @@ function renderAchievements() {
         grid.appendChild(div);
     });
 }
+
+// =============================================
+// 12. PREMIUM FEATURES (Tilt & Bokeh)
+// =============================================
+function initPremiumFeatures() {
+    initBokeh();
+    initTiltEffect();
+}
+
+function initBokeh() {
+    const container = document.getElementById('bokeh-container');
+    if (!container) return;
+    const particleCount = 20;
+
+    for (let i = 0; i < particleCount; i++) {
+        const p = document.createElement('div');
+        p.className = 'bokeh-particle';
+        
+        const size = Math.random() * 80 + 40;
+        const dur = Math.random() * 10 + 10;
+        
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.top = Math.random() * 100 + 'vh';
+        p.style.setProperty('--tx', (Math.random() * 200 - 100) + 'px');
+        p.style.setProperty('--ty', (Math.random() * 200 - 100) + 'px');
+        p.style.setProperty('--dur', dur + 's');
+        p.style.animationDelay = (Math.random() * 5) + 's';
+        
+        container.appendChild(p);
+    }
+}
+
+function initTiltEffect() {
+    const cards = document.querySelectorAll('.premium-card');
+    
+    cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 12;
+            const rotateY = (centerX - x) / 12;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
+        });
+
+        // Mobil için Touch desteği
+        card.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            const rect = card.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
+                return;
+            }
+
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 18;
+            const rotateY = (centerX - x) / 18;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
+        }, { passive: true });
+
+        card.addEventListener('touchend', () => {
+            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
+        });
+    });
+}
+
 
