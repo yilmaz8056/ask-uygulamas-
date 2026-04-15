@@ -1,5 +1,5 @@
 // =============================================
-// ETHEREAL CORE - V23 (FRESH AUDIO ENGINE)
+// ETHEREAL CORE - V24 (VISIBLE YT ENGINE)
 // =============================================
 
 const CONFIG = {
@@ -8,11 +8,7 @@ const CONFIG = {
     fortunes: ["Bugün ona sürpriz bir not yaz 💌", "Birlikte yeni bir akıl almaz macera ☕", "Ona sarıl ve bırakma 🤗"],
     affirmations: ["Bugün varlığın için binlerce şükür sebebim var. 💕", "Dünyanın en şanslı insanıyım... ✨", "Gülüşün kalbimin huzurlu limanı. 🌊"],
     secretWord: "Sonsuzluk",
-    stations: {
-        "slow-turk": "https://radyo.dokuzsoft.com/8106/stream",
-        "joy-fm": "https://karnaval.radyotvonline.net/joyfm_low.mp3",
-        "romantic": "https://stream.srg-ssr.ch/m/rsj/mp3_128"
-    },
+    ytVideoId: "_fX-O0zV93o", // Kararlı Türkçe Slow Mix
     awards: [
         { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
         { id: 'l_1', name: 'Zaman Yolcusu', icon: '✉️' },
@@ -31,10 +27,49 @@ let state = {
     startDate: "2023-10-15"
 };
 
-let audioPlayer = null;
+let ytPlayer = null;
 
 const $ = (id) => document.getElementById(id);
 const vibrate = (p=50) => navigator.vibrate && navigator.vibrate(p);
+
+// YouTube API Dinamik Yükleme
+function loadYT() {
+    if (window.YT) return; // Zaten yüklüyse çık
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+}
+
+// YT API Callback
+window.onYouTubeIframeAPIReady = function() {
+    ytPlayer = new YT.Player('yt-player', {
+        height: '100%',
+        width: '100%',
+        videoId: CONFIG.ytVideoId,
+        playerVars: {
+            'autoplay': 0,
+            'controls': 1,
+            'modestbranding': 1,
+            'rel': 0,
+            'origin': window.location.origin
+        },
+        events: {
+            'onStateChange': onPlayerStateChange
+        }
+    });
+};
+
+function onPlayerStateChange(event) {
+    const disk = $('vinyl-disk');
+    if (event.data == YT.PlayerState.PLAYING) {
+        disk.classList.add('playing');
+        $('song-name').textContent = "Çalıyor... 💕";
+    } else {
+        disk.classList.remove('playing');
+        $('song-name').textContent = "Müzik Durduruldu";
+    }
+}
 
 function init() {
     renderDashboard();
@@ -48,9 +83,10 @@ function init() {
     applyAura(state.aura);
     setupEventListeners();
     setInterval(renderCountdown, 1000);
+    loadYT();
 }
 
-// RENDERS
+// RENDERS... (Previous logic kept same)
 function renderDashboard() {
     const days = Math.floor((new Date() - new Date(state.startDate)) / (1000 * 3600 * 24));
     $('dashboard-date-msg').textContent = `Bizim ${days}. günümüz. 💕`;
@@ -83,8 +119,8 @@ function renderCalendar() {
     for(let i=0; i<firstDay; i++) container.innerHTML += `<div></div>`;
     for(let d=1; d<=daysInMonth; d++) {
         const isToday = d === now.getDate();
-        const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const hasEvent = state.memories.some(m => m.date === dateStr) || state.letters.some(l => l.date === dateStr);
+        const dateStr = `${now.getFullYear()}-${now.getMonth()+1}-${d}`;
+        const hasEvent = state.memories.some(m => m.date === dateStr);
         container.innerHTML += `<div class="cal-cell ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''}">${d}</div>`;
     }
 }
@@ -152,94 +188,33 @@ function toggleMusicDrawer(show = true) {
         drawer.classList.add('active');
         haze.classList.add('active');
         vibrate(100);
+        // User gesture unlocks YT
+        if(ytPlayer && ytPlayer.playVideo && ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+            ytPlayer.playVideo();
+        }
     } else {
         drawer.classList.remove('active');
         haze.classList.remove('active');
     }
 }
 
-function playStation(id) {
-    if (id === 'cancel') {
-        if(audioPlayer) { audioPlayer.pause(); audioPlayer = null; }
-        toggleMusicDrawer(false);
-        $('vinyl-disk').classList.remove('playing');
-        $('song-name').textContent = "Radyo Durduruldu";
-        return;
-    }
-    const url = CONFIG.stations[id];
-    if (!url) return;
-
-    vibrate(50);
-    $('radio-status').textContent = "Bağlanıyor... 💕";
-
-    // FRESH ENGINE (Sıfır Motor)
-    if(audioPlayer) { audioPlayer.pause(); audioPlayer = null; }
-    
-    audioPlayer = new Audio(url + "?t=" + Date.now());
-    audioPlayer.volume = 1.0;
-    audioPlayer.muted = false;
-
-    audioPlayer.onplay = () => {
-        $('vinyl-disk').classList.add('playing');
-        $('song-name').textContent = "Canlı Yayın Çalıyor... 💕";
-        $('radio-status').textContent = "Çalıyor: " + id.replace('-',' ').toUpperCase();
-        setTimeout(() => toggleMusicDrawer(false), 1500);
-    };
-
-    audioPlayer.onpause = () => {
-        $('vinyl-disk').classList.remove('playing');
-        $('song-name').textContent = "Radyo Durduruldu";
-    };
-
-    audioPlayer.onerror = () => {
-        $('radio-status').textContent = "İstasyon şu an meşgul. Diğerini dene.";
-        $('song-name').textContent = "Bağlantı Hatası";
-    };
-
-    audioPlayer.play().catch(err => {
-        console.error("Audio error:", err);
-        $('radio-status').textContent = "Dokun ve Tekrar Dene.";
-    });
-
-    document.querySelectorAll('.station-btn').forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-s') === id);
-    });
-}
-
 function setupEventListeners() {
-    // STATION PICKER SYSTEM
-    try {
-        $('vinyl-trigger').onclick = () => {
-            if (audioPlayer && !audioPlayer.paused) {
-                audioPlayer.pause();
-                audioPlayer = null;
-                $('vinyl-disk').classList.remove('playing');
-            } else {
-                toggleMusicDrawer(true);
-            }
-        };
-        
-        $('drawer-haze').onclick = () => toggleMusicDrawer(false);
-
-        document.querySelectorAll('.station-btn').forEach(btn => {
-            btn.onclick = (e) => {
-                e.stopPropagation();
-                playStation(btn.getAttribute('data-s'));
-            };
-        });
-    } catch(e) { console.warn("Radio listener error"); }
+    // ELITE YT DRAWER SYSTEM
+    $('vinyl-trigger').onclick = () => toggleMusicDrawer(true);
+    $('drawer-haze').onclick = () => toggleMusicDrawer(false);
+    $('close-drawer-btn').onclick = () => toggleMusicDrawer(false);
 
     // BUTTONS
     try {
         $('btn-quote').onclick = () => reveal(CONFIG.quotes[Math.floor(Math.random()*CONFIG.quotes.length)]);
         $('btn-date').onclick = () => reveal(CONFIG.dates[Math.floor(Math.random()*CONFIG.dates.length)]);
-    } catch(e) { console.warn("Button listener error"); }
+    } catch(e) {}
 
     // MOOD
     try {
         const moodCard = document.querySelector('[data-mood="mutlu"]').parentElement.parentElement;
         moodCard.onclick = () => showModal(`<h3>Ruh Halin?</h3><div style="display:flex; justify-content:space-around; font-size:32px; margin-top:15px;"><span onclick="setM('mutlu', '🥰')" style="cursor:pointer;">🥰</span><span onclick="setM('huzurlu', '😊')" style="cursor:pointer;">😊</span><span onclick="setM('normal', '😐')" style="cursor:pointer;">😐</span></div>`);
-    } catch(e) { console.warn("Mood listener error"); }
+    } catch(e) {}
     window.setM = (t, i) => { $('mood-feedback').textContent = `Bugün ${t} hissediyorsun. ${i}`; vibrate(30); unlockAward('m_1'); closeModal(); };
 
     // MEMORY UPLOAD
@@ -251,18 +226,17 @@ function setupEventListeners() {
             reader.onload = (ev) => {
                 const note = prompt("Bu anı için bir not eklemek ister misin?");
                 try {
-                    state.memories.push({ img: ev.target.result, note: note, date: new Date().toISOString().split('T')[0] });
+                    state.memories.push({ img: ev.target.result, note: note, date: new Date().getFullYear()+'-'+(new Date().getMonth()+1)+'-'+new Date().getDate() });
                     save();
                     renderMemories();
                     renderCalendar();
                 } catch (err) {
                     alert("Hafıza doldu! Lütfen bazı eski anıları silerek yer aç.");
-                    state.memories.pop();
                 }
             };
             reader.readAsDataURL(file);
         };
-    } catch(e) { console.warn("Memory listener error"); }
+    } catch(e) {}
 
     // OTHERS
     try {
@@ -272,7 +246,7 @@ function setupEventListeners() {
         $('unlock-garden-btn').onclick = () => { if($('garden-pass').value.toLowerCase() === CONFIG.secretWord.toLowerCase()) { $('garden-lock').classList.add('hidden'); $('secret-content').classList.remove('hidden'); vibrate([100,100,100]); } else alert("Yanlış kelime..."); };
         document.querySelectorAll('.aura-btn').forEach(b => { b.onclick = (e) => { e.stopPropagation(); applyAura(b.getAttribute('data-a')); }});
         $('edit-countdown-trigger').onclick = () => showModal(`<h3>Ayarlar</h3><input id="in-cd-t" value="${state.countdown.title}" style="width:100%;"><input type="datetime-local" id="in-cd-d" value="${state.countdown.date}" style="width:100%; margin-top:10px;"><button class="liquid-btn" style="width:100%; margin-top:15px;" onclick="saveCd()">Kaydet</button>`);
-    } catch(e) { console.warn("Other listener error"); }
+    } catch(e) {}
 }
 
 function reveal(txt) {

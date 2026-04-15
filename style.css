@@ -523,7 +523,22 @@ body {
     transform: translateX(-50%);
 }
 
-/* Station Buttons v20 */
+.embed-container {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+#yt-player {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Station Buttons v24 */
 .station-btn {
     padding: 20px 15px;
     border-radius: 20px;
