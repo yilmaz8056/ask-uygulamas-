@@ -1,5 +1,5 @@
 // =============================================
-// ETHEREAL CORE - V6 (YOUTUBE RADIO ENGINE)
+// ETHEREAL CORE - V7 (ELITE MUSIC DRAWER)
 // =============================================
 
 const CONFIG = {
@@ -8,7 +8,7 @@ const CONFIG = {
     fortunes: ["Bugün ona sürpriz bir not yaz 💌", "Birlikte yeni bir akıl almaz macera ☕", "Ona sarıl ve bırakma 🤗"],
     affirmations: ["Bugün varlığın için binlerce şükür sebebim var. 💕", "Dünyanın en şanslı insanıyım... ✨", "Gülüşün kalbimin huzurlu limanı. 🌊"],
     secretWord: "Sonsuzluk",
-    ytVideoId: "_fX-O0zV93o", // Kararlı Bir Türkçe Slow Mix (Gerekirse değiştirilebilir)
+    ytVideoId: "_fX-O0zV93o", // Kararlı Bir Türkçe Slow Mix
     awards: [
         { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
         { id: 'l_1', name: 'Zaman Yolcusu', icon: '✉️' },
@@ -43,34 +43,37 @@ function loadYT() {
 // YouTube API Callback
 window.onYouTubeIframeAPIReady = function() {
     ytPlayer = new YT.Player('yt-player', {
-        height: '1',
-        width: '1',
+        height: '100%',
+        width: '100%',
         videoId: CONFIG.ytVideoId,
         playerVars: {
             'autoplay': 0,
-            'controls': 0,
-            'disablekb': 1,
-            'fs': 0,
-            'rel': 0,
+            'controls': 1, // Görünürlük için açık kalmalı
+            'disablekb': 0,
+            'fs': 1,
             'modestbranding': 1,
-            'mute': 0
+            'origin': window.location.origin
         },
         events: {
             'onReady': onPlayerReady,
-            'onError': onPlayerError
+            'onStateChange': onPlayerStateChange
         }
     });
 };
 
 function onPlayerReady(event) {
-    ytPlayer.unMute();
-    ytPlayer.setVolume(100);
-    console.log("YouTube Radyo Hazır.");
+    console.log("YouTube Paneli Hazır.");
 }
 
-function onPlayerError(event) {
-    console.error("YouTube Hata:", event.data);
-    $('song-name').textContent = "Bağlantı Hatası";
+function onPlayerStateChange(event) {
+    const disk = $('vinyl-disk');
+    if (event.data == YT.PlayerState.PLAYING) {
+        disk.classList.add('playing');
+        $('song-name').textContent = "Çalıyor... 💕";
+    } else {
+        disk.classList.remove('playing');
+        $('song-name').textContent = "Müzik Durduruldu";
+    }
 }
 
 function init() {
@@ -182,35 +185,27 @@ function applyAura(aura) {
     document.querySelectorAll('.aura-btn').forEach(b => { b.style.opacity = b.getAttribute('data-a') === aura ? '1' : '0.5'; });
 }
 
-function setupEventListeners() {
-    // YOUTUBE RADIO SYSTEM
-    $('vinyl-trigger').onclick = () => {
-        const disk = $('vinyl-disk');
-        const statusText = $('song-name');
-        
+function toggleMusicDrawer() {
+    const drawer = $('music-drawer');
+    const haze = $('drawer-haze');
+    const isActive = drawer.classList.contains('active');
+    
+    if (isActive) {
+        drawer.classList.remove('active');
+        haze.classList.remove('active');
+        if (ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
+    } else {
+        drawer.classList.add('active');
+        haze.classList.add('active');
         vibrate(100);
-        
-        if(!ytPlayer || typeof ytPlayer.getPlayerState !== 'function') {
-            statusText.textContent = "Hazırlanıyor...";
-            setTimeout(() => { if($('vinyl-trigger')) $('vinyl-trigger').click(); }, 1500);
-            return;
-        }
+        // Play is handled by user interaction with YT UI in drawer for 100% success
+    }
+}
 
-        const playerState = ytPlayer.getPlayerState();
-        
-        if(playerState !== YT.PlayerState.PLAYING) {
-            statusText.textContent = "Bağlanıyor...";
-            ytPlayer.unMute();
-            ytPlayer.setVolume(100);
-            ytPlayer.playVideo();
-            disk.classList.add('playing');
-            statusText.textContent = "Keyifli Dinlemeler... 💕";
-        } else {
-            ytPlayer.pauseVideo();
-            disk.classList.remove('playing');
-            statusText.textContent = "Radyo Durduruldu";
-        }
-    };
+function setupEventListeners() {
+    // ELITE MUSIC DRAWER SYSTEM
+    $('vinyl-trigger').onclick = () => toggleMusicDrawer();
+    $('drawer-haze').onclick = () => toggleMusicDrawer();
 
     // BUTTON FIXES
     $('btn-quote').onclick = () => reveal(CONFIG.quotes[Math.floor(Math.random()*CONFIG.quotes.length)]);

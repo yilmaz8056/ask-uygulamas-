@@ -67,10 +67,6 @@
             </div>
             <p id="song-name" style="font-size: 14px; font-weight: 700; color: #444; margin-bottom: 5px;">Slow Radyomuz Canlı</p>
             <p style="font-size: 11px; opacity: 0.5;">Dinlemek için dokun 🎵</p>
-            <!-- Hidden YouTube Player Container (1x1 for audio stability) -->
-            <div id="yt-player-wrap" style="position: absolute; bottom: 0; right: 0; width: 1px; height: 1px; opacity: 0.01; pointer-events: none; overflow: hidden;">
-                <div id="yt-player"></div>
-            </div>
         </section>
 
         <!-- Aşk Nabzı -->
@@ -155,6 +151,18 @@
             <div id="vault-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
         </section>
 
+    </div>
+
+    <!-- Music Drawer & Overlay (Final Audio Fix) -->
+    <div id="drawer-haze" class="drawer-haze"></div>
+    <div id="music-drawer" class="music-drawer">
+        <div class="drawer-handle"></div>
+        <div id="embed-container" class="embed-container">
+            <div id="yt-player"></div>
+        </div>
+        <p style="font-size: 11px; opacity:0.3; text-align:center; margin-top:10px; font-weight:700;">
+            Seninle her nota daha güzel... 💕
+        </p>
     </div>
 
     <!-- Modals -->
