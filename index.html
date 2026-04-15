@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=34">
+    <link rel="stylesheet" href="style.css?v=35">
 </head>
 <body data-aura="default">
     
@@ -25,7 +25,7 @@
             </div>
             <h1 class="dashboard-title">İyi ki varsın...</h1>
             <p class="dashboard-subtitle" id="dashboard-date-msg">Bugün bizim 0. günümüz. 💕</p>
-            <div style="text-align:center; margin-top:5px;"><span style="background:var(--c-primary); color:#fff; padding:2px 10px; border-radius:10px; font-size:9px; font-weight:700; letter-spacing:1px;">SÜRÜM v34 - NATIVE</span></div>
+            <div style="text-align:center; margin-top:5px;"><span style="background:var(--c-primary); color:#fff; padding:2px 10px; border-radius:10px; font-size:9px; font-weight:700; letter-spacing:1px;">SÜRÜM v35 - ULTIMATE</span></div>
         </header>
 
         <!-- İltifat Şelalesi -->
@@ -154,15 +154,15 @@
 
     </div>
 
-    <!-- Elite Native Music Drawer (v34 - Ultra Direct) -->
+    <!-- Elite Native Music Drawer (v35 - ULTIMATE) -->
     <div id="drawer-haze" class="drawer-haze"></div>
-    <div id="music-drawer" class="music-drawer v34">
+    <div id="music-drawer" class="music-drawer v35">
         <div class="drawer-handle"></div>
         
         <h3 class="text-center" style="font-size: 16px; color: var(--c-primary); margin-bottom: 15px;">Radyo İstasyonu Seç 💕</h3>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-            <button class="station-btn" data-url="https://radyo.dokuzsoft.com/8106/stream">
+            <button class="station-btn" data-url="https://radyo.duhnet.tv/slowturk">
                 <i class="fa-solid fa-tower-broadcast"></i> Slow Türk
             </button>
             <button class="station-btn" data-url="https://stream.zeno.fm/088u1v698vruy">
@@ -176,7 +176,7 @@
             </button>
         </div>
 
-        <!-- Elite Heartbeat Visualizer (New in v34) -->
+        <!-- Elite Heartbeat Visualizer (Native) -->
         <div id="visualizer-container" class="visualizer-container">
             <div class="heartbeat-monitor">
                 <div class="heart-icon-main" id="visualizer-heart">❤️</div>
@@ -186,8 +186,11 @@
         </div>
         
         <p id="yt-status" style="font-size: 11px; opacity:0.6; text-align:center; margin-top:10px; font-weight:700; color: var(--c-primary);">
-           Elite Native Audio Altyapısı Aktif ✨
+           Elite Ultimate Audio Altyapısı Aktif ✨
         </p>
+
+        <!-- Hidden Native Audio Engine v35 -->
+        <audio id="main-audio-engine" preload="none" crossorigin="anonymous"></audio>
         
         <button id="close-drawer-btn" class="liquid-btn" style="width:100%; margin-top:15px; height: 45px; font-size: 13px;">
              Paneli Kapat
@@ -204,6 +207,6 @@
     <audio id="audio-stars" loop src="https://www.soundjay.com/misc/sounds/wind-chime-1.mp3"></audio>
     <audio id="audio-waves" loop src="https://www.soundjay.com/nature/ocean-waves-1.mp3"></audio>
 
-    <script src="app.js?v=34"></script>
+    <script src="app.js?v=35"></script>
 </body>
 </html>

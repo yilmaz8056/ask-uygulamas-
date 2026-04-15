@@ -1,8 +1,8 @@
-const CACHE_NAME = 'ask-uygulamasi-v34-final';
+const CACHE_NAME = 'ask-uygulamasi-v35-ultimate';
 const urlsToCache = [
   './index.html',
-  './style.css?v=34',
-  './app.js?v=34',
+  './style.css?v=35',
+  './app.js?v=35',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
@@ -31,6 +31,11 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // EXEMPT RADIO CHANNELS FROM CACHE (STREAMS CANNOT BE CACHED)
+  if (event.request.url.includes('stream') || event.request.url.includes('duhnet') || event.request.url.includes('radyo')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {

@@ -1,5 +1,5 @@
 // =============================================
-// ETHEREAL CORE - V34 (ELITE NATIVE AUDIO)
+// ETHEREAL CORE - V35 (ULTIMATE NATIVE AUDIO)
 // =============================================
 
 const CONFIG = {
@@ -9,7 +9,7 @@ const CONFIG = {
     affirmations: ["Bugün varlığın için binlerce şükür sebebim var. 💕", "Dünyanın en şanslı insanıyım... ✨", "Gülüşün kalbimin huzurlu limanı. 🌊"],
     secretWord: "Sonsuzluk",
     stations: {
-        "slow-turk": "https://radyo.dokuzsoft.com/8106/stream",
+        "slow-turk": "https://radyo.duhnet.tv/slowturk",
         "lofi": "https://stream.zeno.fm/088u1v698vruy",
         "akustik": "https://stream.zeno.fm/fvx76m6q68zuv"
     },
@@ -30,10 +30,6 @@ let state = {
     aura: localStorage.getItem('ethereal_aura') || 'default',
     startDate: "2023-10-15"
 };
-
-// GLOBAL AUDIO ENGINE v34
-let audioEngine = new Audio();
-audioEngine.preload = "none";
 
 const $ = (id) => document.getElementById(id);
 const vibrate = (p=50) => navigator.vibrate && navigator.vibrate(p);
@@ -170,24 +166,37 @@ function toggleMusicDrawer(show = true) {
     }
 }
 
-// v34 NATIVE SWITCHER
+// v35 ULTIMATE NATIVE SWITCHER
 function switchChannel(url) {
     vibrate(50);
+    const audio = $('main-audio-engine');
+    if(!audio) return;
+    
     $('yt-status').textContent = "Bağlanıyor... ✨";
     
-    audioEngine.pause();
-    audioEngine.src = url;
-    audioEngine.load();
+    audio.pause();
+    audio.src = url;
+    audio.volume = 1.0;
     
-    audioEngine.play().then(() => {
-        $('yt-status').textContent = "Radyo Yayında! 💕";
-        $('song-name').textContent = "Çalıyor... 🎵";
-        $('vinyl-disk').classList.add('playing');
-        $('music-drawer').classList.add('playing'); // For heart visualizer
-    }).catch(e => {
-        $('yt-status').textContent = "Bağlantı Hatası. Dokun Tekrar Dene.";
-        $('song-name').textContent = "Hata Oluştu";
-    });
+    // Attempt play with User Gesture
+    const playPromise = audio.play();
+    
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            $('yt-status').textContent = "Yayındayız! 💕";
+            $('song-name').textContent = "Çalıyor... 🎵";
+            $('vinyl-disk').classList.add('playing');
+            $('music-drawer').classList.add('playing');
+        }).catch(err => {
+            console.error("Audio Play Error:", err);
+            $('yt-status').textContent = "Bağlantı Hatası. (Hata: " + err.name + ")";
+            $('song-name').textContent = "Dokun Tekrar Dene";
+            audio.pause();
+            audio.src = "";
+            $('vinyl-disk').classList.remove('playing');
+            $('music-drawer').classList.remove('playing');
+        });
+    }
 }
 
 function setupEventListeners() {
@@ -202,8 +211,11 @@ function setupEventListeners() {
     });
 
     $('stop-btn').onclick = () => { 
-        audioEngine.pause();
-        audioEngine.src = "";
+        const audio = $('main-audio-engine');
+        if(audio) {
+            audio.pause();
+            audio.src = "";
+        }
         $('vinyl-disk').classList.remove('playing');
         $('music-drawer').classList.remove('playing');
         $('song-name').textContent = "Müzik Durduruldu";
