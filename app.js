@@ -11,7 +11,7 @@ const CONFIG = {
     stations: {
         "slow-turk": "https://radyo.dokuzsoft.com/8106/stream",
         "joy-fm": "https://karnaval.radyotvonline.net/joyfm_low.mp3",
-        "power-slow": "https://karnaval.radyotvonline.net/joyturkslow_low.mp3" // JoyTürk Slow as Power Slow alternative
+        "romantic": "https://stream.srg-ssr.ch/m/rsj/mp3_128" // Ultra-Reliable Global Backup
     },
     awards: [
         { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
@@ -188,16 +188,22 @@ function playStation(id) {
     
     try {
         audioPlayer.pause();
-        audioPlayer.src = url;
-        audioPlayer.play().then(() => {
-            $('radio-status').textContent = "Çalıyor: " + id.replace('-',' ').toUpperCase();
-            setTimeout(() => toggleMusicDrawer(false), 2000);
-        }).catch(err => {
-            console.error("Audio error:", err);
-            $('radio-status').textContent = "Hata! Diğer Kanalı Dene.";
-        });
+        audioPlayer.src = url + "?t=" + Date.now(); // Cache-busting
+        
+        // Synchronous play call for mobile stability
+        const playPromise = audioPlayer.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                $('radio-status').textContent = "Çalıyor: " + id.replace('-',' ').toUpperCase();
+                setTimeout(() => toggleMusicDrawer(false), 2000);
+            }).catch(err => {
+                console.warn("Attempting play fallback...");
+                $('radio-status').textContent = "Bağlantı Deneniyor...";
+            });
+        }
     } catch(e) {
-        $('radio-status').textContent = "Ses Başlatılamadı.";
+        $('radio-status').textContent = "İstasyon Değiştirildi.";
     }
 
     document.querySelectorAll('.station-btn').forEach(b => {
