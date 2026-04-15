@@ -32,9 +32,6 @@ const dateIdeas = [
     "İkimizin de en sevdiği şarkılardan oluşan ortak bir Spotify listesi oluşturmak 🎵"
 ];
 
-// =============================================
-// QUIZ QUESTIONS
-// =============================================
 const quizQuestions = [
     {
         q: "İlk mesajımız ne hakkındaydı?",
@@ -63,8 +60,18 @@ const quizQuestions = [
     }
 ];
 
+const achievementDefs = [
+    { id: 'first_quiz', name: 'İlk Quiz!', icon: '🧠' },
+    { id: 'perfect_quiz', name: 'Dahi Aşık', icon: '🏆' },
+    { id: 'first_mood', name: 'Ruh Halini Paylaş', icon: '🌈' },
+    { id: 'first_fortune', name: 'Fal Meraklısı', icon: '🥠' },
+    { id: 'first_place', name: 'Kaşif Çift', icon: '📍' },
+    { id: 'first_letter', name: 'Zamanda Yolcu', icon: '✉️' },
+    { id: 'first_song', name: 'Aşkın Melodisi', icon: '🎵' }
+];
+
 // =============================================
-// DATA
+// DATA & STATE
 // =============================================
 let specialDays = JSON.parse(localStorage.getItem('loveApp_specialDays')) || [
     { title: "Tanışma Yıl Dönümümüz", date: "2026-10-15", icon: "fa-champagne-glasses" },
@@ -80,1003 +87,331 @@ let letters = JSON.parse(localStorage.getItem('loveApp_letters')) || [];
 let achievements = JSON.parse(localStorage.getItem('loveApp_achievements')) || [];
 
 // =============================================
-// ELEMENTS
+// DOM ELEMENTS
 // =============================================
-const introScreen = document.getElementById('intro-screen');
-const appContainer = document.getElementById('main-app');
-const envelope = document.getElementById('envelope');
-const generateBtn = document.getElementById('generate-btn');
-const quoteText = document.getElementById('quote-text');
-const dateBtn = document.getElementById('date-btn');
-const dateCard = document.getElementById('date-card');
-const dateText = document.getElementById('date-text');
-const specialDaysList = document.getElementById('special-days-list');
-const bgMusic = document.getElementById('bg-music');
-const playBtn = document.getElementById('play-pause-btn');
-const playIcon = playBtn.querySelector('i');
-const musicCard = document.querySelector('.music-card');
+const elements = {
+    introScreen: document.getElementById('intro-screen'),
+    appContainer: document.getElementById('main-app'),
+    envelope: document.getElementById('envelope'),
+    generateBtn: document.getElementById('generate-btn'),
+    quoteText: document.getElementById('quote-text'),
+    dateBtn: document.getElementById('date-btn'),
+    dateCard: document.getElementById('date-card'),
+    dateText: document.getElementById('date-text'),
+    specialDaysList: document.getElementById('special-days-list'),
+    bgMusic: document.getElementById('bg-music'),
+    playBtn: document.getElementById('play-pause-btn'),
+    musicCard: document.querySelector('.music-card'),
+    countdownCard: document.getElementById('countdown-card'),
+    heartsContainer: document.getElementById('hearts-container')
+};
 
 // =============================================
-// 1. TOUCH HEARTS (Dokunmatik Kalpler)
+// 1. UTILITIES & EFFECTS
 // =============================================
-document.body.addEventListener('click', (e) => {
-    // Modal veya buton üstünde değilse kalp saç
-    if (e.target.closest('.modal') || e.target.closest('button') || e.target.closest('input') || e.target.closest('label') || e.target.closest('.edit-icon') || e.target.closest('.envelope')) return;
-    
-    const layer = document.getElementById('touch-hearts-layer');
-    const x = e.clientX;
-    const y = e.clientY;
+const vibrate = (p = 50) => navigator.vibrate && navigator.vibrate(p);
+const launchHearts = (c = 5) => { for(let i=0; i<c; i++) createHeart(); };
 
-    // Ana kalp
-    const heart = document.createElement('span');
-    heart.className = 'touch-heart';
-    heart.textContent = ['❤️','💕','💖','💗','💘'][Math.floor(Math.random()*5)];
-    heart.style.left = (x - 11) + 'px';
-    heart.style.top = (y - 11) + 'px';
-    layer.appendChild(heart);
-    setTimeout(() => heart.remove(), 1200);
-
-    // Parıltılar
-    for (let i = 0; i < 6; i++) {
-        const spark = document.createElement('span');
-        spark.className = 'touch-sparkle';
-        spark.style.left = x + 'px';
-        spark.style.top = y + 'px';
-        spark.style.setProperty('--sx', (Math.random()*60-30) + 'px');
-        spark.style.setProperty('--sy', (Math.random()*60-30) + 'px');
-        spark.style.background = ['#ffd700','#ff4d6d','#ff8fab','#fff'][Math.floor(Math.random()*4)];
-        layer.appendChild(spark);
-        setTimeout(() => spark.remove(), 800);
-    }
-
-    if (navigator.vibrate) navigator.vibrate(30);
-});
-
-// =============================================
-// BACKGROUND HEARTS
-// =============================================
 function createHeart() {
     const heart = document.createElement('i');
-    heart.classList.add('fa-solid', 'fa-heart', 'floating-heart');
+    heart.className = 'fa-solid fa-heart floating-heart';
     const size = Math.random() * 20 + 10;
+    const dur = Math.random() * 5 + 5;
     heart.style.fontSize = `${size}px`;
     heart.style.left = `${Math.random() * 100}vw`;
-    heart.style.animationDuration = `${Math.random() * 5 + 5}s`;
-    document.getElementById('hearts-container').appendChild(heart);
-    setTimeout(() => heart.remove(), 10000);
+    heart.style.setProperty('--dur', `${dur}s`);
+    elements.heartsContainer.appendChild(heart);
+    setTimeout(() => heart.remove(), dur * 1000);
 }
-setInterval(createHeart, 600);
+setInterval(createHeart, 1000);
 
-// =============================================
-// APP ENTRY (Zarf Açılışı)
-// =============================================
-envelope.addEventListener('click', () => {
-    if (navigator.vibrate) navigator.vibrate(100);
-    introScreen.style.opacity = '0';
-    setTimeout(() => {
-        introScreen.style.visibility = 'hidden';
-        appContainer.classList.add('active');
-        renderSpecialDays();
-        renderMemories();
-        renderMoodTracker();
-        renderPlaces();
-        renderLetters();
-        renderAchievements();
-        changeQuote();
-        initCountdown();
-        initFortuneCookie();
-        initOurSong();
-        initPremiumFeatures();
-        toggleMusic(true);
-    }, 1000);
+// Global Click Heart Pop
+document.addEventListener('click', (e) => {
+    if (e.target.closest('.modal') || e.target.closest('button') || e.target.closest('input')) return;
+    const h = document.createElement('span');
+    h.textContent = ['❤️','💖','💗','🌸'][Math.floor(Math.random()*4)];
+    h.style.cssText = `position:fixed; left:${e.clientX}px; top:${e.clientY}px; font-size:24px; pointer-events:none; z-index:9999; animation: heartPop 1s forwards;`;
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 1000);
 });
 
 // =============================================
-// SPECIAL DAYS
+// 2. RENDERING LOGIC
 // =============================================
 function renderSpecialDays() {
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    
-    specialDaysList.innerHTML = `
-        <div class="header-with-edit">
-            <h3 style="margin: 0;">Önemli Günlerimiz 🗓️</h3>
-            <i class="fa-solid fa-pen edit-icon" id="open-edit-modal" title="Tarihleri Düzenle"></i>
+    const today = new Date(); today.setHours(0,0,0,0);
+    elements.specialDaysList.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0;"><i class="fa-solid fa-calendar-heart"></i> Günlerimiz</h3>
+            <button class="edit-icon" id="open-edit-modal" style="background:none; border:none; color:rgba(255,255,255,0.6); cursor:pointer;"><i class="fa-solid fa-pen"></i></button>
         </div>
     `;
-    
     specialDays.forEach(day => {
-        let targetDate = new Date(day.date);
-        if (targetDate < today) targetDate.setFullYear(today.getFullYear() + 1);
-        
-        const diffTime = targetDate - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        const countdownText = diffDays === 0 ? "BUGÜN! 🎉" : `${diffDays} Gün Kaldı`;
+        let tgt = new Date(day.date); if (tgt < today) tgt.setFullYear(today.getFullYear() + 1);
+        const diff = Math.ceil((tgt - today) / (1000 * 3600 * 24));
+        const countdownText = diff === 0 ? "BUGÜN! 🎉" : `${diff} Gün Kaldı`;
 
         const div = document.createElement('div');
         div.className = 'day-item';
+        div.style.cssText = "display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.1); padding:15px; border-radius:18px; margin-bottom:12px; border: 1px solid rgba(255,255,255,0.1);";
         div.innerHTML = `
-            <div class="day-info">
-                <div class="day-icon"><i class="fa-solid ${day.icon}"></i></div>
-                <div class="day-text">
-                    <h5 style="font-size: 18px; font-weight: 700; margin-bottom: 2px;">${day.title}</h5>
-                    <p style="font-size: 14px; opacity: 0.8;">${targetDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}</p>
-                </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; background:rgba(255,255,255,0.15); border-radius:50%; display:flex; justify-content:center; align-items:center; font-size:18px;"><i class="fa-solid ${day.icon}"></i></div>
+                <div><p class="card-title" style="margin:0; font-size:17px;">${day.title}</p><p class="card-sub" style="margin:0; font-size:13px; opacity:0.6;">${tgt.toLocaleDateString('tr-TR', {day:'numeric', month:'long'})}</p></div>
             </div>
-            <div class="day-countdown" style="font-size: 16px; font-weight: 800; color: #ffd1dc;">${countdownText}</div>
+            <p class="card-desc" style="font-weight:800; color:var(--accent); margin:0;">${countdownText}</p>
         `;
-        specialDaysList.appendChild(div);
+        elements.specialDaysList.appendChild(div);
     });
-
-    document.getElementById('open-edit-modal').addEventListener('click', openEditModal);
-}
-
-// =============================================
-// QUOTES & DATE IDEAS
-// =============================================
-function changeQuote() {
-    quoteText.style.opacity = '0';
-    if (navigator.vibrate) navigator.vibrate(50);
-    setTimeout(() => {
-        quoteText.textContent = quotes[Math.floor(Math.random() * quotes.length)];
-        quoteText.style.opacity = '1';
-        for(let i=0; i<5; i++) createHeart();
-    }, 500);
-}
-generateBtn.addEventListener('click', changeQuote);
-
-function changeDateIdea() {
-    dateCard.style.display = 'block';
-    dateText.style.opacity = '0';
-    if (navigator.vibrate) navigator.vibrate(50);
-    setTimeout(() => {
-        dateText.textContent = dateIdeas[Math.floor(Math.random() * dateIdeas.length)];
-        dateText.style.opacity = '1';
-        for(let i=0; i<3; i++) createHeart();
-    }, 500);
-}
-dateBtn.addEventListener('click', changeDateIdea);
-
-// =============================================
-// MUSIC PLAYER
-// =============================================
-let isPlaying = false;
-
-function toggleMusic(forcePlay = false) {
-    if (forcePlay || !isPlaying) {
-        bgMusic.play().then(() => {
-            isPlaying = true;
-            playIcon.classList.remove('fa-play');
-            playIcon.classList.add('fa-pause');
-            musicCard.classList.add('playing');
-        }).catch(() => console.log("Autoplay engellendi."));
-    } else {
-        bgMusic.pause();
-        isPlaying = false;
-        playIcon.classList.remove('fa-pause');
-        playIcon.classList.add('fa-play');
-        musicCard.classList.remove('playing');
-    }
-}
-playBtn.addEventListener('click', () => toggleMusic());
-
-// =============================================
-// EDIT MODAL (Special Days)
-// =============================================
-const editModal = document.getElementById('edit-modal');
-const editFormContainer = document.getElementById('edit-form-container');
-const saveDatesBtn = document.getElementById('save-dates-btn');
-const closeModalBtn = document.getElementById('close-modal-btn');
-
-function openEditModal() {
-    editFormContainer.innerHTML = '';
-    specialDays.forEach((day, index) => {
-        editFormContainer.innerHTML += `
-            <div class="edit-row">
-                <label>${day.title}</label>
-                <input type="date" id="date-input-${index}" value="${day.date}">
-            </div>
-        `;
+    document.getElementById('open-edit-modal').addEventListener('click', () => {
+        const container = document.getElementById('edit-form-container'); container.innerHTML = '';
+        specialDays.forEach((d, idx) => {
+            container.innerHTML += `<div class="edit-row" style="margin-bottom:15px;"><label style="display:block; margin-bottom:5px; font-size:14px; opacity:0.8;">${d.title}</label><input type="date" id="date-input-${idx}" value="${d.date}" style="width:100%; border-radius:12px; border:1px solid rgba(255,255,255,0.2); padding:10px; background:rgba(255,255,255,0.1); color:#fff;"></div>`;
+        });
+        document.getElementById('edit-modal').classList.add('active');
     });
-    editModal.classList.add('active');
 }
 
-closeModalBtn.addEventListener('click', () => editModal.classList.remove('active'));
-
-saveDatesBtn.addEventListener('click', () => {
-    specialDays.forEach((day, index) => {
-        const inputVal = document.getElementById(`date-input-${index}`).value;
-        if(inputVal) day.date = inputVal;
-    });
-    localStorage.setItem('loveApp_specialDays', JSON.stringify(specialDays));
-    editModal.classList.remove('active');
-    renderSpecialDays();
-});
-
-
-
-// =============================================
-// 2. POLAROID GALLERY (Anılarımız)
-// =============================================
 function renderMemories() {
-    const gallery = document.getElementById('polaroid-gallery');
-    const emptyMsg = document.getElementById('polaroid-empty');
-    
-    if (memories.length === 0) {
-        gallery.innerHTML = '';
-        const empty = document.createElement('div');
-        empty.className = 'polaroid-empty';
-        empty.id = 'polaroid-empty';
-        empty.innerHTML = '<i class="fa-solid fa-images" style="font-size:2rem; opacity:0.5;"></i><p style="opacity:0.6; font-size:0.85rem;">Henüz anı eklenmedi</p>';
-        gallery.appendChild(empty);
-        return;
-    }
-    
-    gallery.innerHTML = '';
+    const gallery = document.getElementById('polaroid-gallery'); gallery.innerHTML = '';
+    if (memories.length === 0) { gallery.innerHTML = '<div class="text-center card-desc" style="width:100%; padding:20px; opacity:0.5;">Henüz anı eklenmedi 📸</div>'; return; }
     memories.forEach((mem, idx) => {
         const item = document.createElement('div');
-        item.className = 'polaroid-item';
-        item.innerHTML = `<img src="${mem.image}" alt="Anı"><p>${mem.note || '💕'}</p>`;
-        item.addEventListener('click', () => openPolaroidDetail(idx));
+        item.style.cssText = `flex-shrink:0; width:170px; background:#fff; padding:10px 10px 40px 10px; border-radius:4px; box-shadow:0 15px 30px rgba(0,0,0,0.2); transform:rotate(${Math.random()*6-3}deg); cursor:pointer; margin-right:15px;`;
+        item.innerHTML = `<img src="${mem.image}" style="width:100%; height:150px; object-fit:cover; border-radius:2px;"><p style="color:#333; font-family:'Dancing Script'; font-size:22px; font-weight:700; margin-top:10px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${mem.note || '💕'}</p>`;
+        item.onclick = () => {
+            document.getElementById('polaroid-detail-img').src = mem.image;
+            document.getElementById('polaroid-detail-note').textContent = mem.note || '';
+            document.getElementById('polaroid-modal').classList.add('active');
+            document.getElementById('delete-polaroid-btn').onclick = () => { if(confirm("Anıyı silmek istiyor musun?")) { memories.splice(idx, 1); localStorage.setItem('loveApp_memories', JSON.stringify(memories)); renderMemories(); document.getElementById('polaroid-modal').classList.remove('active'); } };
+        };
         gallery.appendChild(item);
     });
 }
 
-document.getElementById('polaroid-upload').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const note = prompt("Bu anıya bir not yaz (opsiyonel):", "💕");
-    
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        // Sıkıştırma
-        const img = new Image();
-        img.onload = () => {
-            const MAX = 400;
-            const scale = Math.min(1, MAX / img.width);
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width * scale;
-            canvas.height = img.height * scale;
-            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-            const compressed = canvas.toDataURL('image/jpeg', 0.6);
-            
-            memories.push({ image: compressed, note: note || '💕', date: Date.now() });
-            localStorage.setItem('loveApp_memories', JSON.stringify(memories));
-            renderMemories();
-            if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
-        };
-        img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-});
-
-// Polaroid Detail Modal
-function openPolaroidDetail(idx) {
-    const mem = memories[idx];
-    document.getElementById('polaroid-detail-img').src = mem.image;
-    document.getElementById('polaroid-detail-note').textContent = mem.note || '';
-    document.getElementById('quiz-modal').classList.remove('active'); // güvenlik
-    
-    const modal = document.getElementById('polaroid-modal');
-    modal.classList.add('active');
-    
-    document.getElementById('delete-polaroid-btn').onclick = () => {
-        if (confirm("Bu anıyı silmek istediğine emin misin?")) {
-            memories.splice(idx, 1);
-            localStorage.setItem('loveApp_memories', JSON.stringify(memories));
-            renderMemories();
-            modal.classList.remove('active');
-        }
-    };
-    
-    document.getElementById('close-polaroid-btn').onclick = () => modal.classList.remove('active');
-}
-
-// =============================================
-// 3. SENİ ÖZLEDİM! (WhatsApp Yönlendirme)
-// =============================================
-document.getElementById('miss-btn').addEventListener('click', () => {
-    if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
-    
-    const missMessages = [
-        "Şu an seni çok özledim... Yanımda olmanı istiyorum. ❤️",
-        "Her saniye sensiz geçen zaman, kaybedilmiş bir an gibi... Seni çok seviyorum 💕",
-        "Gözlerini kapatıp seni düşünüyorum... Keşke şu an yanımda olsaydın 🥺💗",
-        "Bu mesaj otomatik değil, kalbimden geliyor: SENİ ÇOK ÖZLEDİM! 💘",
-        "Dünyanın en güzel insanına: Seni özledim, seni seviyorum, sana sarılmak istiyorum 🤗💖"
-    ];
-    
-    const msg = missMessages[Math.floor(Math.random() * missMessages.length)];
-    
-    if (navigator.share) {
-        navigator.share({
-            title: '💌 Sana Bir Mesaj Var',
-            text: msg
-        }).catch(() => {});
-    } else {
-        // WhatsApp fallback
-        const encoded = encodeURIComponent(msg);
-        window.open(`https://wa.me/?text=${encoded}`, '_blank');
-    }
-    
-    // Kalp patlaması efekti
-    for (let i = 0; i < 15; i++) createHeart();
-});
-
-// =============================================
-// 4. AŞK TESTİ (Quiz)
-// =============================================
-let currentQuizIndex = 0;
-let quizScore = 0;
-
-document.getElementById('quiz-btn').addEventListener('click', startQuiz);
-
-function startQuiz() {
-    if (navigator.vibrate) navigator.vibrate(80);
-    currentQuizIndex = 0;
-    quizScore = 0;
-    document.getElementById('quiz-result').style.display = 'none';
-    document.getElementById('quiz-title').textContent = '💕 Aşk Testi';
-    showQuizQuestion();
-    document.getElementById('quiz-modal').classList.add('active');
-}
-
-function showQuizQuestion() {
-    if (currentQuizIndex >= quizQuestions.length) {
-        showQuizResult();
-        return;
-    }
-    
-    const q = quizQuestions[currentQuizIndex];
-    document.getElementById('quiz-question').textContent = q.q;
-    const optContainer = document.getElementById('quiz-options');
-    optContainer.innerHTML = '';
-    
-    q.opts.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'quiz-opt-btn';
-        btn.textContent = opt;
-        btn.addEventListener('click', () => handleQuizAnswer(i, btn));
-        optContainer.appendChild(btn);
-    });
-}
-
-function handleQuizAnswer(selected, btn) {
-    const q = quizQuestions[currentQuizIndex];
-    const allBtns = document.querySelectorAll('.quiz-opt-btn');
-    allBtns.forEach(b => b.style.pointerEvents = 'none');
-    
-    if (selected === q.correct) {
-        btn.classList.add('correct');
-        quizScore++;
-        if (navigator.vibrate) navigator.vibrate(50);
-    } else {
-        btn.classList.add('wrong');
-        allBtns[q.correct].classList.add('correct');
-        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-    }
-    
-    currentQuizIndex++;
-    setTimeout(() => showQuizQuestion(), 1200);
-}
-
-function showQuizResult() {
-    document.getElementById('quiz-question').textContent = '';
-    document.getElementById('quiz-options').innerHTML = '';
-    
-    const resultDiv = document.getElementById('quiz-result');
-    resultDiv.style.display = 'block';
-    
-    const total = quizQuestions.length;
-    const pct = Math.round((quizScore / total) * 100);
-    
-    if (pct === 100) {
-        resultDiv.innerHTML = `🎉 TAM PUAN! ${quizScore}/${total}<br><br>Sen beni dünyanın en iyi tanıyan insansın! Sonsuza dek seninle... 💍`;
-        launchFireworks();
-        localStorage.setItem('loveApp_quizPerfect', (parseInt(localStorage.getItem('loveApp_quizPerfect'))||0) + 1);
-        checkAchievements();
-        if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
-    } else if (pct >= 60) {
-        resultDiv.innerHTML = `💖 ${quizScore}/${total} Doğru!<br><br>Harikasın! Beni çok iyi tanıyorsun... Ama hala öğreneceğin çok şey var 😘`;
-    } else {
-        resultDiv.innerHTML = `🥺 ${quizScore}/${total} Doğru...<br><br>Hmm biraz daha dikkat etmen lazım galiba... Ama olsun, seni yine de çok seviyorum! 💗`;
-    }
-}
-
-document.getElementById('close-quiz-btn').addEventListener('click', () => {
-    document.getElementById('quiz-modal').classList.remove('active');
-});
-
-// =============================================
-// 5. GERİ SAYIM SAYACI (Countdown)
-// =============================================
-let countdownInterval = null;
-
-function initCountdown() {
-    const card = document.getElementById('countdown-card');
-    
-    if (!countdownData) {
-        // İlk kez: düzenleme açılsın
-        card.style.display = 'block';
-        document.getElementById('countdown-title').textContent = 'Geri Sayım Ayarla ⏳';
-        document.getElementById('cd-days').textContent = '-';
-        document.getElementById('cd-hours').textContent = '-';
-        document.getElementById('cd-mins').textContent = '-';
-        document.getElementById('cd-secs').textContent = '-';
-    } else {
-        card.style.display = 'block';
-        document.getElementById('countdown-title').textContent = countdownData.title || 'Kavuşmamıza';
-        startCountdownTicker();
-    }
-}
-
-function startCountdownTicker() {
-    if (countdownInterval) clearInterval(countdownInterval);
-    
-    countdownInterval = setInterval(() => {
-        if (!countdownData) return;
-        const target = new Date(countdownData.date).getTime();
-        const now = Date.now();
-        const diff = target - now;
-        
-        if (diff <= 0) {
-            document.getElementById('cd-days').textContent = '🎉';
-            document.getElementById('cd-hours').textContent = '';
-            document.getElementById('cd-mins').textContent = '';
-            document.getElementById('cd-secs').textContent = '';
-            document.getElementById('countdown-title').textContent = 'KAVUŞTUK! 🎉💖';
-            clearInterval(countdownInterval);
-            launchFireworks();
-            return;
-        }
-        
-        const d = Math.floor(diff / (1000*60*60*24));
-        const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-        const m = Math.floor((diff % (1000*60*60)) / (1000*60));
-        const s = Math.floor((diff % (1000*60)) / 1000);
-        
-        document.getElementById('cd-days').textContent = d;
-        document.getElementById('cd-hours').textContent = String(h).padStart(2,'0');
-        document.getElementById('cd-mins').textContent = String(m).padStart(2,'0');
-        document.getElementById('cd-secs').textContent = String(s).padStart(2,'0');
-    }, 1000);
-}
-
-// Countdown Edit
-document.getElementById('countdown-edit-btn').addEventListener('click', () => {
-    const modal = document.getElementById('countdown-modal');
-    if (countdownData) {
-        document.getElementById('cd-title-input').value = countdownData.title || '';
-        document.getElementById('cd-date-input').value = countdownData.date || '';
-    }
-    modal.classList.add('active');
-});
-
-document.getElementById('save-countdown-btn').addEventListener('click', () => {
-    const title = document.getElementById('cd-title-input').value || 'Kavuşmamıza';
-    const date = document.getElementById('cd-date-input').value;
-    if (!date) return alert("Lütfen bir hedef tarih seçin!");
-    
-    countdownData = { title, date };
-    localStorage.setItem('loveApp_countdown', JSON.stringify(countdownData));
-    document.getElementById('countdown-title').textContent = title;
-    startCountdownTicker();
-    document.getElementById('countdown-modal').classList.remove('active');
-    if (navigator.vibrate) navigator.vibrate(100);
-});
-
-document.getElementById('cancel-countdown-btn').addEventListener('click', () => {
-    document.getElementById('countdown-modal').classList.remove('active');
-});
-
-// =============================================
-// FIREWORKS (Havai Fişek)
-// =============================================
-function launchFireworks() {
-    const canvas = document.getElementById('fireworks-canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    
-    const particles = [];
-    const colors = ['#ff4d6d','#ffd700','#ff8fab','#a855f7','#10b981','#3b82f6','#f59e0b','#fff'];
-    
-    function createBurst(x, y) {
-        for (let i = 0; i < 40; i++) {
-            const angle = (Math.PI * 2 / 40) * i;
-            const speed = Math.random() * 5 + 2;
-            particles.push({
-                x, y,
-                vx: Math.cos(angle) * speed,
-                vy: Math.sin(angle) * speed,
-                life: 1,
-                color: colors[Math.floor(Math.random() * colors.length)],
-                size: Math.random() * 3 + 1
-            });
-        }
-    }
-    
-    // Birden fazla patlama noktası
-    for (let i = 0; i < 5; i++) {
-        setTimeout(() => {
-            createBurst(
-                Math.random() * canvas.width * 0.6 + canvas.width * 0.2,
-                Math.random() * canvas.height * 0.4 + canvas.height * 0.1
-            );
-        }, i * 400);
-    }
-    
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        for (let i = particles.length - 1; i >= 0; i--) {
-            const p = particles[i];
-            p.x += p.vx;
-            p.y += p.vy;
-            p.vy += 0.05; // yerçekimi
-            p.life -= 0.015;
-            
-            if (p.life <= 0) {
-                particles.splice(i, 1);
-                continue;
-            }
-            
-            ctx.globalAlpha = p.life;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            ctx.fillStyle = p.color;
-            ctx.fill();
-        }
-        
-        ctx.globalAlpha = 1;
-        
-        if (particles.length > 0) {
-            requestAnimationFrame(animate);
-        } else {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-    }
-    
-    animate();
-}
-
-// =============================================
-// 6. MOOD TRACKER (Ruh Hali)
-// =============================================
-const moodEmojis = { mutlu: '😍', huzurlu: '😊', normal: '😐', üzgün: '😢', kızgın: '😤' };
-
-function getTodayKey() {
-    return new Date().toISOString().split('T')[0];
-}
-
-function renderMoodTracker() {
-    const today = getTodayKey();
-    const todayMood = moodLog[today];
-    
-    // Highlight today's mood
-    document.querySelectorAll('.mood-emoji').forEach(btn => {
-        btn.classList.toggle('selected', btn.dataset.mood === todayMood);
-    });
-    
-    // Week view
-    const weekDiv = document.getElementById('mood-week');
-    weekDiv.innerHTML = '';
-    for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const key = d.toISOString().split('T')[0];
-        const mood = moodLog[key];
-        const dot = document.createElement('div');
-        dot.className = 'mood-day-dot';
-        dot.textContent = mood ? moodEmojis[mood] : '·';
-        dot.title = d.toLocaleDateString('tr-TR', { weekday: 'short' });
-        weekDiv.appendChild(dot);
-    }
-    
-    const statusEl = document.getElementById('mood-status');
-    if (todayMood === 'üzgün' || todayMood === 'kızgın') {
-        statusEl.textContent = '💌 Bugün biraz zor geçiyor... Ona sarıl!';
-    } else if (todayMood) {
-        statusEl.textContent = '✨ Bugünün ruh hali kaydedildi!';
-    } else {
-        statusEl.textContent = 'Bugün henüz seçim yapmadın';
-    }
-}
-
-document.getElementById('mood-emojis').addEventListener('click', (e) => {
-    const btn = e.target.closest('.mood-emoji');
-    if (!btn) return;
-    
-    moodLog[getTodayKey()] = btn.dataset.mood;
-    localStorage.setItem('loveApp_moodLog', JSON.stringify(moodLog));
-    if (navigator.vibrate) navigator.vibrate(50);
-    renderMoodTracker();
-    checkAchievements();
-});
-
-// =============================================
-// 7. FORTUNE COOKIE (Günlük Fal)
-// =============================================
-const fortunes = [
-    "Bugün ona sürpriz bir kahve al, yüzündeki gülümsemeyi göreceksin ☕",
-    "Bu hafta birlikte yeni bir maceraya atılın - sizi çok güzel anılar bekliyor! 🌟",
-    "Bugün ona küçük bir not bırak, sadece 'Seni seviyorum' yaz 💌",
-    "Bu akşam birlikte gökyüzüne bakın, yıldızlar sizin için parlıyor ⭐",
-    "Ona sarıl ve 10 saniye bırakma. Bilimsel olarak mutluluk hormonu salgılanır 🤗",
-    "Bugün birbirinize çocukluk fotoğraflarınızı gösterin, çok güleceksiniz 📸",
-    "Bu hafta sonu planlarınızı iptal edin ve sadece birlikte olun 💕",
-    "Ona en sevdiği yemeği yapın, aşk mideden de geçer 🍳",
-    "Bugün telefonları bırakıp 1 saat sadece birbirinizle ilgilenin 📵",
-    "Yakında çok güzel bir sürpriz seni bekliyor... Sabırlı ol! 🎁",
-    "Bu ay birlikte yeni bir hobi deneyin - dans, resim veya yemek yapma 🎨",
-    "Ona bugün 'Seninle tanıştığım için çok şanslıyım' de, çok mutlu olacak 💖"
-];
-
-function initFortuneCookie() {
-    const lastFortuneDate = localStorage.getItem('loveApp_lastFortune');
-    const today = getTodayKey();
-    const cookie = document.getElementById('fortune-cookie');
-    const result = document.getElementById('fortune-result');
-    
-    if (lastFortuneDate === today) {
-        // Bugün zaten açmış
-        const savedFortune = localStorage.getItem('loveApp_fortuneText');
-        cookie.style.display = 'none';
-        result.style.display = 'block';
-        result.innerHTML = `<p>🥠 Bugünün Falı:</p><p style="margin-top:8px;">${savedFortune}</p>`;
-    }
-    
-    cookie.addEventListener('click', () => {
-        if (lastFortuneDate === today) return;
-        
-        cookie.style.animation = 'cookieCrack 0.6s ease-out forwards';
-        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        
-        setTimeout(() => {
-            const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
-            cookie.style.display = 'none';
-            result.style.display = 'block';
-            result.innerHTML = `<p>🥠 Bugünün Falı:</p><p style="margin-top:8px;">${fortune}</p>`;
-            
-            localStorage.setItem('loveApp_lastFortune', today);
-            localStorage.setItem('loveApp_fortuneText', fortune);
-            
-            for (let i = 0; i < 8; i++) createHeart();
-            checkAchievements();
-        }, 700);
-    });
-}
-
-// =============================================
-// 8. OUR SONG (Bizim Şarkımız)
-// =============================================
-function initOurSong() {
-    const savedSong = localStorage.getItem('loveApp_ourSong');
-    const savedName = localStorage.getItem('loveApp_ourSongName');
-    
-    if (savedSong) {
-        showSongPlayer(savedSong, savedName || 'Bizim Şarkımız');
-    }
-}
-
-function showSongPlayer(src, name) {
-    const player = document.getElementById('our-song-player');
-    const audio = document.getElementById('our-song-audio');
-    const noMsg = document.getElementById('no-song-msg');
-    
-    player.style.display = 'block';
-    noMsg.style.display = 'none';
-    audio.src = src;
-    document.getElementById('song-name').textContent = name;
-}
-
-document.getElementById('song-upload').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        const dataUrl = event.target.result;
-        try {
-            localStorage.setItem('loveApp_ourSong', dataUrl);
-            localStorage.setItem('loveApp_ourSongName', file.name.replace(/\.[^/.]+$/, ''));
-            showSongPlayer(dataUrl, file.name.replace(/\.[^/.]+$/, ''));
-            if (navigator.vibrate) navigator.vibrate(100);
-            checkAchievements();
-        } catch(err) {
-            alert("Şarkı dosyası çok büyük! Daha kısa bir parça dene.");
-        }
-    };
-    reader.readAsDataURL(file);
-});
-
-let ourSongPlaying = false;
-document.getElementById('our-song-play').addEventListener('click', () => {
-    const audio = document.getElementById('our-song-audio');
-    const disc = document.getElementById('song-disc');
-    const icon = document.getElementById('our-song-play').querySelector('i');
-    
-    if (ourSongPlaying) {
-        audio.pause();
-        ourSongPlaying = false;
-        disc.classList.remove('spinning');
-        icon.classList.remove('fa-pause');
-        icon.classList.add('fa-play');
-    } else {
-        audio.play().then(() => {
-            ourSongPlaying = true;
-            disc.classList.add('spinning');
-            icon.classList.remove('fa-play');
-            icon.classList.add('fa-pause');
-        }).catch(() => {});
-    }
-});
-
-// =============================================
-// 9. LOVE MAP / TIMELINE (Aşk Haritası)
-// =============================================
 function renderPlaces() {
-    const container = document.getElementById('love-timeline');
-    container.innerHTML = '';
-    
-    if (places.length === 0) {
-        container.innerHTML = '<p style="text-align:center;opacity:0.6;font-size:0.85rem;padding:15px;">Henüz yer eklenmedi</p>';
-        return;
-    }
-    
-    const sorted = [...places].sort((a, b) => new Date(a.date) - new Date(b.date));
-    sorted.forEach((p, i) => {
+    const container = document.getElementById('love-timeline'); container.innerHTML = '';
+    if (places.length === 0) { container.innerHTML = '<p class="text-center card-desc" style="padding:20px;">Henüz yer eklenmedi 📍</p>'; return; }
+    places.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach((p, i) => {
         const div = document.createElement('div');
-        div.className = 'timeline-item';
+        div.style.cssText = "position:relative; padding-left:30px; border-left:2px dashed rgba(255,255,255,0.3); margin-bottom:25px; margin-left:10px;";
         div.innerHTML = `
-            <button class="timeline-delete" data-idx="${places.indexOf(p)}"><i class="fa-solid fa-xmark"></i></button>
-            <h5 style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">${p.name} 📍</h5>
-            <p style="font-size: 15px; opacity: 0.9;">${p.note || ''}</p>
-            <small style="font-size: 14px; opacity: 0.6; display: block; margin-top: 6px;">${new Date(p.date).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' })}</small>
+            <div style="position:absolute; left:-9px; top:0; width:16px; height:16px; background:var(--accent); border-radius:50%; border:3px solid #fff; box-shadow:0 0 10px var(--accent);"></div>
+            <p class="card-title" style="font-size:18px;">${p.name} 📍</p>
+            <p class="card-desc" style="font-size:14px; opacity:0.9;">${p.note || ''}</p>
+            <p class="card-sub" style="font-size:12px; margin-top:5px;">${new Date(p.date).toLocaleDateString('tr-TR', {day:'numeric', month:'long', year:'numeric'})}</p>
+            <button onclick="deletePlace(${i})" style="position:absolute; right:0; top:0; background:none; border:none; color:rgba(255,255,255,0.3); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
         `;
         container.appendChild(div);
     });
-    
-    container.querySelectorAll('.timeline-delete').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const idx = parseInt(btn.dataset.idx);
-            if (confirm("Bu yeri silmek istiyor musun?")) {
-                places.splice(idx, 1);
-                localStorage.setItem('loveApp_places', JSON.stringify(places));
-                renderPlaces();
-            }
-        });
-    });
 }
 
-document.getElementById('add-place-btn').addEventListener('click', () => {
-    document.getElementById('place-modal').classList.add('active');
-});
-document.getElementById('cancel-place-btn').addEventListener('click', () => {
-    document.getElementById('place-modal').classList.remove('active');
-});
-document.getElementById('save-place-btn').addEventListener('click', () => {
-    const name = document.getElementById('place-name').value;
-    const date = document.getElementById('place-date').value;
-    if (!name || !date) return alert("Lütfen yer adı ve tarih girin!");
-    
-    places.push({ name, date, note: document.getElementById('place-note').value });
-    localStorage.setItem('loveApp_places', JSON.stringify(places));
-    renderPlaces();
-    document.getElementById('place-modal').classList.remove('active');
-    document.getElementById('place-name').value = '';
-    document.getElementById('place-date').value = '';
-    document.getElementById('place-note').value = '';
-    if (navigator.vibrate) navigator.vibrate(50);
-    checkAchievements();
-});
+window.deletePlace = (i) => { if(confirm("Bu yeri silmek istiyor musun?")) { places.splice(i, 1); localStorage.setItem('loveApp_places', JSON.stringify(places)); renderPlaces(); } };
 
-// =============================================
-// 10. LETTER VAULT (Mektup Kasası)
-// =============================================
 function renderLetters() {
-    const container = document.getElementById('letter-list');
-    container.innerHTML = '';
-    
-    if (letters.length === 0) {
-        container.innerHTML = '<p style="text-align:center;opacity:0.6;font-size:0.85rem;padding:15px;">Henüz mektup yok. Geleceğe mektup yaz!</p>';
-        return;
-    }
-    
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    
-    letters.forEach((letter, idx) => {
-        const unlockDate = new Date(letter.unlockDate);
-        const isUnlocked = today >= unlockDate;
-        
+    const container = document.getElementById('letter-list'); container.innerHTML = '';
+    if (letters.length === 0) { container.innerHTML = '<p class="text-center card-desc" style="padding:20px;">Henüz mektup yok ✉️</p>'; return; }
+    const now = new Date();
+    letters.forEach((l, i) => {
+        const unlock = new Date(l.unlockDate); const locked = now < unlock;
         const div = document.createElement('div');
-        div.className = 'letter-item';
-        div.innerHTML = `
-            <span class="letter-icon" style="font-size: 2rem;">${isUnlocked ? '💌' : '🔒'}</span>
-            <div class="letter-info">
-                <h5 style="font-size: 18px; font-weight: 700; margin-bottom: 2px;">${letter.title}</h5>
-                <p style="font-size: 14px; opacity: 0.8;">${isUnlocked ? 'Açık! Okumak için tıkla' : unlockDate.toLocaleDateString('tr-TR') + ' tarihinde açılacak'}</p>
-            </div>
-            <span class="letter-status ${isUnlocked ? 'unlocked' : 'locked'}" style="font-size: 12px; font-weight: 800;">${isUnlocked ? 'AÇIK' : 'KİLİTLİ'}</span>
-        `;
-        
-        div.addEventListener('click', () => {
-            if (isUnlocked) {
-                document.getElementById('letter-read-title').textContent = '💌 ' + letter.title;
-                document.getElementById('letter-read-content').textContent = letter.content;
-                document.getElementById('letter-read-modal').classList.add('active');
-                launchFireworks();
-            } else {
-                const diffDays = Math.ceil((unlockDate - today) / (1000*60*60*24));
-                alert(`🔒 Bu mektup kilitli!\n\nAçılmasına ${diffDays} gün kaldı.\nSabırlı ol... 💕`);
-                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-            }
-        });
-        
+        div.className = 'day-item'; div.style.cssText = "display:flex; align-items:center; gap:20px; background:rgba(255,255,255,0.1); padding:18px; border-radius:20px; margin-bottom:12px; cursor:pointer; border:1px solid rgba(255,255,255,0.05);";
+        div.innerHTML = `<div style="font-size:35px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));">${locked ? '🔒' : '✉️'}</div><div style="flex:1;"><p class="card-title" style="font-size:18px;">${l.title}</p><p class="card-sub" style="font-size:13px; opacity:0.7;">${locked ? unlock.toLocaleDateString('tr-TR')+' tarihinde kilit açılacak' : 'Okumak için dokun'}</p></div>`;
+        div.onclick = () => {
+            if (locked) alert(`🔒 Bu mektup kilitli!\n\nAçılmasına ${Math.ceil((unlock-now)/(1000*3600*24))} gün var. Sabretmelisin... 💕`);
+            else { document.getElementById('letter-read-title').textContent = '💌 ' + l.title; document.getElementById('letter-read-content').textContent = l.content; document.getElementById('letter-read-modal').classList.add('active'); launchFireworks(); vibrate(100); }
+        };
         container.appendChild(div);
     });
-}
-
-document.getElementById('add-letter-btn').addEventListener('click', () => {
-    document.getElementById('letter-modal').classList.add('active');
-});
-document.getElementById('cancel-letter-btn').addEventListener('click', () => {
-    document.getElementById('letter-modal').classList.remove('active');
-});
-document.getElementById('save-letter-btn').addEventListener('click', () => {
-    const title = document.getElementById('letter-title').value;
-    const content = document.getElementById('letter-content').value;
-    const unlockDate = document.getElementById('letter-unlock').value;
-    
-    if (!title || !content || !unlockDate) return alert("Lütfen tüm alanları doldurun!");
-    
-    letters.push({ title, content, unlockDate, createdAt: Date.now() });
-    localStorage.setItem('loveApp_letters', JSON.stringify(letters));
-    renderLetters();
-    document.getElementById('letter-modal').classList.remove('active');
-    document.getElementById('letter-title').value = '';
-    document.getElementById('letter-content').value = '';
-    document.getElementById('letter-unlock').value = '';
-    
-    alert("💌 Mektubun kasaya kilitledi! Belirlediğin tarihte açılacak...");
-    if (navigator.vibrate) navigator.vibrate([100, 50, 200]);
-    checkAchievements();
-});
-
-document.getElementById('close-letter-read').addEventListener('click', () => {
-    document.getElementById('letter-read-modal').classList.remove('active');
-});
-
-// =============================================
-// 11. ACHIEVEMENTS (Başarımlar)
-// =============================================
-const achievementDefs = [
-    { id: 'first_mood', icon: '😊', name: 'İlk Ruh Hali', check: () => Object.keys(moodLog).length >= 1 },
-    { id: 'week_mood', icon: '📅', name: '7 Gün Kayıt', check: () => Object.keys(moodLog).length >= 7 },
-    { id: 'first_memory', icon: '📸', name: 'İlk Anı', check: () => memories.length >= 1 },
-    { id: 'five_memories', icon: '🎞️', name: '5 Anı Biriktir', check: () => memories.length >= 5 },
-    { id: 'first_place', icon: '📍', name: 'İlk Yer', check: () => places.length >= 1 },
-    { id: 'first_letter', icon: '💌', name: 'İlk Mektup', check: () => letters.length >= 1 },
-    { id: 'our_song', icon: '🎵', name: 'Bizim Şarkı', check: () => !!localStorage.getItem('loveApp_ourSong') },
-    { id: 'fortune_open', icon: '🥠', name: 'İlk Fal', check: () => !!localStorage.getItem('loveApp_lastFortune') },
-    { id: 'quiz_master', icon: '🧠', name: 'Quiz Ustası', check: () => (parseInt(localStorage.getItem('loveApp_quizPerfect'))||0) >= 1 },
-];
-
-function checkAchievements() {
-    let newUnlock = false;
-    achievementDefs.forEach(def => {
-        if (!achievements.includes(def.id) && def.check()) {
-            achievements.push(def.id);
-            newUnlock = def.name;
-        }
-    });
-    
-    if (newUnlock) {
-        localStorage.setItem('loveApp_achievements', JSON.stringify(achievements));
-        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-        renderAchievements();
-    }
 }
 
 function renderAchievements() {
-    const grid = document.getElementById('achievements-grid');
-    grid.innerHTML = '';
-    
+    const grid = document.getElementById('achievements-grid'); grid.innerHTML = '';
     achievementDefs.forEach(def => {
         const unlocked = achievements.includes(def.id);
         const div = document.createElement('div');
-        div.className = `achievement-item ${unlocked ? 'unlocked' : 'locked'}`;
-        div.innerHTML = `
-            <span class="ach-icon" style="font-size: 32px; display: block; margin-bottom: 6px;">${def.icon}</span>
-            <span class="ach-name" style="font-size: 15px; font-weight: 700; opacity: 0.9;">${def.name}</span>
-        `;
+        div.style.cssText = `text-align:center; padding:15px 5px; border-radius:24px; background:rgba(255,255,255,${unlocked ? '0.15' : '0.04'}); filter: ${unlocked ? 'none' : 'grayscale(1) opacity(0.3)'}; border: 1px solid ${unlocked ? 'var(--accent)' : 'rgba(255,255,255,0.05)'}; transition:all 0.5s;`;
+        div.innerHTML = `<div style="font-size:38px; margin-bottom:8px;">${def.icon}</div><p class="card-sub" style="font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">${def.name}</p>`;
         grid.appendChild(div);
     });
 }
 
-// =============================================
-// 12. PREMIUM FEATURES (Tilt & Bokeh)
-// =============================================
-function initPremiumFeatures() {
-    initBokeh();
-    initTiltEffect();
+function checkAchievements() {
+    const awards = [];
+    if(Object.keys(moodLog).length > 0) awards.push('first_mood');
+    if(localStorage.getItem('loveApp_lastFortune')) awards.push('first_fortune');
+    if(places.length > 0) awards.push('first_place');
+    if(letters.length > 0) awards.push('first_letter');
+    if(localStorage.getItem('loveApp_ourSong')) awards.push('first_song');
+    awards.forEach(id => { if(!achievements.includes(id)) { achievements.push(id); vibrate([100, 50, 100]); launchHearts(10); } });
+    localStorage.setItem('loveApp_achievements', JSON.stringify(achievements));
+    renderAchievements();
 }
 
-function initBokeh() {
-    const container = document.getElementById('bokeh-container');
-    if (!container) return;
-    const particleCount = 20;
+// =============================================
+// 3. FEATURE INITIALIZERS
+// =============================================
+function initCountdown() { if (!countdownData) return; elements.countdownCard.classList.remove('hidden'); updateCountdown(); setInterval(updateCountdown, 1000); }
+function updateCountdown() {
+    const diff = new Date(countdownData.date).getTime() - Date.now();
+    if (diff <= 0) { document.getElementById('cd-days').textContent = '🎉'; return; }
+    document.getElementById('cd-days').textContent = Math.floor(diff / (1000*3600*24));
+    document.getElementById('cd-hours').textContent = String(Math.floor((diff % (1000*3600*24)) / (1000*3600))).padStart(2,'0');
+    document.getElementById('cd-mins').textContent = String(Math.floor((diff % (1000*3600)) / (1000*60))).padStart(2,'0');
+    document.getElementById('cd-secs').textContent = String(Math.floor((diff % (1000*60)) / 1000)).padStart(2,'0');
+}
 
-    for (let i = 0; i < particleCount; i++) {
-        const p = document.createElement('div');
-        p.className = 'bokeh-particle';
-        
-        const size = Math.random() * 80 + 40;
-        const dur = Math.random() * 10 + 10;
-        
-        p.style.width = size + 'px';
-        p.style.height = size + 'px';
-        p.style.left = Math.random() * 100 + 'vw';
-        p.style.top = Math.random() * 100 + 'vh';
-        p.style.setProperty('--tx', (Math.random() * 200 - 100) + 'px');
-        p.style.setProperty('--ty', (Math.random() * 200 - 100) + 'px');
-        p.style.setProperty('--dur', dur + 's');
-        p.style.animationDelay = (Math.random() * 5) + 's';
-        
-        container.appendChild(p);
+function initFortuneCookie() {
+    const cookie = document.getElementById('fortune-cookie'); const result = document.getElementById('fortune-result');
+    const today = new Date().toISOString().split('T')[0];
+    if (localStorage.getItem('loveApp_lastFortune') === today) { cookie.classList.add('hidden'); result.classList.remove('hidden'); result.textContent = localStorage.getItem('loveApp_fortuneText'); }
+    cookie.onclick = () => {
+        cookie.style.transform = 'scale(0.8) rotate(10deg)'; vibrate(100);
+        setTimeout(() => {
+            const fortunes = ["Bugün ona sürpriz bir kahve al ☕", "Birlikte yeni bir maceraya atılın! 🌟", "Ona küçük bir not bırak 💌", "Bu akşam gökyüzüne birlikte bakın ⭐", "Ona sarıl ve 10 saniye bırakma 🤗", "Çocukluk fotoğraflarınıza bakın 📸", "Sadece birlikte olduğunuz bir akşam geçirin 💕"];
+            const txt = fortunes[Math.floor(Math.random()*fortunes.length)];
+            cookie.classList.add('hidden'); result.classList.remove('hidden'); result.textContent = txt;
+            localStorage.setItem('loveApp_lastFortune', today); localStorage.setItem('loveApp_fortuneText', txt);
+            launchHearts(8); checkAchievements();
+        }, 500);
+    };
+}
+
+function initOurSong() {
+    const src = localStorage.getItem('loveApp_ourSong');
+    if (src) {
+        document.getElementById('our-song-player').classList.remove('hidden');
+        document.getElementById('no-song-msg').classList.add('hidden');
+        document.getElementById('our-song-audio').src = src;
+        document.getElementById('song-name').textContent = localStorage.getItem('loveApp_ourSongName') || 'Bizim Şarkımız';
     }
 }
 
-function initTiltEffect() {
-    const cards = document.querySelectorAll('.premium-card');
-    
-    cards.forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            const rotateX = (y - centerY) / 12;
-            const rotateY = (centerX - x) / 12;
-            
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
-        });
-        
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
-        });
+// =============================================
+// 4. FLOW & EVENTS
+// =============================================
+elements.envelope.onclick = () => {
+    vibrate(100); elements.introScreen.style.opacity = '0';
+    setTimeout(() => { elements.introScreen.style.display = 'none'; elements.appContainer.classList.add('active'); bootstrap(); }, 800);
+};
 
-        // Mobil için Touch desteği
-        card.addEventListener('touchmove', (e) => {
-            const touch = e.touches[0];
-            const rect = card.getBoundingClientRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
-            
-            if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
-                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
-                return;
-            }
-
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            const rotateX = (y - centerY) / 18;
-            const rotateY = (centerX - x) / 18;
-            
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
-        }, { passive: true });
-
-        card.addEventListener('touchend', () => {
-            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
-        });
-    });
+function bootstrap() {
+    renderSpecialDays(); renderMemories(); renderMoodTracker(); renderPlaces(); renderLetters(); renderAchievements();
+    initCountdown(); initFortuneCookie(); initOurSong();
 }
 
+elements.generateBtn.onclick = () => {
+    elements.quoteText.style.opacity = '0'; vibrate(40);
+    setTimeout(() => { elements.quoteText.textContent = quotes[Math.floor(Math.random()*quotes.length)]; elements.quoteText.style.opacity = '1'; launchHearts(5); }, 400);
+};
 
+elements.dateBtn.onclick = () => {
+    elements.dateCard.classList.remove('hidden'); elements.dateText.style.opacity = '0'; vibrate(40);
+    setTimeout(() => { elements.dateText.textContent = dateIdeas[Math.floor(Math.random()*dateIdeas.length)]; elements.dateText.style.opacity = '1'; }, 400);
+};
+
+// Modals Setup
+document.querySelectorAll('.modal').forEach(m => {
+    const close = () => { m.classList.remove('active'); vibrate(30); };
+    m.onclick = (e) => { if(e.target === m) close(); };
+    m.querySelectorAll('button').forEach(btn => { if(btn.textContent.includes('İptal') || btn.textContent.includes('Kapat')) btn.onclick = close; });
+});
+
+// Song Upload
+document.getElementById('song-upload').onchange = (e) => {
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader(); r.onload = (ev) => {
+        try { localStorage.setItem('loveApp_ourSong', ev.target.result); localStorage.setItem('loveApp_ourSongName', f.name.split('.')[0]); initOurSong(); checkAchievements(); vibrate(100); }
+        catch(e) { alert("Dosya çok büyük!"); }
+    }; r.readAsDataURL(f);
+};
+
+// Song Play
+let sPlaying = false;
+document.getElementById('our-song-play').onclick = () => {
+    const a = document.getElementById('our-song-audio'); const i = document.getElementById('our-song-play').querySelector('i');
+    if(sPlaying) { a.pause(); i.className = 'fa-solid fa-play'; sPlaying = false; }
+    else { a.play(); i.className = 'fa-solid fa-pause'; sPlaying = true; }
+};
+
+// Quiz
+document.getElementById('quiz-btn').onclick = () => {
+    const qModal = document.getElementById('quiz-modal');
+    qModal.classList.add('active');
+    let qIdx = 0, score = 0;
+    const renderQ = () => {
+        if(qIdx >= quizQuestions.length) {
+            document.getElementById('quiz-options').innerHTML = '';
+            document.getElementById('quiz-question').textContent = `Test Bitti! Puanın: ${score}/${quizQuestions.length}`;
+            if(score === quizQuestions.length) { checkAchievements(); launchFireworks(); }
+            return;
+        }
+        const q = quizQuestions[qIdx];
+        document.getElementById('quiz-question').textContent = q.q;
+        const opts = document.getElementById('quiz-options'); opts.innerHTML = '';
+        q.opts.forEach((o, i) => {
+            const b = document.createElement('button'); b.className = 'generate-btn'; b.style.marginBottom = '10px'; b.textContent = o;
+            b.onclick = () => { if(i === q.correct) score++; qIdx++; renderQ(); vibrate(50); };
+            opts.appendChild(b);
+        });
+    };
+    renderQ();
+};
+
+// Add Place
+document.getElementById('add-place-btn').onclick = () => document.getElementById('place-modal').classList.add('active');
+document.getElementById('save-place-btn').onclick = () => {
+    const n = document.getElementById('place-name').value, d = document.getElementById('place-date').value, nt = document.getElementById('place-note').value;
+    if(!n || !d) return alert("Bilgileri doldur!");
+    places.push({name:n, date:d, note:nt}); localStorage.setItem('loveApp_places', JSON.stringify(places));
+    renderPlaces(); checkAchievements(); document.getElementById('place-modal').classList.remove('active');
+};
+
+// Add Letter
+document.getElementById('add-letter-btn').onclick = () => document.getElementById('letter-modal').classList.add('active');
+document.getElementById('save-letter-btn').onclick = () => {
+    const t = document.getElementById('letter-title').value, c = document.getElementById('letter-content').value, u = document.getElementById('letter-unlock').value;
+    if(!t || !c || !u) return alert("Eksik alan var!");
+    letters.push({title:t, content:c, unlockDate:u}); localStorage.setItem('loveApp_letters', JSON.stringify(letters));
+    renderLetters(); checkAchievements(); document.getElementById('letter-modal').classList.remove('active');
+};
+
+// Save Dates
+document.getElementById('save-dates-btn').onclick = () => {
+    specialDays.forEach((d, i) => { const v = document.getElementById(`date-input-${i}`).value; if(v) d.date = v; });
+    localStorage.setItem('loveApp_specialDays', JSON.stringify(specialDays));
+    renderSpecialDays(); document.getElementById('edit-modal').classList.remove('active');
+};
+
+// Polaroid Upload
+document.getElementById('polaroid-upload').onchange = (e) => {
+    const f = e.target.files[0]; if(!f) return;
+    const n = prompt("Notun?");
+    const r = new FileReader(); r.onload = (ev) => {
+        const i = new Image(); i.onload = () => {
+            const c = document.createElement('canvas'); const ct = c.getContext('2d');
+            c.width = 400; c.height = (400/i.width)*i.height; ct.drawImage(i, 0, 0, c.width, c.height);
+            memories.push({image: c.toDataURL('image/jpeg', 0.7), note: n});
+            localStorage.setItem('loveApp_memories', JSON.stringify(memories)); renderMemories(); launchHearts(5);
+        }; i.src = ev.target.result;
+    }; r.readAsDataURL(f);
+};
+
+// MAIN MUSIC
+let mPlaying = false;
+elements.playBtn.onclick = () => {
+    if(mPlaying) { elements.bgMusic.pause(); elements.playBtn.querySelector('i').className = 'fa-solid fa-play'; mPlaying = false; }
+    else { elements.bgMusic.play(); elements.playBtn.querySelector('i').className = 'fa-solid fa-pause'; mPlaying = true; }
+};
+
+// FIREWORKS (Mini)
+function launchFireworks() {
+    const c = document.getElementById('fireworks-canvas'); if(!c) return;
+    const ctx = c.getContext('2d'); c.width = window.innerWidth; c.height = window.innerHeight;
+    let p = []; for(let i=0; i<60; i++) p.push({x:c.width/2, y:c.height/2, vx:Math.random()*12-6, vy:Math.random()*12-6, l:1, col:`hsl(${Math.random()*360}, 100%, 50%)`});
+    const animate = () => {
+        ctx.clearRect(0,0,c.width,c.height);
+        p.forEach(r => { r.x+=r.vx; r.y+=r.vy; r.vy+=0.1; r.l-=0.015; ctx.fillStyle=r.col; ctx.globalAlpha=r.l; ctx.fillRect(r.x,r.y,4,4); });
+        if(p[0].l > 0) requestAnimationFrame(animate); else ctx.clearRect(0,0,c.width,c.height);
+    }; animate();
+}

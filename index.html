@@ -44,23 +44,21 @@
         <main class="content-area">
             
             <!-- Geri Sayım Sayacı -->
-            <div class="countdown-card premium-card" id="countdown-card" style="display:none;">
-                <h4><i class="fa-solid fa-hourglass-half"></i> <span id="countdown-title">Kavuşmamıza</span></h4>
+            <div class="countdown-card premium-card hidden" id="countdown-card">
+                <h3><i class="fa-solid fa-hourglass-half"></i> <span id="countdown-title">Kavuşmamıza</span></h3>
                 <div class="countdown-timer" id="countdown-timer">
                     <div class="time-box"><span id="cd-days">0</span><small>Gün</small></div>
-                    <div class="time-sep">:</div>
                     <div class="time-box"><span id="cd-hours">0</span><small>Saat</small></div>
-                    <div class="time-sep">:</div>
                     <div class="time-box"><span id="cd-mins">0</span><small>Dakika</small></div>
-                    <div class="time-sep">:</div>
                     <div class="time-box"><span id="cd-secs">0</span><small>Saniye</small></div>
                 </div>
-                <button class="countdown-edit-btn" id="countdown-edit-btn"><i class="fa-solid fa-pen"></i></button>
+                <button class="edit-icon" id="countdown-edit-btn" style="position:absolute; top:15px; right:15px; border:none; background:none; color:rgba(255,255,255,0.5); font-size:14px; cursor:pointer;"><i class="fa-solid fa-pen"></i></button>
             </div>
 
             <!-- Ruh Hali Takipçisi -->
             <div class="mood-card premium-card">
-                <h4><i class="fa-solid fa-face-smile-beam"></i> Bugün Nasıl Hissediyorsun?</h4>
+                <h3><i class="fa-solid fa-face-smile-beam"></i> Ruh Halin</h3>
+                <p class="card-desc text-center">Bugün nasıl hissediyorsun?</p>
                 <div class="mood-emojis" id="mood-emojis">
                     <button class="mood-emoji" data-mood="mutlu">😍</button>
                     <button class="mood-emoji" data-mood="huzurlu">😊</button>
@@ -69,16 +67,17 @@
                     <button class="mood-emoji" data-mood="kızgın">😤</button>
                 </div>
                 <div class="mood-week" id="mood-week"></div>
-                <p class="mood-status" id="mood-status"></p>
+                <p class="mood-status text-center m-b-10" id="mood-status"></p>
             </div>
 
             <!-- Günlük Aşk Falı -->
             <div class="fortune-card premium-card" id="fortune-card">
-                <div class="fortune-cookie" id="fortune-cookie">
-                    <i class="fa-solid fa-cookie-bite" style="font-size:3rem;"></i>
-                    <p>Günlük Aşk Falına Bak 🥠</p>
+                <h3><i class="fa-solid fa-cookie-bite"></i> Aşk Falı</h3>
+                <div class="fortune-cookie text-center" id="fortune-cookie" style="cursor:pointer; padding:20px;">
+                    <i class="fa-solid fa-cookie-bite" style="font-size:3.5rem; color:var(--accent); margin-bottom:10px;"></i>
+                    <p class="card-desc">Kurabiyeyi kırmak için dokun! 🥠</p>
                 </div>
-                <div class="fortune-result" id="fortune-result" style="display:none;"></div>
+                <div class="fortune-result hidden text-center" id="fortune-result" style="font-size:18px; line-height:1.6; font-weight:600;"></div>
             </div>
 
             <!-- Music Player -->
@@ -102,20 +101,20 @@
 
             <!-- Bizim Şarkımız -->
             <div class="our-song-card premium-card">
-                <div class="header-with-edit">
-                    <h4 style="margin:0; color:#ffdde1;"><i class="fa-solid fa-music"></i> Bizim Şarkımız</h4>
-                    <label for="song-upload" class="edit-icon" title="Şarkı Yükle"><i class="fa-solid fa-upload"></i></label>
-                    <input type="file" id="song-upload" accept="audio/*" style="display:none;">
+                <div class="header-with-edit" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3 style="margin:0;"><i class="fa-solid fa-music"></i> Şarkımız</h3>
+                    <label for="song-upload" style="cursor:pointer; opacity:0.6;"><i class="fa-solid fa-upload"></i></label>
+                    <input type="file" id="song-upload" accept="audio/*" class="hidden">
                 </div>
-                <div class="our-song-player" id="our-song-player" style="display:none;">
-                    <div class="song-disc" id="song-disc">🎵</div>
-                    <p class="song-name" id="song-name">Şarkı Adı</p>
-                    <div class="song-controls">
-                        <button id="our-song-play" class="play-btn" style="width:40px;height:40px;font-size:16px;"><i class="fa-solid fa-play"></i></button>
+                <div class="our-song-player hidden text-center" id="our-song-player">
+                    <div class="song-disc" id="song-disc" style="font-size:40px; margin-bottom:10px;">🎵</div>
+                    <p class="card-title" id="song-name">Şarkı Adı</p>
+                    <div class="song-controls" style="margin-top:15px;">
+                        <button id="our-song-play" class="generate-btn" style="width:60px; height:60px; border-radius:50%;"><i class="fa-solid fa-play"></i></button>
                     </div>
                     <audio id="our-song-audio"></audio>
                 </div>
-                <p id="no-song-msg" style="text-align:center;opacity:0.6;font-size:0.85rem;">Henüz şarkı yüklenmedi. Yükle butonuna bas!</p>
+                <p id="no-song-msg" class="card-desc text-center">Henüz şarkı yüklenmedi.</p>
             </div>
 
             <div class="special-days-card premium-card" id="special-days-list">
@@ -166,17 +165,14 @@
             </div>
 
             <div class="quote-card premium-card">
-                <div class="quote-content">
-                    <i class="fa-solid fa-quote-left quote-mark"></i>
-                    <p id="quote-text">Sana söylemek istediğim çok şey var...</p>
-                    <i class="fa-solid fa-quote-right quote-mark right"></i>
-                </div>
+                <h3><i class="fa-solid fa-quote-left"></i> Günün Notu</h3>
+                <p id="quote-text" class="card-desc" style="font-size:18px; line-height:1.6; font-style:italic;">Sana söylemek istediğim çok şey var...</p>
             </div>
 
             <!-- Date Idea Card -->
-            <div class="date-card premium-card" id="date-card" style="display: none;">
-                <h4>💖 Günün Date Fikri</h4>
-                <p id="date-text">Hazırlanıyor...</p>
+            <div class="date-card premium-card hidden" id="date-card">
+                <h3>💖 Date Fikri</h3>
+                <p id="date-text" class="card-title text-center"></p>
             </div>
 
         </main>
