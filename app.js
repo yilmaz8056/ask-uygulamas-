@@ -1,5 +1,5 @@
 // =============================================
-// ETHEREAL CORE - V5 (REPAIR & RADIO)
+// ETHEREAL CORE - V6 (YOUTUBE RADIO ENGINE)
 // =============================================
 
 const CONFIG = {
@@ -8,12 +8,7 @@ const CONFIG = {
     fortunes: ["Bugün ona sürpriz bir not yaz 💌", "Birlikte yeni bir akıl almaz macera ☕", "Ona sarıl ve bırakma 🤗"],
     affirmations: ["Bugün varlığın için binlerce şükür sebebim var. 💕", "Dünyanın en şanslı insanıyım... ✨", "Gülüşün kalbimin huzurlu limanı. 🌊"],
     secretWord: "Sonsuzluk",
-    radioStreams: [
-        "https://radyo.dokuzsoft.com/8106/stream", // Slow Türk (HTTPS Fix)
-        "https://stream.srg-ssr.ch/m/rsj/mp3_128", // Radio Swiss Jazz (Ultra Stable)
-        "https://romantic.stream.laut.fm/romantic", // Global Romantic
-        "https://radio.canliyayin.org/8106/stream" // Alternatif Slow
-    ],
+    ytVideoId: "_fX-O0zV93o", // Kararlı Bir Türkçe Slow Mix (Gerekirse değiştirilebilir)
     awards: [
         { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
         { id: 'l_1', name: 'Zaman Yolcusu', icon: '✉️' },
@@ -32,8 +27,40 @@ let state = {
     startDate: "2023-10-15"
 };
 
+let ytPlayer = null;
+
 const $ = (id) => document.getElementById(id);
 const vibrate = (p=50) => navigator.vibrate && navigator.vibrate(p);
+
+// YouTube API Callback
+window.onYouTubeIframeAPIReady = function() {
+    ytPlayer = new YT.Player('yt-player', {
+        height: '0',
+        width: '0',
+        videoId: CONFIG.ytVideoId,
+        playerVars: {
+            'autoplay': 0,
+            'controls': 0,
+            'disablekb': 1,
+            'fs': 0,
+            'rel': 0,
+            'modestbranding': 1
+        },
+        events: {
+            'onReady': onPlayerReady,
+            'onError': onPlayerError
+        }
+    });
+};
+
+function onPlayerReady(event) {
+    console.log("YouTube Radyo Hazır.");
+}
+
+function onPlayerError(event) {
+    console.error("YouTube Hata:", event.data);
+    $('song-name').textContent = "Bağlantı Hatası";
+}
 
 function init() {
     renderDashboard();
@@ -145,78 +172,42 @@ function applyAura(aura) {
 }
 
 function setupEventListeners() {
-    // RADIO SYSTEM (Repair with Timeout & Global Fallbacks)
-    let playTimeout = null;
+    // YOUTUBE RADIO SYSTEM
     $('vinyl-trigger').onclick = () => {
         const disk = $('vinyl-disk');
-        const radio = $('radio-player');
         const statusText = $('song-name');
         
         vibrate(100);
         
-        if(radio.paused) {
+        if(!ytPlayer || !ytPlayer.getPlayerState) {
+            alert("Radyo henüz hazır değil, lütfen bir saniye bekle.");
+            return;
+        }
+
+        const playerState = ytPlayer.getPlayerState();
+        
+        if(playerState !== YT.PlayerState.PLAYING) {
             statusText.textContent = "Bağlanıyor...";
-            const tryPlay = (index) => {
-                if(index >= CONFIG.radioStreams.length) {
-                    statusText.textContent = "Bağlantı Kesildi";
-                    alert("Radyo yayınlarına şu an ulaşılamıyor (Bağlantı/Protokol Hatası). Lütfen daha sonra tekrar deneyin veya internetinizi kontrol edin.");
-                    return;
-                }
-                
-                if(playTimeout) clearTimeout(playTimeout);
-                
-                radio.src = CONFIG.radioStreams[index];
-                statusText.textContent = `İstasyon ${index+1} Deneniyor...`;
-                
-                const playPromise = radio.play();
-                
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        clearTimeout(playTimeout);
-                        disk.classList.add('playing');
-                        statusText.textContent = "Keyifli Dinlemeler... 💕";
-                    }).catch(() => {
-                        console.warn(`Stream ${index} failed logic...`);
-                        tryPlay(index + 1);
-                    });
-                }
-                
-                // 4 Saniye içinde başlamazsa diğerine geç
-                playTimeout = setTimeout(() => {
-                    if (radio.paused || radio.readyState < 3) {
-                        console.warn(`Stream ${index} timeout...`);
-                        radio.pause();
-                        tryPlay(index + 1);
-                    }
-                }, 4000);
-            };
-            tryPlay(0);
+            ytPlayer.playVideo();
+            disk.classList.add('playing');
+            statusText.textContent = "Keyifli Dinlemeler... 💕";
         } else {
-            if(playTimeout) clearTimeout(playTimeout);
-            radio.pause();
-            radio.src = "";
+            ytPlayer.pauseVideo();
             disk.classList.remove('playing');
             statusText.textContent = "Radyo Durduruldu";
         }
     };
 
-    // BUTTON FIXES (Sevgi Notu & Plan Yap)
-    $('btn-quote').onclick = () => {
-        const q = CONFIG.quotes[Math.floor(Math.random()*CONFIG.quotes.length)];
-        reveal(q);
-    };
-    
-    $('btn-date').onclick = () => {
-        const d = CONFIG.dates[Math.floor(Math.random()*CONFIG.dates.length)];
-        reveal(d);
-    };
+    // BUTTON FIXES
+    $('btn-quote').onclick = () => reveal(CONFIG.quotes[Math.floor(Math.random()*CONFIG.quotes.length)]);
+    $('btn-date').onclick = () => reveal(CONFIG.dates[Math.floor(Math.random()*CONFIG.dates.length)]);
 
     // MOOD
     const moodCard = document.querySelector('[data-mood="mutlu"]').parentElement.parentElement;
     moodCard.onclick = () => showModal(`<h3>Ruh Halin?</h3><div style="display:flex; justify-content:space-around; font-size:32px; margin-top:15px;"><span onclick="setM('mutlu', '🥰')" style="cursor:pointer;">🥰</span><span onclick="setM('huzurlu', '😊')" style="cursor:pointer;">😊</span><span onclick="setM('normal', '😐')" style="cursor:pointer;">😐</span></div>`);
     window.setM = (t, i) => { $('mood-feedback').textContent = `Bugün ${t} hissediyorsun. ${i}`; vibrate(30); unlockAward('m_1'); closeModal(); };
 
-    // MEMORY UPLOAD FIX
+    // MEMORY UPLOAD
     $('upload-mem').onchange = (e) => {
         const file = e.target.files[0];
         if(!file) return;
@@ -229,7 +220,7 @@ function setupEventListeners() {
                 renderMemories();
                 renderCalendar();
             } catch (err) {
-                alert("Hafıza doldu! Lütfen bazı eski anıları silerek yer aç (LocalStorage sınırı).");
+                alert("Hafıza doldu! Lütfen bazı eski anıları silerek yer aç.");
                 state.memories.pop();
             }
         };
@@ -252,7 +243,6 @@ function reveal(txt) {
     area.classList.remove('hidden');
     text.textContent = txt;
     for(let i=0; i<8; i++) spawnHeart();
-    // Scroll to reveal area
     area.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 

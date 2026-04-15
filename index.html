@@ -10,6 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body data-aura="default">
     
@@ -65,10 +66,12 @@
                     <div class="vinyl-center"></div>
                 </div>
             </div>
-            <p id="song-name" style="font-size: 14px; font-weight: 700; color: #444; margin-bottom: 5px;">Slow Türk Canlı</p>
+            <p id="song-name" style="font-size: 14px; font-weight: 700; color: #444; margin-bottom: 5px;">Slow Radyomuz Canlı</p>
             <p style="font-size: 11px; opacity: 0.5;">Dinlemek için dokun 🎵</p>
-            <!-- Hidden Audio for Radio -->
-            <audio id="radio-player" preload="none" src="https://radyo.dokuzsoft.com/8106/stream"></audio>
+            <!-- Hidden YouTube Player Container -->
+            <div id="yt-player-wrap" style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;">
+                <div id="yt-player"></div>
+            </div>
         </section>
 
         <!-- Aşk Nabzı -->
