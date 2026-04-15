@@ -1,5 +1,5 @@
 // =============================================
-// QUOTES & DATE IDEAS
+// QUOTES & DATA IDEAS
 // =============================================
 const quotes = [
     "Gülüşün dünyadaki en güzel manzara...",
@@ -71,7 +71,7 @@ const achievementDefs = [
 ];
 
 // =============================================
-// DATA & STATE
+// STATE & CONFIG
 // =============================================
 let specialDays = JSON.parse(localStorage.getItem('loveApp_specialDays')) || [
     { title: "Tanışma Yıl Dönümümüz", date: "2026-10-15", icon: "fa-champagne-glasses" },
@@ -87,9 +87,9 @@ let letters = JSON.parse(localStorage.getItem('loveApp_letters')) || [];
 let achievements = JSON.parse(localStorage.getItem('loveApp_achievements')) || [];
 
 // =============================================
-// DOM ELEMENTS
+// GLOBAL RECOVERY ELEMENTS
 // =============================================
-const elements = {
+const getElements = () => ({
     introScreen: document.getElementById('intro-screen'),
     appContainer: document.getElementById('main-app'),
     envelope: document.getElementById('envelope'),
@@ -104,7 +104,9 @@ const elements = {
     musicCard: document.querySelector('.music-card'),
     countdownCard: document.getElementById('countdown-card'),
     heartsContainer: document.getElementById('hearts-container')
-};
+});
+
+let elements = getElements();
 
 // =============================================
 // 1. UTILITIES & EFFECTS
@@ -113,6 +115,8 @@ const vibrate = (p = 50) => navigator.vibrate && navigator.vibrate(p);
 const launchHearts = (c = 5) => { for(let i=0; i<c; i++) createHeart(); };
 
 function createHeart() {
+    const container = document.getElementById('hearts-container');
+    if (!container) return;
     const heart = document.createElement('i');
     heart.className = 'fa-solid fa-heart floating-heart';
     const size = Math.random() * 20 + 10;
@@ -120,7 +124,7 @@ function createHeart() {
     heart.style.fontSize = `${size}px`;
     heart.style.left = `${Math.random() * 100}vw`;
     heart.style.setProperty('--dur', `${dur}s`);
-    elements.heartsContainer.appendChild(heart);
+    container.appendChild(heart);
     setTimeout(() => heart.remove(), dur * 1000);
 }
 setInterval(createHeart, 1000);
@@ -130,7 +134,7 @@ document.addEventListener('click', (e) => {
     if (e.target.closest('.modal') || e.target.closest('button') || e.target.closest('input')) return;
     const h = document.createElement('span');
     h.textContent = ['❤️','💖','💗','🌸'][Math.floor(Math.random()*4)];
-    h.style.cssText = `position:fixed; left:${e.clientX}px; top:${e.clientY}px; font-size:24px; pointer-events:none; z-index:9999; animation: heartPop 1s forwards;`;
+    h.style.cssText = `position:fixed; left:${e.clientX}px; top:${e.clientY}px; font-size:24px; pointer-events:none; z-index:99999; animation: heartPop 1s forwards;`;
     document.body.appendChild(h);
     setTimeout(() => h.remove(), 1000);
 });
@@ -140,7 +144,9 @@ document.addEventListener('click', (e) => {
 // =============================================
 function renderSpecialDays() {
     const today = new Date(); today.setHours(0,0,0,0);
-    elements.specialDaysList.innerHTML = `
+    const list = document.getElementById('special-days-list');
+    if (!list) return;
+    list.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h3 style="margin:0;"><i class="fa-solid fa-calendar-heart"></i> Günlerimiz</h3>
             <button class="edit-icon" id="open-edit-modal" style="background:none; border:none; color:rgba(255,255,255,0.6); cursor:pointer;"><i class="fa-solid fa-pen"></i></button>
@@ -161,19 +167,24 @@ function renderSpecialDays() {
             </div>
             <p class="card-desc" style="font-weight:800; color:var(--accent); margin:0;">${countdownText}</p>
         `;
-        elements.specialDaysList.appendChild(div);
+        list.appendChild(div);
     });
-    document.getElementById('open-edit-modal').addEventListener('click', () => {
-        const container = document.getElementById('edit-form-container'); container.innerHTML = '';
-        specialDays.forEach((d, idx) => {
-            container.innerHTML += `<div class="edit-row" style="margin-bottom:15px;"><label style="display:block; margin-bottom:5px; font-size:14px; opacity:0.8;">${d.title}</label><input type="date" id="date-input-${idx}" value="${d.date}" style="width:100%; border-radius:12px; border:1px solid rgba(255,255,255,0.2); padding:10px; background:rgba(255,255,255,0.1); color:#fff;"></div>`;
+    const editBtn = document.getElementById('open-edit-modal');
+    if (editBtn) {
+        editBtn.addEventListener('click', () => {
+            const container = document.getElementById('edit-form-container'); container.innerHTML = '';
+            specialDays.forEach((d, idx) => {
+                container.innerHTML += `<div class="edit-row" style="margin-bottom:15px;"><label style="display:block; margin-bottom:5px; font-size:14px; opacity:0.8;">${d.title}</label><input type="date" id="date-input-${idx}" value="${d.date}" style="width:100%; border-radius:12px; border:1px solid rgba(255,255,255,0.2); padding:10px; background:rgba(255,255,255,0.1); color:#fff;"></div>`;
+            });
+            document.getElementById('edit-modal').classList.add('active');
         });
-        document.getElementById('edit-modal').classList.add('active');
-    });
+    }
 }
 
 function renderMemories() {
-    const gallery = document.getElementById('polaroid-gallery'); gallery.innerHTML = '';
+    const gallery = document.getElementById('polaroid-gallery');
+    if (!gallery) return;
+    gallery.innerHTML = '';
     if (memories.length === 0) { gallery.innerHTML = '<div class="text-center card-desc" style="width:100%; padding:20px; opacity:0.5;">Henüz anı eklenmedi 📸</div>'; return; }
     memories.forEach((mem, idx) => {
         const item = document.createElement('div');
@@ -189,8 +200,35 @@ function renderMemories() {
     });
 }
 
+function renderMoodTracker() {
+    const container = document.getElementById('mood-emojis');
+    if (!container) return;
+    container.querySelectorAll('.mood-emoji').forEach(btn => {
+        const mood = btn.getAttribute('data-mood');
+        btn.onclick = () => {
+            vibrate(40);
+            container.querySelectorAll('.mood-emoji').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            const today = new Date().toISOString().split('T')[0];
+            moodLog[today] = mood;
+            localStorage.setItem('loveApp_moodLog', JSON.stringify(moodLog));
+            document.getElementById('mood-status').textContent = `Harika! Bugün ${mood} hissediyorsun. 💕`;
+            checkAchievements();
+            launchHearts(3);
+        };
+    });
+    const today = new Date().toISOString().split('T')[0];
+    if (moodLog[today]) {
+        const btn = Array.from(container.querySelectorAll('.mood-emoji')).find(b => b.getAttribute('data-mood') === moodLog[today]);
+        if (btn) btn.classList.add('selected');
+        document.getElementById('mood-status').textContent = `Bugün ${moodLog[today]} hissediyorsun. 💕`;
+    }
+}
+
 function renderPlaces() {
-    const container = document.getElementById('love-timeline'); container.innerHTML = '';
+    const container = document.getElementById('love-timeline');
+    if (!container) return;
+    container.innerHTML = '';
     if (places.length === 0) { container.innerHTML = '<p class="text-center card-desc" style="padding:20px;">Henüz yer eklenmedi 📍</p>'; return; }
     places.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach((p, i) => {
         const div = document.createElement('div');
@@ -209,7 +247,9 @@ function renderPlaces() {
 window.deletePlace = (i) => { if(confirm("Bu yeri silmek istiyor musun?")) { places.splice(i, 1); localStorage.setItem('loveApp_places', JSON.stringify(places)); renderPlaces(); } };
 
 function renderLetters() {
-    const container = document.getElementById('letter-list'); container.innerHTML = '';
+    const container = document.getElementById('letter-list');
+    if (!container) return;
+    container.innerHTML = '';
     if (letters.length === 0) { container.innerHTML = '<p class="text-center card-desc" style="padding:20px;">Henüz mektup yok ✉️</p>'; return; }
     const now = new Date();
     letters.forEach((l, i) => {
@@ -226,7 +266,9 @@ function renderLetters() {
 }
 
 function renderAchievements() {
-    const grid = document.getElementById('achievements-grid'); grid.innerHTML = '';
+    const grid = document.getElementById('achievements-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
     achievementDefs.forEach(def => {
         const unlocked = achievements.includes(def.id);
         const div = document.createElement('div');
@@ -248,42 +290,15 @@ function checkAchievements() {
     renderAchievements();
 }
 
-function renderMoodTracker() {
-    const container = document.getElementById('mood-emojis');
-    if (!container) return;
-    
-    // Emojilere tıklama olaylarını bağla
-    container.querySelectorAll('.mood-emoji').forEach(btn => {
-        const mood = btn.getAttribute('data-mood');
-        btn.onclick = () => {
-            vibrate(40);
-            container.querySelectorAll('.mood-emoji').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            const today = new Date().toISOString().split('T')[0];
-            moodLog[today] = mood;
-            localStorage.setItem('loveApp_moodLog', JSON.stringify(moodLog));
-            document.getElementById('mood-status').textContent = `Harika! Bugün ${mood} hissediyorsun. 💕`;
-            checkAchievements();
-            launchHearts(3);
-        };
-    });
-
-    // Bugünün ruh halini kontrol et
-    const today = new Date().toISOString().split('T')[0];
-    if (moodLog[today]) {
-        const btn = Array.from(container.querySelectorAll('.mood-emoji')).find(b => b.getAttribute('data-mood') === moodLog[today]);
-        if (btn) btn.classList.add('selected');
-        document.getElementById('mood-status').textContent = `Bugün ${moodLog[today]} hissediyorsun. 💕`;
-    }
-}
-
 // =============================================
 // 3. FEATURE INITIALIZERS
 // =============================================
-function initCountdown() { if (!countdownData) return; elements.countdownCard.classList.remove('hidden'); updateCountdown(); setInterval(updateCountdown, 1000); }
+function initCountdown() { if (!countdownData) return; const card = document.getElementById('countdown-card'); if(card) card.classList.remove('hidden'); updateCountdown(); setInterval(updateCountdown, 1000); }
 function updateCountdown() {
+    const display = document.getElementById('cd-days');
+    if (!display || !countdownData) return;
     const diff = new Date(countdownData.date).getTime() - Date.now();
-    if (diff <= 0) { document.getElementById('cd-days').textContent = '🎉'; return; }
+    if (diff <= 0) { display.textContent = '🎉'; return; }
     document.getElementById('cd-days').textContent = Math.floor(diff / (1000*3600*24));
     document.getElementById('cd-hours').textContent = String(Math.floor((diff % (1000*3600*24)) / (1000*3600))).padStart(2,'0');
     document.getElementById('cd-mins').textContent = String(Math.floor((diff % (1000*3600)) / (1000*60))).padStart(2,'0');
@@ -292,6 +307,7 @@ function updateCountdown() {
 
 function initFortuneCookie() {
     const cookie = document.getElementById('fortune-cookie'); const result = document.getElementById('fortune-result');
+    if (!cookie) return;
     const today = new Date().toISOString().split('T')[0];
     if (localStorage.getItem('loveApp_lastFortune') === today) { cookie.classList.add('hidden'); result.classList.remove('hidden'); result.textContent = localStorage.getItem('loveApp_fortuneText'); }
     cookie.onclick = () => {
@@ -309,146 +325,107 @@ function initFortuneCookie() {
 function initOurSong() {
     const src = localStorage.getItem('loveApp_ourSong');
     if (src) {
-        document.getElementById('our-song-player').classList.remove('hidden');
-        document.getElementById('no-song-msg').classList.add('hidden');
-        document.getElementById('our-song-audio').src = src;
-        document.getElementById('song-name').textContent = localStorage.getItem('loveApp_ourSongName') || 'Bizim Şarkımız';
+        const player = document.getElementById('our-song-player');
+        if (player) {
+            player.classList.remove('hidden');
+            document.getElementById('no-song-msg').classList.add('hidden');
+            document.getElementById('our-song-audio').src = src;
+            document.getElementById('song-name').textContent = localStorage.getItem('loveApp_ourSongName') || 'Bizim Şarkımız';
+        }
     }
 }
 
 // =============================================
-// 4. FLOW & EVENTS
+// 4. FLOW & EVENTS (THE FIX)
 // =============================================
-if (elements.envelope) {
-    elements.envelope.addEventListener('click', function() {
-        vibrate(100); 
-        console.log("Zarf tıklandı, uygulama başlatılıyor...");
-        elements.introScreen.style.opacity = '0';
-        setTimeout(() => { 
-            elements.introScreen.style.display = 'none'; 
-            elements.appContainer.classList.add('active'); 
-            bootstrap(); 
-        }, 800);
-    }, { once: true });
-}
+window.handleEnvelopeClick = function() {
+    const el = getElements();
+    vibrate(100);
+    if (el.introScreen) el.introScreen.style.opacity = '0';
+    setTimeout(() => {
+        if (el.introScreen) el.introScreen.style.display = 'none';
+        if (el.appContainer) el.appContainer.classList.add('active');
+        bootstrap();
+    }, 800);
+};
 
 function bootstrap() {
-    renderSpecialDays(); 
-    renderMemories(); 
-    renderMoodTracker(); 
-    renderPlaces(); 
-    renderLetters(); 
-    renderAchievements();
-    initCountdown(); 
-    initFortuneCookie(); 
-    initOurSong();
+    try {
+        renderSpecialDays(); 
+        renderMemories(); 
+        renderMoodTracker(); 
+        renderPlaces(); 
+        renderLetters(); 
+        renderAchievements();
+        initCountdown(); 
+        initFortuneCookie(); 
+        initOurSong();
+    } catch(err) {
+        console.error("Bootstrap Error:", err);
+    }
 }
 
-elements.generateBtn.onclick = () => {
-    elements.quoteText.style.opacity = '0'; vibrate(40);
-    setTimeout(() => { elements.quoteText.textContent = quotes[Math.floor(Math.random()*quotes.length)]; elements.quoteText.style.opacity = '1'; launchHearts(5); }, 400);
-};
+// Manual initialization once DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    elements = getElements();
+    
+    // Assign generate button events
+    if (elements.generateBtn) {
+        elements.generateBtn.onclick = () => {
+            vibrate(40);
+            elements.quoteText.style.opacity = '0';
+            setTimeout(() => {
+                elements.quoteText.textContent = quotes[Math.floor(Math.random()*quotes.length)];
+                elements.quoteText.style.opacity = '1';
+                launchHearts(5);
+            }, 400);
+        };
+    }
 
-elements.dateBtn.onclick = () => {
-    elements.dateCard.classList.remove('hidden'); elements.dateText.style.opacity = '0'; vibrate(40);
-    setTimeout(() => { elements.dateText.textContent = dateIdeas[Math.floor(Math.random()*dateIdeas.length)]; elements.dateText.style.opacity = '1'; }, 400);
-};
+    if (elements.dateBtn) {
+        elements.dateBtn.onclick = () => {
+            vibrate(40);
+            elements.dateCard.classList.remove('hidden');
+            elements.dateText.style.opacity = '0';
+            setTimeout(() => {
+                elements.dateText.textContent = dateIdeas[Math.floor(Math.random()*dateIdeas.length)];
+                elements.dateText.style.opacity = '1';
+            }, 400);
+        };
+    }
 
-// Modals Setup
-document.querySelectorAll('.modal').forEach(m => {
-    const close = () => { m.classList.remove('active'); vibrate(30); };
-    m.onclick = (e) => { if(e.target === m) close(); };
-    m.querySelectorAll('button').forEach(btn => { if(btn.textContent.includes('İptal') || btn.textContent.includes('Kapat')) btn.onclick = close; });
+    // Modal behavior
+    document.querySelectorAll('.modal').forEach(m => {
+        const close = () => { m.classList.remove('active'); vibrate(30); };
+        m.onclick = (e) => { if(e.target === m) close(); };
+        m.querySelectorAll('button').forEach(btn => { 
+            if(btn.id.includes('cancel') || btn.id.includes('close')) btn.onclick = close; 
+        });
+    });
+
+    // Song Upload
+    const songInput = document.getElementById('song-upload');
+    if (songInput) {
+        songInput.onchange = (e) => {
+            const f = e.target.files[0]; if(!f) return;
+            const r = new FileReader(); r.onload = (ev) => {
+                try { localStorage.setItem('loveApp_ourSong', ev.target.result); localStorage.setItem('loveApp_ourSongName', f.name.split('.')[0]); initOurSong(); checkAchievements(); vibrate(100); }
+                catch(e) { alert("Dosya çok büyük!"); }
+            }; r.readAsDataURL(f);
+        };
+    }
+
+    // Main Music Player
+    let mPlaying = false;
+    if (elements.playBtn) {
+        elements.playBtn.onclick = () => {
+            const icon = elements.playBtn.querySelector('i');
+            if(mPlaying) { elements.bgMusic.pause(); if(icon) icon.className = 'fa-solid fa-play'; mPlaying = false; }
+            else { elements.bgMusic.play(); if(icon) icon.className = 'fa-solid fa-pause'; mPlaying = true; }
+        };
+    }
 });
 
-// Song Upload
-document.getElementById('song-upload').onchange = (e) => {
-    const f = e.target.files[0]; if(!f) return;
-    const r = new FileReader(); r.onload = (ev) => {
-        try { localStorage.setItem('loveApp_ourSong', ev.target.result); localStorage.setItem('loveApp_ourSongName', f.name.split('.')[0]); initOurSong(); checkAchievements(); vibrate(100); }
-        catch(e) { alert("Dosya çok büyük!"); }
-    }; r.readAsDataURL(f);
-};
-
-// Song Play
-let sPlaying = false;
-document.getElementById('our-song-play').onclick = () => {
-    const a = document.getElementById('our-song-audio'); const i = document.getElementById('our-song-play').querySelector('i');
-    if(sPlaying) { a.pause(); i.className = 'fa-solid fa-play'; sPlaying = false; }
-    else { a.play(); i.className = 'fa-solid fa-pause'; sPlaying = true; }
-};
-
-// Quiz
-document.getElementById('quiz-btn').onclick = () => {
-    const qModal = document.getElementById('quiz-modal');
-    qModal.classList.add('active');
-    let qIdx = 0, score = 0;
-    const renderQ = () => {
-        if(qIdx >= quizQuestions.length) {
-            document.getElementById('quiz-options').innerHTML = '';
-            document.getElementById('quiz-question').textContent = `Test Bitti! Puanın: ${score}/${quizQuestions.length}`;
-            if(score === quizQuestions.length) { checkAchievements(); launchFireworks(); }
-            return;
-        }
-        const q = quizQuestions[qIdx];
-        document.getElementById('quiz-question').textContent = q.q;
-        const opts = document.getElementById('quiz-options'); opts.innerHTML = '';
-        q.opts.forEach((o, i) => {
-            const b = document.createElement('button'); b.className = 'generate-btn'; b.style.marginBottom = '10px'; b.textContent = o;
-            b.onclick = () => { if(i === q.correct) score++; qIdx++; renderQ(); vibrate(50); };
-            opts.appendChild(b);
-        });
-    };
-    renderQ();
-};
-
-// Add Place
-document.getElementById('add-place-btn').onclick = () => document.getElementById('place-modal').classList.add('active');
-document.getElementById('save-place-btn').onclick = () => {
-    const n = document.getElementById('place-name').value, d = document.getElementById('place-date').value, nt = document.getElementById('place-note').value;
-    if(!n || !d) return alert("Bilgileri doldur!");
-    places.push({name:n, date:d, note:nt}); localStorage.setItem('loveApp_places', JSON.stringify(places));
-    renderPlaces(); checkAchievements(); document.getElementById('place-modal').classList.remove('active');
-};
-
-// Add Letter
-document.getElementById('add-letter-btn').onclick = () => document.getElementById('letter-modal').classList.add('active');
-document.getElementById('save-letter-btn').onclick = () => {
-    const t = document.getElementById('letter-title').value, c = document.getElementById('letter-content').value, u = document.getElementById('letter-unlock').value;
-    if(!t || !c || !u) return alert("Eksik alan var!");
-    letters.push({title:t, content:c, unlockDate:u}); localStorage.setItem('loveApp_letters', JSON.stringify(letters));
-    renderLetters(); checkAchievements(); document.getElementById('letter-modal').classList.remove('active');
-};
-
-// Save Dates
-document.getElementById('save-dates-btn').onclick = () => {
-    specialDays.forEach((d, i) => { const v = document.getElementById(`date-input-${i}`).value; if(v) d.date = v; });
-    localStorage.setItem('loveApp_specialDays', JSON.stringify(specialDays));
-    renderSpecialDays(); document.getElementById('edit-modal').classList.remove('active');
-};
-
-// Polaroid Upload
-document.getElementById('polaroid-upload').onchange = (e) => {
-    const f = e.target.files[0]; if(!f) return;
-    const n = prompt("Notun?");
-    const r = new FileReader(); r.onload = (ev) => {
-        const i = new Image(); i.onload = () => {
-            const c = document.createElement('canvas'); const ct = c.getContext('2d');
-            c.width = 400; c.height = (400/i.width)*i.height; ct.drawImage(i, 0, 0, c.width, c.height);
-            memories.push({image: c.toDataURL('image/jpeg', 0.7), note: n});
-            localStorage.setItem('loveApp_memories', JSON.stringify(memories)); renderMemories(); launchHearts(5);
-        }; i.src = ev.target.result;
-    }; r.readAsDataURL(f);
-};
-
-// MAIN MUSIC
-let mPlaying = false;
-elements.playBtn.onclick = () => {
-    if(mPlaying) { elements.bgMusic.pause(); elements.playBtn.querySelector('i').className = 'fa-solid fa-play'; mPlaying = false; }
-    else { elements.bgMusic.play(); elements.playBtn.querySelector('i').className = 'fa-solid fa-pause'; mPlaying = true; }
-};
-
-// FIREWORKS (Mini)
 function launchFireworks() {
     const c = document.getElementById('fireworks-canvas'); if(!c) return;
     const ctx = c.getContext('2d'); c.width = window.innerWidth; c.height = window.innerHeight;
