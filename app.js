@@ -186,15 +186,19 @@ function playStation(id) {
     vibrate(50);
     $('radio-status').textContent = "Bağlanıyor... 💕";
     
-    audioPlayer.src = url;
-    audioPlayer.load();
-    audioPlayer.play().then(() => {
-        $('radio-status').textContent = "Çalıyor: " + id.replace('-',' ').toUpperCase();
-        setTimeout(() => toggleMusicDrawer(false), 2000);
-    }).catch(err => {
-        console.error("Audio error:", err);
-        $('radio-status').textContent = "Hata! Tekrar Dene.";
-    });
+    try {
+        audioPlayer.pause();
+        audioPlayer.src = url;
+        audioPlayer.play().then(() => {
+            $('radio-status').textContent = "Çalıyor: " + id.replace('-',' ').toUpperCase();
+            setTimeout(() => toggleMusicDrawer(false), 2000);
+        }).catch(err => {
+            console.error("Audio error:", err);
+            $('radio-status').textContent = "Hata! Diğer Kanalı Dene.";
+        });
+    } catch(e) {
+        $('radio-status').textContent = "Ses Başlatılamadı.";
+    }
 
     document.querySelectorAll('.station-btn').forEach(b => {
         b.classList.toggle('active', b.getAttribute('data-s') === id);
@@ -203,57 +207,70 @@ function playStation(id) {
 
 function setupEventListeners() {
     // STATION PICKER SYSTEM
-    $('vinyl-trigger').onclick = () => {
-        if (!audioPlayer.paused) {
-            audioPlayer.pause();
-            audioPlayer.src = "";
-        } else {
-            toggleMusicDrawer(true);
-        }
-    };
-    
-    $('drawer-haze').onclick = () => toggleMusicDrawer(false);
+    try {
+        $('vinyl-trigger').onclick = () => {
+            if (!audioPlayer.paused) {
+                audioPlayer.pause();
+                audioPlayer.src = "";
+            } else {
+                toggleMusicDrawer(true);
+            }
+        };
+        
+        $('drawer-haze').onclick = () => toggleMusicDrawer(false);
 
-    document.querySelectorAll('.station-btn').forEach(btn => {
-        btn.onclick = () => playStation(btn.getAttribute('data-s'));
-    });
+        document.querySelectorAll('.station-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                playStation(btn.getAttribute('data-s'));
+            };
+        });
+    } catch(e) { console.warn("Radio listener error"); }
 
     // BUTTONS
-    $('btn-quote').onclick = () => reveal(CONFIG.quotes[Math.floor(Math.random()*CONFIG.quotes.length)]);
-    $('btn-date').onclick = () => reveal(CONFIG.dates[Math.floor(Math.random()*CONFIG.dates.length)]);
+    try {
+        $('btn-quote').onclick = () => reveal(CONFIG.quotes[Math.floor(Math.random()*CONFIG.quotes.length)]);
+        $('btn-date').onclick = () => reveal(CONFIG.dates[Math.floor(Math.random()*CONFIG.dates.length)]);
+    } catch(e) { console.warn("Button listener error"); }
 
     // MOOD
-    const moodCard = document.querySelector('[data-mood="mutlu"]').parentElement.parentElement;
-    moodCard.onclick = () => showModal(`<h3>Ruh Halin?</h3><div style="display:flex; justify-content:space-around; font-size:32px; margin-top:15px;"><span onclick="setM('mutlu', '🥰')" style="cursor:pointer;">🥰</span><span onclick="setM('huzurlu', '😊')" style="cursor:pointer;">😊</span><span onclick="setM('normal', '😐')" style="cursor:pointer;">😐</span></div>`);
+    try {
+        const moodCard = document.querySelector('[data-mood="mutlu"]').parentElement.parentElement;
+        moodCard.onclick = () => showModal(`<h3>Ruh Halin?</h3><div style="display:flex; justify-content:space-around; font-size:32px; margin-top:15px;"><span onclick="setM('mutlu', '🥰')" style="cursor:pointer;">🥰</span><span onclick="setM('huzurlu', '😊')" style="cursor:pointer;">😊</span><span onclick="setM('normal', '😐')" style="cursor:pointer;">😐</span></div>`);
+    } catch(e) { console.warn("Mood listener error"); }
     window.setM = (t, i) => { $('mood-feedback').textContent = `Bugün ${t} hissediyorsun. ${i}`; vibrate(30); unlockAward('m_1'); closeModal(); };
 
     // MEMORY UPLOAD
-    $('upload-mem').onchange = (e) => {
-        const file = e.target.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const note = prompt("Bu anı için bir not eklemek ister misin?");
-            try {
-                state.memories.push({ img: ev.target.result, note: note, date: new Date().toISOString().split('T')[0] });
-                save();
-                renderMemories();
-                renderCalendar();
-            } catch (err) {
-                alert("Hafıza doldu! Lütfen bazı eski anıları silerek yer aç.");
-                state.memories.pop();
-            }
+    try {
+        $('upload-mem').onchange = (e) => {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const note = prompt("Bu anı için bir not eklemek ister misin?");
+                try {
+                    state.memories.push({ img: ev.target.result, note: note, date: new Date().toISOString().split('T')[0] });
+                    save();
+                    renderMemories();
+                    renderCalendar();
+                } catch (err) {
+                    alert("Hafıza doldu! Lütfen bazı eski anıları silerek yer aç.");
+                    state.memories.pop();
+                }
+            };
+            reader.readAsDataURL(file);
         };
-        reader.readAsDataURL(file);
-    };
+    } catch(e) { console.warn("Memory listener error"); }
 
     // OTHERS
-    $('add-letter-trigger').onclick = (e) => { e.stopPropagation(); showModal(`<h3>Mektup Yaz</h3><input id="in-l-t" placeholder="Başlık" style="width:100%; padding:12px; margin:10px 0;"><textarea id="in-l-c" placeholder="İçerik" rows="4" style="width:100%; padding:12px;"></textarea><input type="date" id="in-l-d" style="width:100%; margin:10px 0;"><button class="liquid-btn" style="width:100%;" onclick="saveLetter()">Mühürle</button>`); };
-    $('add-wish-trigger').onclick = () => { const t = prompt("Bir hayal ekle:"); if(t) { state.wishes.push({ t, c: false }); save(); renderWishes(); } };
-    $('haptic-heart').onclick = () => { vibrate([100,50,100]); for(let i=0; i<5; i++) spawnHeart(); };
-    $('unlock-garden-btn').onclick = () => { if($('garden-pass').value.toLowerCase() === CONFIG.secretWord.toLowerCase()) { $('garden-lock').classList.add('hidden'); $('secret-content').classList.remove('hidden'); vibrate([100,100,100]); } else alert("Yanlış kelime..."); };
-    document.querySelectorAll('.aura-btn').forEach(b => { b.onclick = (e) => { e.stopPropagation(); applyAura(b.getAttribute('data-a')); }});
-    $('edit-countdown-trigger').onclick = () => showModal(`<h3>Ayarlar</h3><input id="in-cd-t" value="${state.countdown.title}" style="width:100%;"><input type="datetime-local" id="in-cd-d" value="${state.countdown.date}" style="width:100%; margin-top:10px;"><button class="liquid-btn" style="width:100%; margin-top:15px;" onclick="saveCd()">Kaydet</button>`);
+    try {
+        $('add-letter-trigger').onclick = (e) => { e.stopPropagation(); showModal(`<h3>Mektup Yaz</h3><input id="in-l-t" placeholder="Başlık" style="width:100%; padding:12px; margin:10px 0;"><textarea id="in-l-c" placeholder="İçerik" rows="4" style="width:100%; padding:12px;"></textarea><input type="date" id="in-l-d" style="width:100%; margin:10px 0;"><button class="liquid-btn" style="width:100%;" onclick="saveLetter()">Mühürle</button>`); };
+        $('add-wish-trigger').onclick = () => { const t = prompt("Bir hayal ekle:"); if(t) { state.wishes.push({ t, c: false }); save(); renderWishes(); } };
+        $('haptic-heart').onclick = () => { vibrate([100,50,100]); for(let i=0; i<5; i++) spawnHeart(); };
+        $('unlock-garden-btn').onclick = () => { if($('garden-pass').value.toLowerCase() === CONFIG.secretWord.toLowerCase()) { $('garden-lock').classList.add('hidden'); $('secret-content').classList.remove('hidden'); vibrate([100,100,100]); } else alert("Yanlış kelime..."); };
+        document.querySelectorAll('.aura-btn').forEach(b => { b.onclick = (e) => { e.stopPropagation(); applyAura(b.getAttribute('data-a')); }});
+        $('edit-countdown-trigger').onclick = () => showModal(`<h3>Ayarlar</h3><input id="in-cd-t" value="${state.countdown.title}" style="width:100%;"><input type="datetime-local" id="in-cd-d" value="${state.countdown.date}" style="width:100%; margin-top:10px;"><button class="liquid-btn" style="width:100%; margin-top:15px;" onclick="saveCd()">Kaydet</button>`);
+    } catch(e) { console.warn("Other listener error"); }
 }
 
 function reveal(txt) {
