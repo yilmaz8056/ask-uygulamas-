@@ -8,7 +8,11 @@ const CONFIG = {
     fortunes: ["Bugün ona sürpriz bir not yaz 💌", "Birlikte yeni bir akıl almaz macera ☕", "Ona sarıl ve bırakma 🤗"],
     affirmations: ["Bugün varlığın için binlerce şükür sebebim var. 💕", "Dünyanın en şanslı insanıyım... ✨", "Gülüşün kalbimin huzurlu limanı. 🌊"],
     secretWord: "Sonsuzluk",
-    radioStream: "https://radyo.dokuzsoft.com/8106/stream",
+    radioStreams: [
+        "https://radyo.dokuzi.com/8106/stream", // Slow Türk Ana
+        "https://radyo.yayin.com.tr:8054/;", // Power Türk Slow
+        "https://shoutcast.metu.edu.tr/stream" // ODTÜ Klasik (Yedek)
+    ],
     awards: [
         { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
         { id: 'l_1', name: 'Zaman Yolcusu', icon: '✉️' },
@@ -88,8 +92,8 @@ function renderMemories() {
     list.innerHTML = state.memories.length ? '' : '<p style="opacity:0.3; padding:20px; font-size:12px;">Henüz hiç anı yok. ✨</p>';
     state.memories.slice().reverse().forEach((m, i) => {
         const div = document.createElement('div');
-        div.style.cssText = "flex-shrink:0; width:150px; background:#fff; padding:8px; border-radius:15px; box-shadow:0 8px 20px rgba(0,0,0,0.05);";
-        div.innerHTML = `<img src="${m.img}" style="width:100%; height:150px; object-fit:cover; border-radius:10px;"><p style="font-size:11px; margin-top:5px; text-align:center; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.note || '💕'}</p>`;
+        div.className = 'memory-piece';
+        div.innerHTML = `<img src="${m.img}" loading="lazy"><p style="font-size:11px; margin-top:5px; text-align:center; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.note || '💕'}</p>`;
         div.onclick = () => { if(confirm("Bu anıyı silmek istiyor musun?")) { state.memories.splice(state.memories.length - 1 - i, 1); save(); renderMemories(); renderCalendar(); } };
         list.appendChild(div);
     });
@@ -140,16 +144,38 @@ function applyAura(aura) {
 }
 
 function setupEventListeners() {
-    // RADIO SYSTEM
+    // RADIO SYSTEM (Repair with Fallback)
+    let currentStreamIndex = 0;
     $('vinyl-trigger').onclick = () => {
         const disk = $('vinyl-disk');
         const radio = $('radio-player');
+        const statusText = $('song-name');
+        
         vibrate(100);
+        
         if(radio.paused) {
-            radio.play().then(() => { disk.classList.add('playing'); }).catch(() => alert("Radyo başlatılamadı. Lütfen tekrar dokun."));
+            statusText.textContent = "Yükleniyor...";
+            const tryPlay = (index) => {
+                if(index >= CONFIG.radioStreams.length) {
+                    statusText.textContent = "Bağlantı Hatası";
+                    alert("Radyo sunucularına şu an ulaşılamıyor. Lütfen daha sonra tekrar dene.");
+                    return;
+                }
+                radio.src = CONFIG.radioStreams[index];
+                radio.play().then(() => {
+                    disk.classList.add('playing');
+                    statusText.textContent = "Canlı Yayın...";
+                }).catch(() => {
+                    console.warn(`Stream ${index} failed, trying next...`);
+                    tryPlay(index + 1);
+                });
+            };
+            tryPlay(0);
         } else {
             radio.pause();
+            radio.src = ""; // Stop buffering
             disk.classList.remove('playing');
+            statusText.textContent = "Radyo Durduruldu";
         }
     };
 
