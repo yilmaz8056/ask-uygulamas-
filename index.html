@@ -313,6 +313,28 @@
     <!-- Havai Fişek Canvas -->
     <canvas id="fireworks-canvas"></canvas>
 
+    <script>
+        // Acil Durum Açılış Fonksiyonu (Inline)
+        function handleEnvelopeClick() {
+            console.log("Zarf tıklandı!");
+            const intro = document.getElementById('intro-screen');
+            const main = document.getElementById('main-app');
+            
+            if (intro) {
+                intro.style.transition = 'opacity 0.8s ease';
+                intro.style.opacity = '0';
+                setTimeout(() => {
+                    intro.style.display = 'none';
+                    if (main) {
+                        main.style.visibility = 'visible';
+                        main.style.opacity = '1';
+                        main.classList.add('active');
+                    }
+                    if (typeof bootstrap === 'function') bootstrap();
+                }, 800);
+            }
+        }
+    </script>
     <script src="app.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
