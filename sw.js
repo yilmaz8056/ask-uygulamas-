@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ask-uygulamasi-v3';
+const CACHE_NAME = 'ask-uygulamasi-v4';
 const urlsToCache = [
   './index.html',
   './style.css',

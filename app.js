@@ -248,6 +248,35 @@ function checkAchievements() {
     renderAchievements();
 }
 
+function renderMoodTracker() {
+    const container = document.getElementById('mood-emojis');
+    if (!container) return;
+    
+    // Emojilere tıklama olaylarını bağla
+    container.querySelectorAll('.mood-emoji').forEach(btn => {
+        const mood = btn.getAttribute('data-mood');
+        btn.onclick = () => {
+            vibrate(40);
+            container.querySelectorAll('.mood-emoji').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            const today = new Date().toISOString().split('T')[0];
+            moodLog[today] = mood;
+            localStorage.setItem('loveApp_moodLog', JSON.stringify(moodLog));
+            document.getElementById('mood-status').textContent = `Harika! Bugün ${mood} hissediyorsun. 💕`;
+            checkAchievements();
+            launchHearts(3);
+        };
+    });
+
+    // Bugünün ruh halini kontrol et
+    const today = new Date().toISOString().split('T')[0];
+    if (moodLog[today]) {
+        const btn = Array.from(container.querySelectorAll('.mood-emoji')).find(b => b.getAttribute('data-mood') === moodLog[today]);
+        if (btn) btn.classList.add('selected');
+        document.getElementById('mood-status').textContent = `Bugün ${moodLog[today]} hissediyorsun. 💕`;
+    }
+}
+
 // =============================================
 // 3. FEATURE INITIALIZERS
 // =============================================
@@ -290,14 +319,29 @@ function initOurSong() {
 // =============================================
 // 4. FLOW & EVENTS
 // =============================================
-elements.envelope.onclick = () => {
-    vibrate(100); elements.introScreen.style.opacity = '0';
-    setTimeout(() => { elements.introScreen.style.display = 'none'; elements.appContainer.classList.add('active'); bootstrap(); }, 800);
-};
+if (elements.envelope) {
+    elements.envelope.addEventListener('click', function() {
+        vibrate(100); 
+        console.log("Zarf tıklandı, uygulama başlatılıyor...");
+        elements.introScreen.style.opacity = '0';
+        setTimeout(() => { 
+            elements.introScreen.style.display = 'none'; 
+            elements.appContainer.classList.add('active'); 
+            bootstrap(); 
+        }, 800);
+    }, { once: true });
+}
 
 function bootstrap() {
-    renderSpecialDays(); renderMemories(); renderMoodTracker(); renderPlaces(); renderLetters(); renderAchievements();
-    initCountdown(); initFortuneCookie(); initOurSong();
+    renderSpecialDays(); 
+    renderMemories(); 
+    renderMoodTracker(); 
+    renderPlaces(); 
+    renderLetters(); 
+    renderAchievements();
+    initCountdown(); 
+    initFortuneCookie(); 
+    initOurSong();
 }
 
 elements.generateBtn.onclick = () => {
