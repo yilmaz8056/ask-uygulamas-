@@ -1,5 +1,5 @@
 // =============================================
-// ETHEREAL CORE - V35.2 (ARMORED NATIVE AUDIO)
+// ETHEREAL CORE - V35.3 (PREMIUM NATIVE AUDIO)
 // =============================================
 
 (function() {
@@ -13,8 +13,8 @@
         secretWord: "Sonsuzluk",
         stations: {
             "slow-turk": "https://radyo.duhnet.tv/slowturk",
-            "lofi": "https://stream.zeno.fm/088u1v698vruy",
-            "akustik": "https://stream.zeno.fm/fvx76m6q68zuv"
+            "akustik": "https://radyo.duhnet.tv/joyturkakustik",
+            "joyfm": "https://radyo.duhnet.tv/joyfm"
         },
         awards: [
             { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
@@ -39,7 +39,7 @@
     let audioEngine = null; 
 
     function init() {
-        console.log("Ethereal v35.2 Armor Initializing...");
+        console.log("Ethereal v35.3 Premium Initializing...");
         
         try {
             audioEngine = $('main-audio-engine');
@@ -62,8 +62,6 @@
             console.log("Ethereal Initialized Successfully.");
         } catch (e) {
             console.error("Critical Init Error:", e);
-            const note = $('daily-affirmation-text');
-            if(note) note.textContent = "Sistem durdu. Lütfen sayfayı yenileyin.";
         }
     }
 
@@ -207,7 +205,7 @@
             $('vinyl-disk').classList.add('playing');
             $('music-drawer').classList.add('playing');
         }).catch(err => {
-            $('yt-status').textContent = "Bağlantı Hatası. Tap to Retry.";
+            $('yt-status').textContent = "Bağlantı Hatası. Tekrar Dokun.";
             $('song-name').textContent = "Tekrar Dene";
             audio.pause();
             audio.src = "";
@@ -233,6 +231,7 @@
             'haptic-heart': () => { vibrate([100,50,100]); for(let i=0; i<8; i++) spawnHeart(); },
             'unlock-garden-btn': () => { 
                 if($('garden-pass').value.toLowerCase() === CONFIG.secretWord.toLowerCase()) { 
+                    $('btn-quote').click(); // trigger awards/reveal
                     $('garden-lock').classList.add('hidden'); 
                     $('secret-content').classList.remove('hidden'); 
                     vibrate([100,100,100]); 
