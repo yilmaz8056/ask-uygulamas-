@@ -293,36 +293,7 @@ saveDatesBtn.addEventListener('click', () => {
     renderSpecialDays();
 });
 
-// =============================================
-// PROFILE PHOTO
-// =============================================
-const profilePicBtn = document.getElementById('profile-pic-btn');
-const photoUpload = document.getElementById('photo-upload');
-const userPhoto = document.getElementById('user-photo');
-const fallbackIcon = document.getElementById('fallback-icon');
 
-const savedPhoto = localStorage.getItem('loveApp_userPhoto');
-if (savedPhoto) {
-    userPhoto.src = savedPhoto;
-    userPhoto.style.display = 'block';
-    fallbackIcon.style.display = 'none';
-}
-
-profilePicBtn.addEventListener('click', () => photoUpload.click());
-
-photoUpload.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            userPhoto.src = event.target.result;
-            userPhoto.style.display = 'block';
-            fallbackIcon.style.display = 'none';
-            localStorage.setItem('loveApp_userPhoto', event.target.result);
-        };
-        reader.readAsDataURL(file);
-    }
-});
 
 // =============================================
 // 2. POLAROID GALLERY (Anılarımız)
