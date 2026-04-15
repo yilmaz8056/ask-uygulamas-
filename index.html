@@ -11,12 +11,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-aura="default">
     
     <div class="app-viewport">
         
-        <!-- Ethereal Dashboard: Aşk Özeti -->
+        <!-- Ethereal Dashboard: Aşk Özeti & Aura Selector -->
         <header class="love-dashboard" id="dashboard">
+            <div style="position:absolute; top:15px; right:15px; display:flex; gap:10px;">
+                <span class="aura-btn" data-a="paris" title="Paris Yağmuru" style="cursor:pointer; opacity:0.5;">🌧️</span>
+                <span class="aura-btn" data-a="stars" title="Yıldızlı Gece" style="cursor:pointer; opacity:0.5;">✨</span>
+                <span class="aura-btn" data-a="beach" title="Huzurlu Sahil" style="cursor:pointer; opacity:0.5;">🏖️</span>
+                <span class="aura-btn" data-a="default" title="Varsayılan" style="cursor:pointer; opacity:0.5;">🌸</span>
+            </div>
             <h1 class="dashboard-title">İyi ki varsın...</h1>
             <p class="dashboard-subtitle" id="dashboard-date-msg">Bugün bizim 0. günümüz. 💕</p>
         </header>
@@ -33,6 +39,12 @@
             <button id="edit-countdown-trigger" style="position:absolute; top:24px; right:24px; border:none; background:none; opacity:0.3; cursor:pointer;"><i class="fa-solid fa-gear"></i></button>
         </section>
 
+        <!-- Aşk Nabzı (Interaktif Kalp) -->
+        <section class="text-center" style="margin: 10px 0;">
+            <i class="fa-solid fa-heart pulse-heart" id="haptic-heart"></i>
+            <p style="font-size: 11px; opacity: 0.4; margin-top: 8px;">Kalbimi hissetmek için dokun...</p>
+        </section>
+
         <!-- Quick Experience Grid -->
         <div class="feature-grid">
             <button class="liquid-btn" id="btn-quote">
@@ -45,8 +57,19 @@
 
         <!-- Adaptive Reveal Section -->
         <div id="reveal-area" class="glass-card hidden">
-            <p id="reveal-text" class="text-center" style="font-size: 16px; font-weight: 500; color: #444;"></p>
+            <p id="reveal-text" class="text-center" style="font-size: 16px; font-weight: 500; color: #444; line-height: 1.6;"></p>
         </div>
+
+        <!-- Hayal Kumbarası (Duo-Wishlist) -->
+        <section class="glass-card">
+            <div class="card-label" style="justify-content: space-between;">
+                <span><i class="fa-solid fa-box-archive"></i> Hayal Kumbaramız</span>
+                <button id="add-wish-trigger" style="background:none; border:none; color:var(--c-primary); cursor:pointer;"><i class="fa-solid fa-plus-circle"></i></button>
+            </div>
+            <div id="wish-list" style="margin-top: 10px;">
+                <!-- JS Inject -->
+            </div>
+        </section>
 
         <!-- Mood Journey -->
         <section class="glass-card">
@@ -82,26 +105,29 @@
             <div id="vault-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
         </section>
 
-        <!-- Infinite Interactions (Grid) -->
-        <div class="feature-grid">
-            <button class="glass-card" id="quiz-trigger" style="border:none; cursor:pointer;">
-                <i class="fa-solid fa-brain" style="font-size: 24px; color: var(--c-secondary); margin-bottom: 8px; display: block;"></i>
-                <span style="font-weight: 600; font-size: 13px;">Aşk Testi</span>
-            </button>
-            <button class="glass-card" id="map-trigger" style="border:none; cursor:pointer;">
-                <i class="fa-solid fa-location-dot" style="font-size: 24px; color: var(--c-primary); margin-bottom: 8px; display: block;"></i>
-                <span style="font-weight: 600; font-size: 13px;">Haritamız</span>
-            </button>
+        <!-- Gizli Bahçe Girişi -->
+        <section class="glass-card" id="garden-lock">
+            <div class="card-label"><i class="fa-solid fa-key"></i> Gizli Bahçe</div>
+            <div style="display:flex; gap:10px;">
+                <input type="password" id="garden-pass" placeholder="Özel Kelimeyi Gir..." style="flex:1; padding:12px; border-radius:15px; border:1px solid var(--c-primary); background:rgba(255,255,255,0.2);">
+                <button id="unlock-garden-btn" style="background:var(--c-primary); color:#fff; border:none; padding:10px 20px; border-radius:15px;">Aç</button>
+            </div>
+        </section>
+
+        <!-- Hidden Secret Content -->
+        <div id="secret-content" class="glass-card hidden" style="border: 2px solid var(--c-gold);">
+            <p class="text-center" style="font-family:'Dancing Script'; font-size:24px; color:var(--c-gold);">Sen benim sonsuzluğumsun... ✨</p>
+            <p id="secret-msg-dynamic" class="text-center" style="font-size: 14px; margin-top: 10px;"></p>
         </div>
 
         <!-- Fortune Cookie Card -->
         <section class="glass-card" id="fortune-section">
-            <div class="card-label"><i class="fa-solid fa-moon"></i> Günlük Fal</div>
+            <div class="card-label"><i class="fa-solid fa-moon"></i> Günlük Fal (Love Jar)</div>
             <div id="fortune-actor" class="text-center" style="cursor:pointer; padding: 10px;">
-                <div style="font-size: 40px;">🥠</div>
-                <p style="font-size: 12px; opacity: 0.5; margin-top: 5px;">Açmak için dokun</p>
+                <div style="font-size: 40px;" id="jar-icon">🏺</div>
+                <p style="font-size: 12px; opacity: 0.5; margin-top: 5px;">Kavanozu salla veya dokun</p>
             </div>
-            <p id="fortune-msg" class="hidden text-center" style="font-weight: 600; font-size: 15px; color: var(--c-primary);"></p>
+            <p id="fortune-msg" class="hidden text-center" style="font-weight: 600; font-size: 15px; color: var(--c-primary); padding: 10px;"></p>
         </section>
 
         <!-- Milestone Collection -->
@@ -121,10 +147,15 @@
 
     <canvas id="fire-canvas" style="position:fixed; top:0; left:0; pointer-events:none; z-index:3000;"></canvas>
 
+    <!-- Ambient Audio Containers (Fallback to muted/empty context) -->
+    <audio id="audio-rain" loop src="https://www.soundjay.com/nature/rain-01.mp3"></audio>
+    <audio id="audio-stars" loop src="https://www.soundjay.com/misc/sounds/wind-chime-1.mp3"></audio>
+    <audio id="audio-waves" loop src="https://www.soundjay.com/nature/ocean-waves-1.mp3"></audio>
+
     <script src="app.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').then(() => console.log('Ethereal Core Ready'));
+            navigator.serviceWorker.register('./sw.js').then(() => console.log('Ethereal Aura Ready'));
         }
     </script>
 </body>
