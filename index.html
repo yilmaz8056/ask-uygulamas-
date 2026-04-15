@@ -56,7 +56,7 @@
             </div>
         </section>
 
-        <!-- Romantik Radyo (Plak Çalar UI) -->
+        <!-- Romantik Radyo (Plak UI) -->
         <section class="glass-card text-center" style="position:relative;">
             <div class="card-label"><i class="fa-solid fa-radio"></i> Romantik Radyomuz</div>
             <div class="vinyl-container" id="vinyl-trigger">
@@ -65,7 +65,7 @@
                     <div class="vinyl-center"></div>
                 </div>
             </div>
-            <p id="song-name" style="font-size: 14px; font-weight: 700; color: #444; margin-bottom: 5px;">Slow Radyomuz Canlı</p>
+            <p id="song-name" style="font-size: 14px; font-weight: 700; color: #444; margin-bottom: 5px;">Radyo Durduruldu</p>
             <p style="font-size: 11px; opacity: 0.5;">Dinlemek için dokun 🎵</p>
         </section>
 
@@ -85,7 +85,7 @@
             </button>
         </div>
 
-        <!-- REVEAL AREA (Sonuç Gösterimi) -->
+        <!-- REVEAL AREA -->
         <div id="reveal-area" class="glass-card hidden" style="position:relative; z-index: 100; transform: translateY(-5px);">
             <p id="reveal-text" class="text-center" style="font-size: 16px; font-weight: 600; color: var(--c-primary); line-height: 1.6;"></p>
         </div>
@@ -120,15 +120,15 @@
             </section>
         </div>
 
-        <!-- Memory List (Burası onarıldı) -->
+        <!-- Koleksiyonumuz -->
         <section class="glass-card">
              <div class="card-label"><i class="fa-solid fa-photo-film"></i> Koleksiyonumuz</div>
              <div class="memory-scroller" id="memory-list" style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; min-height: 100px;">
-                <!-- Fotoğraflar buraya gelecek -->
+                <!-- Anılar JS -->
              </div>
         </section>
 
-        <!-- Secret Garden & Vault -->
+        <!-- Secret Garden -->
         <section class="glass-card" id="garden-lock">
             <div class="card-label"><i class="fa-solid fa-key"></i> Gizli Bahçe</div>
             <div style="display:flex; gap:10px;">
@@ -153,15 +153,27 @@
 
     </div>
 
-    <!-- Music Drawer & Overlay (Final Audio Fix) -->
+    <!-- Music Station Drawer (Final Radio Fix) -->
     <div id="drawer-haze" class="drawer-haze"></div>
     <div id="music-drawer" class="music-drawer">
         <div class="drawer-handle"></div>
-        <div id="embed-container" class="embed-container">
-            <div id="yt-player"></div>
+        <h3 class="text-center" style="font-size: 18px; color: var(--c-primary); margin-bottom: 20px;">Lütfen Dinlemek İstediğin İstasyonu Seç 💕</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <button class="station-btn" data-s="slow-turk">
+                <i class="fa-solid fa-heart"></i> Slow Türk
+            </button>
+            <button class="station-btn" data-s="joy-fm">
+                <i class="fa-solid fa-radio"></i> Joy FM
+            </button>
+            <button class="station-btn" data-s="power-slow">
+                <i class="fa-solid fa-music"></i> Power Slow
+            </button>
+            <button class="station-btn" data-s="cancel" style="background: rgba(0,0,0,0.05); color: #999; border: none;">
+                <i class="fa-solid fa-stop"></i> Kapat
+            </button>
         </div>
-        <p style="font-size: 11px; opacity:0.3; text-align:center; margin-top:10px; font-weight:700;">
-            Seninle her nota daha güzel... 💕
+        <p id="radio-status" style="text-align: center; font-size: 11px; margin-top: 25px; opacity: 0.5; font-weight: 700;">
+            Kanal Seçildiğinde Müzik Başlayacak...
         </p>
     </div>
 
@@ -170,7 +182,8 @@
         <div class="modal-surface" id="modal-surface"></div>
     </div>
 
-    <!-- Ambient (Aura) Audios -->
+    <!-- Audio Elements -->
+    <audio id="main-radio-player" preload="none" crossorigin="anonymous"></audio>
     <audio id="audio-rain" loop src="https://www.soundjay.com/nature/rain-01.mp3"></audio>
     <audio id="audio-stars" loop src="https://www.soundjay.com/misc/sounds/wind-chime-1.mp3"></audio>
     <audio id="audio-waves" loop src="https://www.soundjay.com/nature/ocean-waves-1.mp3"></audio>

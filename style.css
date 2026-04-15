@@ -523,5 +523,31 @@ body {
     transform: translateX(-50%);
 }
 
+/* Station Buttons v20 */
+.station-btn {
+    padding: 20px 15px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.6);
+    color: var(--c-primary);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+}
+
+.station-btn i { font-size: 20px; }
+.station-btn:active { transform: scale(0.9); }
+.station-btn.active {
+    background: var(--c-primary);
+    color: #fff;
+    box-shadow: 0 12px 25px rgba(138,125,250,0.3);
+}
+
 .hidden { display: none !important; }
 .text-center { text-align: center; }

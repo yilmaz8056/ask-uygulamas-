@@ -1,5 +1,5 @@
 // =============================================
-// ETHEREAL CORE - V7 (ELITE MUSIC DRAWER)
+// ETHEREAL CORE - V20 (STATION PICKER ENGINE)
 // =============================================
 
 const CONFIG = {
@@ -8,7 +8,11 @@ const CONFIG = {
     fortunes: ["Bugün ona sürpriz bir not yaz 💌", "Birlikte yeni bir akıl almaz macera ☕", "Ona sarıl ve bırakma 🤗"],
     affirmations: ["Bugün varlığın için binlerce şükür sebebim var. 💕", "Dünyanın en şanslı insanıyım... ✨", "Gülüşün kalbimin huzurlu limanı. 🌊"],
     secretWord: "Sonsuzluk",
-    ytVideoId: "_fX-O0zV93o", // Kararlı Bir Türkçe Slow Mix
+    stations: {
+        "slow-turk": "https://radyo.dokuzsoft.com/8106/stream",
+        "joy-fm": "https://karnaval.radyotvonline.net/joyfm_low.mp3",
+        "power-slow": "https://karnaval.radyotvonline.net/joyturkslow_low.mp3" // JoyTürk Slow as Power Slow alternative
+    },
     awards: [
         { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
         { id: 'l_1', name: 'Zaman Yolcusu', icon: '✉️' },
@@ -27,56 +31,13 @@ let state = {
     startDate: "2023-10-15"
 };
 
-let ytPlayer = null;
+let audioPlayer = null;
 
 const $ = (id) => document.getElementById(id);
 const vibrate = (p=50) => navigator.vibrate && navigator.vibrate(p);
 
-// Dinamik YouTube API Yükleme
-function loadYT() {
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-}
-
-// YouTube API Callback
-window.onYouTubeIframeAPIReady = function() {
-    ytPlayer = new YT.Player('yt-player', {
-        height: '100%',
-        width: '100%',
-        videoId: CONFIG.ytVideoId,
-        playerVars: {
-            'autoplay': 0,
-            'controls': 1, // Görünürlük için açık kalmalı
-            'disablekb': 0,
-            'fs': 1,
-            'modestbranding': 1,
-            'origin': window.location.origin
-        },
-        events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-        }
-    });
-};
-
-function onPlayerReady(event) {
-    console.log("YouTube Paneli Hazır.");
-}
-
-function onPlayerStateChange(event) {
-    const disk = $('vinyl-disk');
-    if (event.data == YT.PlayerState.PLAYING) {
-        disk.classList.add('playing');
-        $('song-name').textContent = "Çalıyor... 💕";
-    } else {
-        disk.classList.remove('playing');
-        $('song-name').textContent = "Müzik Durduruldu";
-    }
-}
-
 function init() {
+    audioPlayer = $('main-radio-player');
     renderDashboard();
     renderCountdown();
     renderDailyAffirmation();
@@ -88,6 +49,20 @@ function init() {
     applyAura(state.aura);
     setupEventListeners();
     setInterval(renderCountdown, 1000);
+
+    // Audio State Sync
+    audioPlayer.onplay = () => {
+        $('vinyl-disk').classList.add('playing');
+        $('song-name').textContent = "Canlı Yayın Çalıyor... 💕";
+    };
+    audioPlayer.onpause = () => {
+        $('vinyl-disk').classList.remove('playing');
+        $('song-name').textContent = "Radyo Durduruldu";
+    };
+    audioPlayer.onerror = () => {
+        $('radio-status').textContent = "Bağlantı Hatası! Diğer Kanalı Dene.";
+        $('song-name').textContent = "Bağlantı Kesildi";
+    };
 }
 
 // RENDERS
@@ -185,29 +160,65 @@ function applyAura(aura) {
     document.querySelectorAll('.aura-btn').forEach(b => { b.style.opacity = b.getAttribute('data-a') === aura ? '1' : '0.5'; });
 }
 
-function toggleMusicDrawer() {
+function toggleMusicDrawer(show = true) {
     const drawer = $('music-drawer');
     const haze = $('drawer-haze');
-    const isActive = drawer.classList.contains('active');
-    
-    if (isActive) {
-        drawer.classList.remove('active');
-        haze.classList.remove('active');
-        if (ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
-    } else {
+    if (show) {
         drawer.classList.add('active');
         haze.classList.add('active');
         vibrate(100);
-        // Play is handled by user interaction with YT UI in drawer for 100% success
+    } else {
+        drawer.classList.remove('active');
+        haze.classList.remove('active');
     }
 }
 
-function setupEventListeners() {
-    // ELITE MUSIC DRAWER SYSTEM
-    $('vinyl-trigger').onclick = () => toggleMusicDrawer();
-    $('drawer-haze').onclick = () => toggleMusicDrawer();
+function playStation(id) {
+    if (id === 'cancel') {
+        audioPlayer.pause();
+        audioPlayer.src = "";
+        toggleMusicDrawer(false);
+        return;
+    }
+    const url = CONFIG.stations[id];
+    if (!url) return;
 
-    // BUTTON FIXES
+    vibrate(50);
+    $('radio-status').textContent = "Bağlanıyor... 💕";
+    
+    audioPlayer.src = url;
+    audioPlayer.load();
+    audioPlayer.play().then(() => {
+        $('radio-status').textContent = "Çalıyor: " + id.replace('-',' ').toUpperCase();
+        setTimeout(() => toggleMusicDrawer(false), 2000);
+    }).catch(err => {
+        console.error("Audio error:", err);
+        $('radio-status').textContent = "Hata! Tekrar Dene.";
+    });
+
+    document.querySelectorAll('.station-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-s') === id);
+    });
+}
+
+function setupEventListeners() {
+    // STATION PICKER SYSTEM
+    $('vinyl-trigger').onclick = () => {
+        if (!audioPlayer.paused) {
+            audioPlayer.pause();
+            audioPlayer.src = "";
+        } else {
+            toggleMusicDrawer(true);
+        }
+    };
+    
+    $('drawer-haze').onclick = () => toggleMusicDrawer(false);
+
+    document.querySelectorAll('.station-btn').forEach(btn => {
+        btn.onclick = () => playStation(btn.getAttribute('data-s'));
+    });
+
+    // BUTTONS
     $('btn-quote').onclick = () => reveal(CONFIG.quotes[Math.floor(Math.random()*CONFIG.quotes.length)]);
     $('btn-date').onclick = () => reveal(CONFIG.dates[Math.floor(Math.random()*CONFIG.dates.length)]);
 
@@ -269,5 +280,4 @@ function save() {
     localStorage.setItem('ethereal_awd', JSON.stringify(state.awards));
 }
 
-loadYT();
 document.addEventListener('DOMContentLoaded', init);
