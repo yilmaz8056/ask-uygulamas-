@@ -58,6 +58,16 @@
                 <p id="date-text" style="font-weight: 600; font-size: 17px;"></p>
             </div>
 
+            <!-- Aşk Falı Kartı -->
+            <section class="premium-card" id="fortune-card">
+                <div class="card-title"><i class="fa-solid fa-cookie-bite"></i> Günlük Aşk Falı</div>
+                <div id="fortune-cookie" class="text-center" style="cursor:pointer; padding:10px;">
+                    <i class="fa-solid fa-cookie-bite" style="font-size: 3.5rem; color: var(--accent); opacity: 0.8;"></i>
+                    <p style="margin-top: 10px; font-size: 14px; color: var(--text-dim);">Kurabiyeyi açmak için dokun 🥠</p>
+                </div>
+                <div id="fortune-result" class="hidden text-center" style="font-weight: 600; line-height: 1.5; color: #fff;"></div>
+            </section>
+
             <!-- Ruh Hali Takipçisi -->
             <section class="premium-card">
                 <div class="card-title"><i class="fa-solid fa-face-smile-beam"></i> Ruh Halin</div>
@@ -79,7 +89,7 @@
                     <input type="file" id="polaroid-upload" accept="image/*" class="hidden">
                 </div>
                 <div class="polaroid-slider" id="polaroid-gallery">
-                    <!-- JS ile dolacak -->
+                    <!-- JS -->
                 </div>
             </section>
 
@@ -112,16 +122,32 @@
                 </div>
             </section>
 
-            <!-- Diğer Özellikler (Kısa Liste) -->
-            <section style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <button class="premium-card" id="quiz-btn" style="text-align: center; border: none; cursor: pointer;">
-                    <i class="fa-solid fa-gamepad" style="font-size: 24px; color: var(--accent); margin-bottom: 8px; display: block;"></i>
-                    <span style="font-size: 14px; font-weight: 600;">Aşk Testi</span>
-                </button>
-                <button class="premium-card" id="add-place-btn" style="text-align: center; border: none; cursor: pointer;">
-                    <i class="fa-solid fa-map-location-dot" style="font-size: 24px; color: var(--secondary); margin-bottom: 8px; display: block;"></i>
-                    <span style="font-size: 14px; font-weight: 600;">Haritamız</span>
-                </button>
+            <!-- Aşk Haritası (Timeline) -->
+            <section class="premium-card">
+                <div class="card-title" style="justify-content: space-between;">
+                    <span><i class="fa-solid fa-map-location-dot"></i> Aşk Haritamız</span>
+                    <button id="add-place-trigger" style="background:none; border:none; color:var(--secondary); cursor:pointer; font-size: 20px;"><i class="fa-solid fa-location-plus"></i></button>
+                </div>
+                <div id="love-timeline" style="margin-top: 10px;">
+                    <!-- JS -->
+                </div>
+            </section>
+
+            <!-- Quiz Butonu -->
+            <button class="premium-card" id="quiz-btn-trigger" style="display: flex; align-items: center; justify-content: space-between; border: none; cursor: pointer; width: 100%;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fa-solid fa-gamepad" style="font-size: 24px; color: var(--accent);"></i>
+                    <span style="font-size: 16px; font-weight: 600;">Aşk Testine Başla</span>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="font-size: 14px; opacity: 0.4;"></i>
+            </button>
+
+            <!-- Önemli Günlerimiz Liste -->
+            <section class="premium-card">
+                <div class="card-title"><i class="fa-solid fa-calendar-heart"></i> Önemli Günlerimiz</div>
+                <div id="special-days-list" style="display: flex; flex-direction: column; gap: 12px;">
+                    <!-- JS -->
+                </div>
             </section>
 
             <!-- Başarımlar -->
@@ -136,11 +162,13 @@
     </div>
 
     <!-- Modals -->
+    
+    <!-- Countdown Edit Modal -->
     <div id="countdown-modal" class="modal">
         <div class="modal-content">
             <h3 class="m-b-10">Geri Sayım Ayarla</h3>
-            <input type="text" id="cd-title-input" placeholder="Başlık" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 15px; margin-bottom: 12px;">
-            <input type="datetime-local" id="cd-date-input" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 15px; margin-bottom: 20px;">
+            <input type="text" id="cd-title-input" placeholder="Başlık" style="width: 100%; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 15px; margin-bottom: 12px;">
+            <input type="datetime-local" id="cd-date-input" style="width: 100%; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 15px; margin-bottom: 20px;">
             <button id="save-countdown-btn" class="action-btn">Kaydet</button>
             <button id="close-countdown-modal" style="width: 100%; background: none; border: none; color: var(--text-dim); margin-top: 15px; cursor: pointer;">Kapat</button>
         </div>
@@ -158,14 +186,47 @@
         </div>
     </div>
 
+    <!-- Letter Read Modal -->
+    <div id="letter-read-modal" class="modal">
+        <div class="modal-content text-center">
+            <h3 id="letter-read-title" style="color: var(--accent); margin-bottom: 15px;"></h3>
+            <div id="letter-read-content" style="white-space: pre-wrap; font-size: 16px; line-height: 1.7; color: var(--text-dim); margin-bottom: 25px; text-align: left; max-height: 300px; overflow-y: auto; padding: 10px;"></div>
+            <button id="close-letter-read-btn" class="action-btn">Kapat</button>
+        </div>
+    </div>
+
+    <!-- Place Add Modal -->
+    <div id="place-modal" class="modal">
+        <div class="modal-content">
+            <h3 class="m-b-10">Haritaya Yer Ekle</h3>
+            <input type="text" id="place-name" placeholder="Yer Adı (Örn: İlk Kafe)" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 10px; margin-bottom: 10px;">
+            <input type="date" id="place-date" style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 10px; margin-bottom: 10px;">
+            <input type="text" id="place-note" placeholder="Küçük bir not..." style="width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 10px; margin-bottom: 20px;">
+            <button id="save-place-btn" class="action-btn">Listeye Ekle</button>
+            <button id="close-place-modal" style="width: 100%; background: none; border: none; color: var(--text-dim); margin-top: 15px; cursor: pointer;">İptal</button>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quiz-modal" class="modal">
+        <div class="modal-content">
+            <h3 class="m-b-10" id="quiz-title">Aşk Testi 💕</h3>
+            <div id="quiz-body">
+                <p id="quiz-question" style="font-size: 18px; font-weight: 600; margin-bottom: 20px;"></p>
+                <div id="quiz-options" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            </div>
+            <button id="close-quiz-modal" style="width: 100%; background: none; border: none; color: var(--text-dim); margin-top: 20px; cursor: pointer;">Testi Kapat</button>
+        </div>
+    </div>
+
     <!-- Polaroid Detail Modal -->
     <div id="polaroid-modal" class="modal">
         <div class="modal-content text-center">
             <img id="polaroid-detail-img" src="" style="width: 100%; border-radius: 15px; margin-bottom: 15px;">
             <p id="polaroid-detail-note" style="font-family: 'Dancing Script'; font-size: 24px; color: var(--accent);"></p>
             <div style="margin-top: 20px; display: flex; gap: 10px;">
-                <button id="delete-polaroid-btn" style="flex: 1; padding: 10px; background: rgba(255,0,0,0.2); border: none; color: #ff4d4d; border-radius: 12px;">Sil</button>
-                <button id="close-polaroid-btn" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; color: #fff; border-radius: 12px;">Kapat</button>
+                <button id="delete-polaroid-btn" style="flex: 1; padding: 12px; background: rgba(255,0,0,0.15); border: none; color: #ff4d4d; border-radius: 15px; font-weight: 600;">Sil</button>
+                <button id="close-polaroid-btn" style="flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: none; color: #fff; border-radius: 15px;">Kapat</button>
             </div>
         </div>
     </div>
