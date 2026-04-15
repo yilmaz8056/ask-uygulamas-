@@ -527,9 +527,19 @@ body {
     width: 100%;
     aspect-ratio: 16/9;
     background: #000;
-    border-radius: 15px;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 15px 45px rgba(0,0,0,0.3);
+    border: 3px solid rgba(255,255,255,0.1);
+    position: relative;
+}
+
+.embed-container::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
 }
 
 #yt-player {

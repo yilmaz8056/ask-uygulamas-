@@ -9,6 +9,11 @@ const CONFIG = {
     affirmations: ["Bugün varlığın için binlerce şükür sebebim var. 💕", "Dünyanın en şanslı insanıyım... ✨", "Gülüşün kalbimin huzurlu limanı. 🌊"],
     secretWord: "Sonsuzluk",
     defaultVid: "vG8NAsj8kxs", // Slow Türk
+    stations: {
+        "slow-turk": "vG8NAsj8kxs",
+        "ask-mix": "l6C9l2wY_6Y",
+        "lofi": "jfKfPfyJRdk"
+    },
     awards: [
         { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
         { id: 'l_1', name: 'Zaman Yolcusu', icon: '✉️' },
@@ -195,9 +200,13 @@ function toggleMusicDrawer(show = true) {
 function switchChannel(vidId) {
     if(!ytPlayer || !ytPlayer.loadVideoById) return;
     vibrate(50);
-    $('yt-status').textContent = "Kanal Değiştiriliyor... 💕";
-    ytPlayer.loadVideoById(vidId);
-    setTimeout(() => { $('yt-status').textContent = "Bağlantı Kuruldu. ✨"; }, 2000);
+    $('yt-status').textContent = "Elite Kanal Yükleniyor... ✨";
+    ytPlayer.loadVideoById({
+        videoId: vidId,
+        startSeconds: 0,
+        suggestedQuality: 'hd720'
+    });
+    setTimeout(() => { $('yt-status').textContent = "Müzik Hazır. 💕"; }, 3000);
 }
 
 function setupEventListeners() {
