@@ -400,10 +400,11 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.day-text h5 { margin-bottom: 4px; }
-.day-text p { opacity: 0.8; }
+.day-text h5 { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+.day-text p { font-size: 14px; opacity: 0.8; }
 
 .day-countdown {
+    font-size: 16px;
     font-weight: 800;
     color: #ffd1dc;
     text-align: right;
@@ -797,9 +798,10 @@ body {
     font-size: 14px;
 }
 .mood-status {
-    font-size: 0.8rem;
-    opacity: 0.7;
-    margin-top: 6px;
+    font-size: 15px; /* Büyütüldü */
+    opacity: 0.8;
+    margin-top: 8px;
+    font-weight: 600;
 }
 
 /* ===== Fortune Cookie ===== */
@@ -815,15 +817,15 @@ body {
 }
 .fortune-cookie:active { transform: scale(0.9) rotate(-5deg); }
 .fortune-cookie p {
-    margin-top: 8px;
-    font-weight: 600;
-    font-size: 15px;
+    margin-top: 10px;
+    font-weight: 700;
+    font-size: 17px;
 }
 .fortune-result {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.5;
-    padding: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.6;
+    padding: 12px;
     animation: fadeIn 0.8s ease-out;
 }
 
@@ -888,9 +890,9 @@ body {
     top: 12px;
     font-size: 14px;
 }
-.timeline-item h5 { font-size: 14px; margin-bottom: 2px; }
-.timeline-item p { font-size: 12px; opacity: 0.7; }
-.timeline-item small { font-size: 11px; opacity: 0.5; }
+.timeline-item h5 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+.timeline-item p { font-size: 15px; opacity: 0.8; line-height: 1.4; }
+.timeline-item small { font-size: 13px; opacity: 0.6; display: block; margin-top: 4px; }
 .timeline-delete {
     background: none;
     border: none;
@@ -927,12 +929,12 @@ body {
     flex-shrink: 0;
 }
 .letter-info { flex: 1; }
-.letter-info h5 { font-size: 14px; margin-bottom: 2px; }
-.letter-info p { font-size: 11px; opacity: 0.6; }
+.letter-info h5 { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+.letter-info p { font-size: 14px; opacity: 0.8; }
 .letter-status {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 5px 12px;
     border-radius: 20px;
     white-space: nowrap;
 }
