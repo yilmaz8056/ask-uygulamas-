@@ -9,9 +9,10 @@ const CONFIG = {
     affirmations: ["Bugün varlığın için binlerce şükür sebebim var. 💕", "Dünyanın en şanslı insanıyım... ✨", "Gülüşün kalbimin huzurlu limanı. 🌊"],
     secretWord: "Sonsuzluk",
     radioStreams: [
-        "https://radyo.dokuzi.com/8106/stream", // Slow Türk Ana
-        "https://radyo.yayin.com.tr:8054/;", // Power Türk Slow
-        "https://shoutcast.metu.edu.tr/stream" // ODTÜ Klasik (Yedek)
+        "https://radyo.dokuzsoft.com/8106/stream", // Slow Türk (HTTPS Fix)
+        "https://stream.srg-ssr.ch/m/rsj/mp3_128", // Radio Swiss Jazz (Ultra Stable)
+        "https://romantic.stream.laut.fm/romantic", // Global Romantic
+        "https://radio.canliyayin.org/8106/stream" // Alternatif Slow
     ],
     awards: [
         { id: 'f_1', name: 'Kader Ortağı', icon: '🥠' },
@@ -144,8 +145,8 @@ function applyAura(aura) {
 }
 
 function setupEventListeners() {
-    // RADIO SYSTEM (Repair with Fallback)
-    let currentStreamIndex = 0;
+    // RADIO SYSTEM (Repair with Timeout & Global Fallbacks)
+    let playTimeout = null;
     $('vinyl-trigger').onclick = () => {
         const disk = $('vinyl-disk');
         const radio = $('radio-player');
@@ -154,26 +155,46 @@ function setupEventListeners() {
         vibrate(100);
         
         if(radio.paused) {
-            statusText.textContent = "Yükleniyor...";
+            statusText.textContent = "Bağlanıyor...";
             const tryPlay = (index) => {
                 if(index >= CONFIG.radioStreams.length) {
-                    statusText.textContent = "Bağlantı Hatası";
-                    alert("Radyo sunucularına şu an ulaşılamıyor. Lütfen daha sonra tekrar dene.");
+                    statusText.textContent = "Bağlantı Kesildi";
+                    alert("Radyo yayınlarına şu an ulaşılamıyor (Bağlantı/Protokol Hatası). Lütfen daha sonra tekrar deneyin veya internetinizi kontrol edin.");
                     return;
                 }
+                
+                if(playTimeout) clearTimeout(playTimeout);
+                
                 radio.src = CONFIG.radioStreams[index];
-                radio.play().then(() => {
-                    disk.classList.add('playing');
-                    statusText.textContent = "Canlı Yayın...";
-                }).catch(() => {
-                    console.warn(`Stream ${index} failed, trying next...`);
-                    tryPlay(index + 1);
-                });
+                statusText.textContent = `İstasyon ${index+1} Deneniyor...`;
+                
+                const playPromise = radio.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        clearTimeout(playTimeout);
+                        disk.classList.add('playing');
+                        statusText.textContent = "Keyifli Dinlemeler... 💕";
+                    }).catch(() => {
+                        console.warn(`Stream ${index} failed logic...`);
+                        tryPlay(index + 1);
+                    });
+                }
+                
+                // 4 Saniye içinde başlamazsa diğerine geç
+                playTimeout = setTimeout(() => {
+                    if (radio.paused || radio.readyState < 3) {
+                        console.warn(`Stream ${index} timeout...`);
+                        radio.pause();
+                        tryPlay(index + 1);
+                    }
+                }, 4000);
             };
             tryPlay(0);
         } else {
+            if(playTimeout) clearTimeout(playTimeout);
             radio.pause();
-            radio.src = ""; // Stop buffering
+            radio.src = "";
             disk.classList.remove('playing');
             statusText.textContent = "Radyo Durduruldu";
         }
