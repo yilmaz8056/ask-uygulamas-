@@ -1,0 +1,22 @@
+{
+    "name": "Benim Biriciğim",
+    "short_name": "Aşkım",
+    "description": "Sevgilime özel uygulama.",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#ff758c",
+    "theme_color": "#ff7eb3",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjY2MyYjVlIiBkPSJNMzQzIDE5YTExNSAxMTUgMCAwIDAtODcgMzlMODQgOTdjLTY0IDY1LTYxIDE2OSA1IDIyOWwxNDIgMTQ0YTQwIDQwIDAgMCAwIDU4IDBsMTQyLTE0NGM2Ni02MCA2OS0xNjQgNS0yMjlMMzg4IDU4YTExNSAxMTUgMCAwIDAtODctMzl6Ii8+PC9zdmc+",
+            "sizes": "192x192",
+            "type": "image/svg+xml"
+        },
+        {
+            "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjY2MyYjVlIiBkPSJNMzQzIDE5YTExNSAxMTUgMCAwIDAtODcgMzlMODQgOTdjLTY0IDY1LTYxIDE2OSA1IDIyOWwxNDIgMTQ0YTQwIDQwIDAgMCAwIDU4IDBsMTQyLTE0NGM2Ni02MCA2OS0xNjQgNS0yMjlMMzg4IDU4YTExNSAxMTUgMCAwIDAtODctMzl6Ii8+PC9zdmc+",
+            "sizes": "512x512",
+            "type": "image/svg+xml"
+        }
+    ]
+}

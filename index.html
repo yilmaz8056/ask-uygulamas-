@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Benim Biriciğim</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff758c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=2.0">
+</head>
+<body>
+    
+    <!-- Touch Hearts Layer (Dokunmatik Kalpler) -->
+    <div id="touch-hearts-layer"></div>
+
+    <!-- Floating Hearts Container -->
+    <div class="hearts-container" id="hearts-container"></div>
+
+    <!-- Envelope Intro Screen -->
+    <div id="intro-screen" class="intro-screen">
+        <div class="envelope" id="envelope">
+            <i class="fa-solid fa-envelope-open-text envelope-icon"></i>
+            <h3>Sana Özel Bir Mesaj Var</h3>
+            <p>Açmak İçin Dokun</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="app-container" id="main-app">
+        <header class="header">
+            <div class="profile-pic" id="profile-pic-btn" title="Fotoğrafını değiştirmek için tıkla">
+                <img id="user-photo" src="" alt="Sevgilim" style="display: none;">
+                <i class="fa-solid fa-camera profile-camera" id="fallback-icon"></i>
+            </div>
+            <input type="file" id="photo-upload" accept="image/*" style="display: none;">
+            <h1>Benim Biriciğim...</h1>
+        </header>
+
+        <main class="content-area">
+            
+            <!-- Geri Sayım Sayacı -->
+            <div class="countdown-card" id="countdown-card" style="display:none;">
+                <h4><i class="fa-solid fa-hourglass-half"></i> <span id="countdown-title">Kavuşmamıza</span></h4>
+                <div class="countdown-timer" id="countdown-timer">
+                    <div class="time-box"><span id="cd-days">0</span><small>Gün</small></div>
+                    <div class="time-sep">:</div>
+                    <div class="time-box"><span id="cd-hours">0</span><small>Saat</small></div>
+                    <div class="time-sep">:</div>
+                    <div class="time-box"><span id="cd-mins">0</span><small>Dakika</small></div>
+                    <div class="time-sep">:</div>
+                    <div class="time-box"><span id="cd-secs">0</span><small>Saniye</small></div>
+                </div>
+                <button class="countdown-edit-btn" id="countdown-edit-btn"><i class="fa-solid fa-pen"></i></button>
+            </div>
+
+            <!-- Music Player -->
+            <div class="music-card">
+                <div class="music-info">
+                    <div class="music-icon-wrapper">
+                        <i class="fa-solid fa-radio music-icon"></i>
+                    </div>
+                    <div class="music-text">
+                        <h5>Aşk Radyosu</h5>
+                        <p>Slow & Akustik (Canlı)</p>
+                    </div>
+                </div>
+                <button id="play-pause-btn" class="play-btn">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+                <audio id="bg-music">
+                    <source src="https://listen.powerapp.com.tr/powerturkakustik/mpeg/icecast.audio" type="audio/mpeg">
+                </audio>
+            </div>
+
+            <div class="special-days-card" id="special-days-list">
+                <h3>Önemli Günlerimiz 🗓️</h3>
+            </div>
+
+            <!-- Polaroid Galeri -->
+            <div class="polaroid-section">
+                <div class="header-with-edit">
+                    <h3 style="margin:0; color:#ffdde1;">Anılarımız 📸</h3>
+                    <label for="polaroid-upload" class="edit-icon" title="Yeni Anı Ekle"><i class="fa-solid fa-plus"></i></label>
+                    <input type="file" id="polaroid-upload" accept="image/*" capture="environment" style="display:none;">
+                </div>
+                <div class="polaroid-gallery" id="polaroid-gallery">
+                    <div class="polaroid-empty" id="polaroid-empty">
+                        <i class="fa-solid fa-images" style="font-size:2rem; opacity:0.5;"></i>
+                        <p style="opacity:0.6; font-size:0.85rem;">Henüz anı eklenmedi</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quote-card">
+                <div class="quote-content">
+                    <i class="fa-solid fa-quote-left quote-mark"></i>
+                    <p id="quote-text">Sana söylemek istediğim çok şey var...</p>
+                    <i class="fa-solid fa-quote-right quote-mark right"></i>
+                </div>
+            </div>
+
+            <!-- Date Idea Card -->
+            <div class="date-card" id="date-card" style="display: none;">
+                <h4>💖 Günün Date Fikri</h4>
+                <p id="date-text">Hazırlanıyor...</p>
+            </div>
+
+        </main>
+
+        <footer class="controls">
+            <button class="generate-btn" id="generate-btn">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                Seni Neden Seviyorum?
+            </button>
+            <button class="generate-btn date-btn" id="date-btn" style="margin-top: 10px; background: #fff0f5; color: #d81b60;">
+                <i class="fa-solid fa-mug-hot"></i>
+                Hadi Bir Şeyler Yapalım!
+            </button>
+            <div class="bottom-actions">
+                <button class="action-circle-btn miss-btn" id="miss-btn" title="Seni Özledim">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                </button>
+                <button class="action-circle-btn quiz-btn" id="quiz-btn" title="Aşk Testi">
+                    <i class="fa-solid fa-gamepad"></i>
+                </button>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <h3>Tarihleri Düzenle</h3>
+            <div id="edit-form-container"></div>
+            <button id="save-dates-btn" class="generate-btn" style="margin-top: 15px; background: #ff758c; color: white;">Kaydet</button>
+            <button id="close-modal-btn" class="generate-btn" style="margin-top: 10px; background: #eee; color: #333; box-shadow: none;">İptal</button>
+        </div>
+    </div>
+
+    <!-- Countdown Edit Modal -->
+    <div id="countdown-modal" class="modal">
+        <div class="modal-content">
+            <h3>Geri Sayım Ayarla ⏳</h3>
+            <div class="edit-row">
+                <label>Başlık (Örn: Kavuşmamıza)</label>
+                <input type="text" id="cd-title-input" placeholder="Kavuşmamıza">
+            </div>
+            <div class="edit-row">
+                <label>Hedef Tarih & Saat</label>
+                <input type="datetime-local" id="cd-date-input">
+            </div>
+            <button id="save-countdown-btn" class="generate-btn" style="margin-top: 15px; background: #ff758c; color: white;">Başlat</button>
+            <button id="cancel-countdown-btn" class="generate-btn" style="margin-top: 10px; background: #eee; color: #333; box-shadow: none;">İptal</button>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quiz-modal" class="modal">
+        <div class="modal-content quiz-modal-content">
+            <h3 id="quiz-title">💕 Aşk Testi</h3>
+            <p id="quiz-question" class="quiz-question">Soru yükleniyor...</p>
+            <div id="quiz-options" class="quiz-options"></div>
+            <div id="quiz-result" class="quiz-result" style="display:none;"></div>
+            <button id="close-quiz-btn" class="generate-btn" style="margin-top: 15px; background: #eee; color: #333; box-shadow: none;">Kapat</button>
+        </div>
+    </div>
+
+    <!-- Polaroid Detail Modal -->
+    <div id="polaroid-modal" class="modal">
+        <div class="modal-content polaroid-detail-modal">
+            <img id="polaroid-detail-img" src="" alt="Anı">
+            <p id="polaroid-detail-note" class="polaroid-note-text"></p>
+            <button id="delete-polaroid-btn" class="generate-btn" style="margin-top:10px; background:#ef4444; color:white; font-size:14px;"><i class="fa-solid fa-trash"></i> Bu Anıyı Sil</button>
+            <button id="close-polaroid-btn" class="generate-btn" style="margin-top: 10px; background: #eee; color: #333; box-shadow: none;">Kapat</button>
+        </div>
+    </div>
+
+    <!-- Havai Fişek Canvas -->
+    <canvas id="fireworks-canvas"></canvas>
+
+    <script src="app.js?v=2.0"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').then(() => console.log('SW Kayıt Başarılı'));
+        }
+    </script>
+</body>
+</html>
